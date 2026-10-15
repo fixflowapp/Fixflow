@@ -7,6 +7,7 @@ import { partsInventory, suppliers, maintenanceContracts } from "./inventory.js"
 import { reports } from "./reports.js";
 import { settings, dataImport, auditLogs, gdprAdmin } from "./admin.js";
 import { emptyState } from "../components.js";
+import { html } from "../markup.js";
 
 const VIEWS = {
   dashboard, home,
@@ -21,7 +22,7 @@ const VIEWS = {
 const NOT_FOUND = {
   title: "Not Found",
   crumb: () => ["Not Found"],
-  render: () => emptyState("Page not found", "The screen you're looking for doesn't exist in this replica.", `<button class="btn btn-primary btn-sm" data-nav="dashboard">Back to dashboard</button>`, "search"),
+  render: () => emptyState("Page not found", "The screen you're looking for doesn't exist in this replica.", html`<button class="btn btn-primary btn-sm" data-nav="dashboard">Back to dashboard</button>`, "search"),
 };
 
 export function getView(id) {

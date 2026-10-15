@@ -1,18 +1,14 @@
 // Small helpers: DOM building, formatting, icons, toasts, modals.
+import { html, raw, escape, SafeHtml } from "./markup.js";
 
-export function html(strings, ...vals) {
-  return strings.reduce((acc, s, i) => acc + s + (vals[i] ?? ""), "");
-}
+export { html, raw, SafeHtml };
+export const esc = escape;
 
 // Create a DOM node from an HTML string; returns first element.
 export function el(markup) {
   const tpl = document.createElement("template");
-  tpl.innerHTML = markup.trim();
+  tpl.innerHTML = String(markup).trim();
   return tpl.content.firstElementChild;
-}
-
-export function esc(s) {
-  return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
 export function money(n, currency = "USD") {
@@ -73,7 +69,7 @@ export function avatarColor(seed) {
 
 export function avatar(name, size = 26) {
   const bg = avatarColor(name);
-  return `<span class="avatar-sm" style="background:${bg};width:${size}px;height:${size}px;font-size:${Math.round(size * 0.42)}px">${esc(initials(name))}</span>`;
+  return html`<span class="avatar-sm" style="background:${bg};width:${size}px;height:${size}px;font-size:${Math.round(size * 0.42)}px">${initials(name)}</span>`;
 }
 
 // ---------- status / priority maps ----------
@@ -102,19 +98,19 @@ export const PRIORITY = {
 };
 
 export function badge(text, cls) {
-  return `<span class="badge ${cls}">${esc(text)}</span>`;
+  return html`<span class="badge ${cls}">${text}</span>`;
 }
 export function statusBadge(status) {
   const m = JOB_STATUS[status] || { label: status, cls: "badge-neutral" };
-  return `<span class="badge ${m.cls}"><span class="b-dot"></span>${esc(m.label)}</span>`;
+  return html`<span class="badge ${m.cls}"><span class="b-dot"></span>${m.label}</span>`;
 }
 export function invoiceBadge(status) {
   const m = INVOICE_STATUS[status] || { label: status, cls: "badge-neutral" };
-  return `<span class="badge ${m.cls}">${esc(m.label)}</span>`;
+  return html`<span class="badge ${m.cls}">${m.label}</span>`;
 }
 export function priorityBadge(p) {
   const m = PRIORITY[p] || { label: p, cls: "badge-neutral" };
-  return `<span class="badge ${m.cls}">${esc(m.label)}</span>`;
+  return html`<span class="badge ${m.cls}">${m.label}</span>`;
 }
 
 export function titleCase(s) {
@@ -124,10 +120,10 @@ export function titleCase(s) {
 // ---------- toasts ----------
 export function toast(title, msg = "", type = "success") {
   const region = document.getElementById("toast-region");
-  const node = el(`<div class="toast ${type}">
+  const node = el(html`<div class="toast ${type}">
     <div>
-      <div class="t-title">${esc(title)}</div>
-      ${msg ? `<div class="t-msg">${esc(msg)}</div>` : ""}
+      <div class="t-title">${title}</div>
+      ${msg ? html`<div class="t-msg">${msg}</div>` : ""}
     </div>
   </div>`);
   region.appendChild(node);
@@ -143,19 +139,19 @@ export function toast(title, msg = "", type = "success") {
 let openModal = null;
 export function modal({ title, body, footer, size = "" }) {
   closeModal();
-  const overlay = el(`<div class="modal-overlay">
+  const overlay = el(html`<div class="modal-overlay">
     <div class="modal ${size}" role="dialog" aria-modal="true">
       <div class="modal-head">
-        <h3>${esc(title)}</h3>
+        <h3>${title}</h3>
         <div class="spacer"></div>
         <button class="icon-btn" data-close aria-label="Close">${icon("x")}</button>
       </div>
       <div class="modal-body"></div>
-      ${footer ? `<div class="modal-foot"></div>` : ""}
+      ${footer ? html`<div class="modal-foot"></div>` : ""}
     </div>
   </div>`);
-  overlay.querySelector(".modal-body").innerHTML = body;
-  if (footer) overlay.querySelector(".modal-foot").innerHTML = footer;
+  overlay.querySelector(".modal-body").innerHTML = String(body ?? "");
+  if (footer) overlay.querySelector(".modal-foot").innerHTML = String(footer);
   overlay.addEventListener("click", (e) => { if (e.target === overlay || e.target.closest("[data-close]")) closeModal(); });
   document.getElementById("modal-root").appendChild(overlay);
   openModal = overlay;
@@ -172,9 +168,9 @@ export function confirmDialog(title, message, onConfirm, { confirmLabel = "Confi
   const m = modal({
     title,
     size: "narrow",
-    body: `<p class="muted" style="font-size:13.5px">${esc(message)}</p>`,
-    footer: `<button class="btn btn-secondary" data-close>Cancel</button>
-             <button class="btn ${danger ? "btn-danger" : "btn-primary"}" data-confirm>${esc(confirmLabel)}</button>`,
+    body: html`<p class="muted" style="font-size:13.5px">${message}</p>`,
+    footer: html`<button class="btn btn-secondary" data-close>Cancel</button>
+             <button class="btn ${danger ? "btn-danger" : "btn-primary"}" data-confirm>${confirmLabel}</button>`,
   });
   m.querySelector("[data-confirm]").addEventListener("click", () => { closeModal(); onConfirm(); });
 }
@@ -231,11 +227,11 @@ const ICONS = {
 };
 
 export function icon(name, cls = "") {
-  const path = ICONS[name] || ICONS.box;
-  return `<svg class="nav-ico ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">${path}</svg>`;
+  const path = raw(ICONS[name] || ICONS.box);
+  return html`<svg class="nav-ico ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">${path}</svg>`;
 }
 
 export function iconSvg(name, size = 18) {
-  const path = ICONS[name] || ICONS.box;
-  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="${size}" height="${size}">${path}</svg>`;
+  const path = raw(ICONS[name] || ICONS.box);
+  return html`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="${size}" height="${size}">${path}</svg>`;
 }

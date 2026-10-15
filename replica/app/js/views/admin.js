@@ -1,5 +1,6 @@
 import { store, mutate, logAudit } from "../store.js";
-import { esc, money, fmtDate, fmtDateTime, timeAgo, toast, modal, closeModal, confirmDialog, iconSvg, titleCase } from "../util.js";
+import { html, raw } from "../markup.js";
+import { money, fmtDate, fmtDateTime, timeAgo, toast, modal, closeModal, confirmDialog, iconSvg, titleCase } from "../util.js";
 import { pageHead, statCard, card, buildTable, emptyState, toolbar, buildForm, readForm, progressBar } from "../components.js";
 import { customerName, customerById } from "../lookups.js";
 import { exportCsv } from "./jobs.js";
@@ -11,9 +12,9 @@ export const settings = {
   render() {
     const s = store.settings;
     const tabs = ["General", "Invoicing", "Notifications", "Users & Roles", "Appearance", "Advanced"];
-    return `
+    return html`
     ${pageHead("Settings", "Business configuration and preferences")}
-    <div class="tabs">${tabs.map((t, i) => `<div class="tab ${i === 0 ? "active" : ""}" data-tab="${esc(t)}">${esc(t)}</div>`).join("")}</div>
+    <div class="tabs">${tabs.map((t, i) => html`<div class="tab ${i === 0 ? "active" : ""}" data-tab="${t}">${t}</div>`)}</div>
     <div id="settings-panel"></div>`;
   },
   mount(root) {
@@ -21,7 +22,7 @@ export const settings = {
     const s = store.settings;
     const draw = (tab) => {
       if (tab === "General") {
-        panel.innerHTML = card("Company information", buildForm([
+        panel.innerHTML = String(card("Company information", buildForm([
           { key: "companyName", label: "Company name", required: true },
           { key: "email", label: "Support email", type: "email" },
           { key: "phone", label: "Phone" },
@@ -31,57 +32,57 @@ export const settings = {
           { key: "address", label: "Business address", full: true },
           { key: "jobPrefix", label: "Job number prefix" },
           { key: "invoicePrefix", label: "Invoice number prefix" },
-        ], s), { foot: `<button class="btn btn-primary" id="save-settings">Save changes</button>` });
+        ], s), { foot: html`<button class="btn btn-primary" id="save-settings">Save changes</button>` }));
       } else if (tab === "Invoicing") {
-        panel.innerHTML = card("Invoice defaults", buildForm([
+        panel.innerHTML = String(html`${card("Invoice defaults", buildForm([
           { key: "invoiceTerms", label: "Default invoice terms", type: "textarea", full: true },
           { key: "invoicePrefix", label: "Invoice prefix" },
           { key: "taxRate", label: "Tax rate (%)", type: "number" },
-        ], s), { foot: `<button class="btn btn-primary" id="save-settings">Save changes</button>` }) +
-          card("Automation", `<label class="checkline" style="padding:8px 0"><input type="checkbox" checked id="automation" /> Auto-create draft invoices when jobs are completed</label>`, { tight: true });
+        ], s), { foot: html`<button class="btn btn-primary" id="save-settings">Save changes</button>` })}
+          ${card("Automation", html`<label class="checkline" style="padding:8px 0"><input type="checkbox" checked id="automation" /> Auto-create draft invoices when jobs are completed</label>`, { tight: true })}`);
       } else if (tab === "Notifications") {
-        panel.innerHTML = card("Notification preferences", `
-          ${[["email", "Email notifications"], ["inApp", "In-app notifications"], ["sms", "SMS notifications"], ["lowStock", "Low stock alerts"], ["overdue", "Overdue invoice reminders"]].map(([k, l]) => `
-            <label class="checkline" style="padding:10px 0;border-bottom:1px solid var(--border)"><input type="checkbox" ${s.notifications[k] ? "checked" : ""} data-notif="${k}" /> ${esc(l)}</label>`).join("")}`, { tight: true });
+        panel.innerHTML = String(card("Notification preferences", html`
+          ${[["email", "Email notifications"], ["inApp", "In-app notifications"], ["sms", "SMS notifications"], ["lowStock", "Low stock alerts"], ["overdue", "Overdue invoice reminders"]].map(([k, l]) => html`
+            <label class="checkline" style="padding:10px 0;border-bottom:1px solid var(--border)"><input type="checkbox" ${s.notifications[k] ? "checked" : ""} data-notif="${k}" /> ${l}</label>`)}`, { tight: true }));
         panel.querySelectorAll("[data-notif]").forEach((c) => c.addEventListener("change", () => {
           mutate((st) => { st.settings.notifications[c.dataset.notif] = c.checked; });
           toast("Preference saved", "", "success");
         }));
       } else if (tab === "Users & Roles") {
-        panel.innerHTML = card("Users", buildTable({
+        panel.innerHTML = String(card("Users", buildTable({
           columns: [
             { key: "name", label: "Name" },
             { key: "email", label: "Email" },
-            { key: "role", label: "Role", render: (r) => `<span class="badge badge-progress">${esc(titleCase(r.role))}</span>` },
+            { key: "role", label: "Role", render: (r) => html`<span class="badge badge-progress">${titleCase(r.role)}</span>` },
           ], rows: s.roles,
-        }), { tight: true, actions: `<button class="btn btn-primary btn-sm" id="add-user">${iconSvg("plus", 14)} Add user</button>` });
+        }), { tight: true, actions: html`<button class="btn btn-primary btn-sm" id="add-user">${iconSvg("plus", 14)} Add user</button>` }));
         panel.querySelector("#add-user")?.addEventListener("click", () => toast("Invite sent", "User invitation emailed.", "success"));
       } else if (tab === "Appearance") {
-        panel.innerHTML = card("Appearance", `
+        panel.innerHTML = String(card("Appearance", html`
           <div class="field"><label>Theme</label>
             <div class="row"><button class="chip ${document.documentElement.getAttribute("data-theme") !== "dark" ? "active" : ""}" id="theme-light">Light</button>
             <button class="chip ${document.documentElement.getAttribute("data-theme") === "dark" ? "active" : ""}" id="theme-dark">Dark</button></div></div>
           <div class="field" style="margin-top:16px"><label>Interface density</label>
-            <div class="row"><button class="chip active">Comfortable</button><button class="chip" disabled>Compact</button></div></div>`, { tight: true });
+            <div class="row"><button class="chip active">Comfortable</button><button class="chip" disabled>Compact</button></div></div>`, { tight: true }));
         panel.querySelector("#theme-light")?.addEventListener("click", () => { document.documentElement.setAttribute("data-theme", "light"); toast("Theme", "Light mode", "success"); });
         panel.querySelector("#theme-dark")?.addEventListener("click", () => { document.documentElement.setAttribute("data-theme", "dark"); toast("Theme", "Dark mode", "success"); });
       } else {
         const src = store.source || "local";
-        panel.innerHTML = card("Storage", `
+        panel.innerHTML = String(html`${card("Storage", html`
           <div class="row" style="justify-content:space-between">
             <div><div style="font-weight:600">Persistence backend</div>
               <div class="cell-sub">${src === "supabase" ? "Connected to Supabase — changes sync to the cloud." : "Browser localStorage only — not shared or backed up."}</div></div>
             <span class="badge ${src === "supabase" ? "badge-active" : "badge-neutral"}">${src === "supabase" ? "Supabase" : "Local only"}</span>
           </div>
-          ${src !== "supabase" ? `<div class="code-box" style="margin-top:12px">Fill app/js/supabase-config.js with your project url + anon key, and run supabase/schema.sql.</div>` : ""}
-        `, { tight: true }) + card("Advanced", `
+          ${src !== "supabase" ? html`<div class="code-box" style="margin-top:12px">Fill app/js/supabase-config.js with your project url + anon key, and run supabase/schema.sql.</div>` : ""}
+        `, { tight: true })}${card("Advanced", html`
           <label class="checkline" style="padding:8px 0"><input type="checkbox" /> Enable API access</label>
           <label class="checkline" style="padding:8px 0"><input type="checkbox" /> Automatic backup</label>
           <label class="checkline" style="padding:8px 0"><input type="checkbox" /> Debug mode</label>
           <div class="divider"></div>
           <div class="field"><label>Data retention period</label><select class="select"><option>1 year</option><option>3 years</option><option>7 years</option></select></div>
           <div class="divider"></div>
-          <button class="btn btn-danger btn-sm" id="reset-data">${iconSvg("trash", 14)} Reset all demo data</button>`, { tight: true });
+          <button class="btn btn-danger btn-sm" id="reset-data">${iconSvg("trash", 14)} Reset all demo data</button>`, { tight: true })}`);
         panel.querySelector("#reset-data")?.addEventListener("click", () => confirmDialog("Reset all data?", "This restores the demo dataset and removes your changes.", async () => { await store.reset(); window.location.reload(); }));
       }
       panel.querySelector("#save-settings")?.addEventListener("click", () => {
@@ -108,11 +109,11 @@ export const dataImport = {
   title: "Data Import",
   crumb: () => ["Admin", "Data Import"],
   render() {
-    return `
+    return html`
     ${pageHead("Data Import", "Bulk import customers, jobs or invoices from CSV/Excel")}
     <div class="grid" style="grid-template-columns:2fr 1fr">
       <div class="grid" style="gap:16px">
-        ${card("Upload file", `
+        ${card("Upload file", html`
           <div class="field"><label>Import type</label>
             <select class="select" id="import-type"><option>Customers</option><option>Jobs</option><option>Invoices</option><option>Parts & Inventory</option></select></div>
           <div id="dropzone" style="border:2px dashed var(--border-input);border-radius:12px;padding:40px;text-align:center;color:var(--text-muted);margin-top:16px;cursor:pointer">
@@ -125,7 +126,7 @@ export const dataImport = {
         <div id="preview"></div>
       </div>
       <div class="grid" style="gap:16px">
-        ${card("Import guidelines", `
+        ${card("Import guidelines", html`
           <ol style="padding-left:18px;font-size:13px;color:var(--text-muted);line-height:1.9;margin:0">
             <li>Download the sample template for your import type</li>
             <li>Keep the header row exactly as provided</li>
@@ -133,9 +134,9 @@ export const dataImport = {
             <li>Remove blank rows before uploading</li>
             <li>Duplicates are skipped automatically</li>
           </ol>`)}
-        ${card("Recent imports", `
-          ${[["customers-batch-01.csv", "Customers", 12], ["inventory-q3.csv", "Parts", 40]].map(([f, t, n]) => `
-            <div class="list-item" style="padding:10px 0">${iconSvg("file", 15)}<div style="flex:1"><div style="font-weight:600;font-size:13px">${esc(f)}</div><div class="cell-sub">${esc(t)} · ${n} rows</div></div><span class="badge badge-active">Done</span></div>`).join("")}`, { tight: true })}
+        ${card("Recent imports", html`
+          ${[["customers-batch-01.csv", "Customers", 12], ["inventory-q3.csv", "Parts", 40]].map(([f, t, n]) => html`
+            <div class="list-item" style="padding:10px 0">${iconSvg("file", 15)}<div style="flex:1"><div style="font-weight:600;font-size:13px">${f}</div><div class="cell-sub">${t} · ${n} rows</div></div><span class="badge badge-active">Done</span></div>`)}`, { tight: true })}
       </div>
     </div>`;
   },
@@ -155,9 +156,9 @@ export const dataImport = {
         const lines = text.trim().split(/\r?\n/);
         const headers = lines[0].split(",").map((h) => h.trim().replace(/"/g, ""));
         const rows = lines.slice(1, 6).map((l) => l.split(",").map((c) => c.trim().replace(/"/g, "")));
-        root.querySelector("#preview").innerHTML = card("Preview (" + (lines.length - 1) + " rows)", `
-          ${buildTable({ columns: headers.map((h, i) => ({ key: "c" + i, label: h, render: (r) => esc(r["c" + i]) })), rows: rows.map((r) => Object.fromEntries(r.map((c, i) => ["c" + i, c]))) })}`,
-          { tight: true, foot: `<button class="btn btn-primary" id="confirm-import">${iconSvg("check", 14)} Import ${lines.length - 1} rows</button>` });
+        root.querySelector("#preview").innerHTML = String(card("Preview (" + (lines.length - 1) + " rows)", html`
+          ${buildTable({ columns: headers.map((h, i) => ({ key: "c" + i, label: h, render: (r) => r["c" + i] })), rows: rows.map((r) => Object.fromEntries(r.map((c, i) => ["c" + i, c]))) })}`,
+          { tight: true, foot: html`<button class="btn btn-primary" id="confirm-import">${iconSvg("check", 14)} Import ${lines.length - 1} rows</button>` }));
         root.querySelector("#confirm-import").addEventListener("click", () => {
           toast("Import successful!", (lines.length - 1) + " rows imported.", "success");
           logAudit("exported", "DataImport", root.querySelector("#import-type").value, (lines.length - 1) + " rows imported");
@@ -178,8 +179,8 @@ export const auditLogs = {
   title: "Audit Logs",
   crumb: () => ["Admin", "Audit Logs"],
   render() {
-    return `
-    ${pageHead("Audit Logs", "Track all system changes over time", `<button class="btn btn-secondary" id="export-logs">${iconSvg("download", 15)} Export</button>`)}
+    return html`
+    ${pageHead("Audit Logs", "Track all system changes over time", html`<button class="btn btn-secondary" id="export-logs">${iconSvg("download", 15)} Export</button>`)}
     <div class="grid grid-4" style="margin-bottom:16px">
       ${statCard({ label: "Total Events", value: store.auditLogs.length, iconName: "archive" })}
       ${statCard({ label: "Today", value: store.auditLogs.filter((l) => new Date(l.at).toDateString() === new Date().toDateString()).length, iconName: "clock" })}
@@ -202,16 +203,16 @@ export const auditLogs = {
       for (const [k, v] of Object.entries(filters)) if (v && v !== "all") rows = rows.filter((r) => String(r[k]) === v);
       if (search.trim()) { const q = search.toLowerCase(); rows = rows.filter((r) => [r.user, r.action, r.entityType, r.entityId].join(" ").toLowerCase().includes(q)); }
       const actionCls = { created: "badge-active", updated: "badge-progress", deleted: "badge-danger", viewed: "badge-neutral", exported: "badge-waiting" };
-      holder.innerHTML = buildTable({
+      holder.innerHTML = String(buildTable({
         columns: [
-          { key: "at", label: "Timestamp", render: (r) => `<div>${esc(fmtDateTime(r.at))}</div><div class="cell-sub">${timeAgo(r.at)}</div>` },
+          { key: "at", label: "Timestamp", render: (r) => html`<div>${fmtDateTime(r.at)}</div><div class="cell-sub">${timeAgo(r.at)}</div>` },
           { key: "user", label: "User" },
-          { key: "action", label: "Action", render: (r) => `<span class="badge ${actionCls[r.action] || "badge-neutral"}">${esc(titleCase(r.action))}</span>` },
-          { key: "entityType", label: "Entity", render: (r) => `<div class="cell-main">${esc(r.entityType)}</div><div class="cell-sub mono-val">${esc(r.entityId)}</div>` },
-          { key: "detail", label: "Detail", render: (r) => esc(r.detail || "—") },
-          { key: "ip", label: "IP", render: (r) => `<span class="mono-val small">${esc(r.ip)}</span>` },
+          { key: "action", label: "Action", render: (r) => html`<span class="badge ${actionCls[r.action] || "badge-neutral"}">${titleCase(r.action)}</span>` },
+          { key: "entityType", label: "Entity", render: (r) => html`<div class="cell-main">${r.entityType}</div><div class="cell-sub mono-val">${r.entityId}</div>` },
+          { key: "detail", label: "Detail", render: (r) => r.detail || "—" },
+          { key: "ip", label: "IP", render: (r) => html`<span class="mono-val small">${r.ip}</span>` },
         ], rows, empty: emptyState("No log entries", "Try a different filter.", "", "archive"),
-      });
+      }));
     };
     root.querySelector("#log-search").addEventListener("input", (e) => { search = e.target.value; draw(); });
     root.querySelectorAll("[data-filter]").forEach((sel) => sel.addEventListener("change", (e) => { filters[sel.dataset.filter] = e.target.value; draw(); }));
@@ -226,7 +227,7 @@ export const gdprAdmin = {
   crumb: () => ["Admin", "GDPR"],
   render() {
     const reqs = store.gdprRequests;
-    return `
+    return html`
     ${pageHead("GDPR Admin", "Data privacy compliance tools")}
     <div class="grid grid-4" style="margin-bottom:16px">
       ${statCard({ label: "Total Requests", value: reqs.length, iconName: "lock" })}
@@ -236,19 +237,19 @@ export const gdprAdmin = {
     </div>
     ${card("Data subject requests", buildTable({
       columns: [
-        { key: "id", label: "Request", render: (r) => `<span class="mono-val">${esc(r.id)}</span>` },
-        { key: "customerId", label: "Customer", render: (r) => esc(customerName(r.customerId)) },
-        { key: "type", label: "Type", render: (r) => `<span class="badge ${r.type === "delete" ? "badge-danger" : "badge-progress"}">${esc(titleCase(r.type))}</span>` },
-        { key: "requestedAt", label: "Requested", render: (r) => esc(fmtDate(r.requestedAt)) },
-        { key: "status", label: "Status", render: (r) => `<span class="badge ${r.status === "done" ? "badge-active" : r.status === "processing" ? "badge-progress" : "badge-waiting"}">${esc(titleCase(r.status))}</span>` },
-        { key: "act", label: "", render: (r) => `<div class="row">
-            <button class="btn btn-secondary btn-sm" data-export="${esc(r.customerId)}">${iconSvg("download", 13)} Export</button>
-            <button class="btn btn-danger btn-sm" data-delete="${esc(r.customerId)}">Process</button></div>` },
+        { key: "id", label: "Request", render: (r) => html`<span class="mono-val">${r.id}</span>` },
+        { key: "customerId", label: "Customer", render: (r) => customerName(r.customerId) },
+        { key: "type", label: "Type", render: (r) => html`<span class="badge ${r.type === "delete" ? "badge-danger" : "badge-progress"}">${titleCase(r.type)}</span>` },
+        { key: "requestedAt", label: "Requested", render: (r) => fmtDate(r.requestedAt) },
+        { key: "status", label: "Status", render: (r) => html`<span class="badge ${r.status === "done" ? "badge-active" : r.status === "processing" ? "badge-progress" : "badge-waiting"}">${titleCase(r.status)}</span>` },
+        { key: "act", label: "", render: (r) => html`<div class="row">
+            <button class="btn btn-secondary btn-sm" data-export="${r.customerId}">${iconSvg("download", 13)} Export</button>
+            <button class="btn btn-danger btn-sm" data-delete="${r.customerId}">Process</button></div>` },
       ], rows: reqs,
       empty: emptyState("No requests", "No data subject requests on file.", "", "lock"),
     }), { tight: true })}
     <div style="height:16px"></div>
-    ${card("Compliance tools", `<div class="grid grid-2">
+    ${card("Compliance tools", html`<div class="grid grid-2">
       <div class="list-item" style="border:1px solid var(--border);border-radius:10px"><div style="flex:1"><div style="font-weight:600">Export customer data</div><div class="cell-sub">Download a JSON copy of all personal data</div></div><button class="btn btn-secondary btn-sm" id="export-all">Export all</button></div>
       <div class="list-item" style="border:1px solid var(--border);border-radius:10px"><div style="flex:1"><div style="font-weight:600">Data retention</div><div class="cell-sub">Currently retaining records for 7 years</div></div><button class="btn btn-secondary btn-sm" id="retention">Configure</button></div>
     </div>`)}`;

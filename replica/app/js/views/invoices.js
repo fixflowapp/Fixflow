@@ -1,5 +1,6 @@
 import { store, mutate, logAudit, id as uid } from "../store.js";
-import { esc, money, fmtDate, timeAgo, invoiceBadge, statusBadge, avatar, toast, modal, closeModal, confirmDialog, iconSvg, INVOICE_STATUS } from "../util.js";
+import { html } from "../markup.js";
+import { money, fmtDate, timeAgo, invoiceBadge, statusBadge, avatar, toast, modal, closeModal, confirmDialog, iconSvg, INVOICE_STATUS } from "../util.js";
 import { pageHead, statCard, card, buildTable, emptyState, toolbar, buildForm, readForm, validateForm, barChart, progressBar } from "../components.js";
 import { customerName, customerById, jobById, invoiceById, monthlySeries } from "../lookups.js";
 import { exportCsv } from "./jobs.js";
@@ -9,8 +10,8 @@ export const invoices = {
   title: "Invoices",
   crumb: () => ["Invoices"],
   render() {
-    return `
-    ${pageHead("Invoices", "Browse, filter and manage customer invoices", `
+    return html`
+    ${pageHead("Invoices", "Browse, filter and manage customer invoices", html`
       <button class="btn btn-secondary" id="export-inv">${iconSvg("download", 15)} Export</button>
       <button class="btn btn-primary" data-nav="new-invoice">${iconSvg("plus", 15)} New Invoice</button>`)}
     <div class="grid grid-4" style="margin-bottom:16px">
@@ -33,18 +34,18 @@ export const invoices = {
       let rows = [...store.invoices];
       for (const [k, v] of Object.entries(filters)) if (v && v !== "all") rows = rows.filter((r) => String(r[k]) === v);
       if (search.trim()) { const q = search.toLowerCase(); rows = rows.filter((r) => [r.number, customerName(r.customerId), r.jobId].join(" ").toLowerCase().includes(q)); }
-      holder.innerHTML = buildTable({
+      holder.innerHTML = String(buildTable({
         columns: [
-          { key: "number", label: "Invoice", render: (r) => `<div class="cell-main mono-val">${esc(r.number)}</div><div class="cell-sub">Job ${esc(r.jobId)}</div>` },
-          { key: "customerId", label: "Customer", render: (r) => `<div class="cell-flex">${avatar(customerName(r.customerId))}${esc(customerName(r.customerId))}</div>` },
-          { key: "total", label: "Amount", cls: "num", render: (r) => `<b>${money(r.total)}</b>` },
+          { key: "number", label: "Invoice", render: (r) => html`<div class="cell-main mono-val">${r.number}</div><div class="cell-sub">Job ${r.jobId}</div>` },
+          { key: "customerId", label: "Customer", render: (r) => html`<div class="cell-flex">${avatar(customerName(r.customerId))}${customerName(r.customerId)}</div>` },
+          { key: "total", label: "Amount", cls: "num", render: (r) => html`<b>${money(r.total)}</b>` },
           { key: "status", label: "Status", render: (r) => invoiceBadge(r.status) },
-          { key: "issuedAt", label: "Issued", render: (r) => esc(fmtDate(r.issuedAt)) },
-          { key: "dueAt", label: "Due", render: (r) => esc(fmtDate(r.dueAt)) },
+          { key: "issuedAt", label: "Issued", render: (r) => fmtDate(r.issuedAt) },
+          { key: "dueAt", label: "Due", render: (r) => fmtDate(r.dueAt) },
         ],
         rows, rowId: (r) => r.id,
-        empty: emptyState("No invoices", "Create one from a completed job.", `<button class="btn btn-primary btn-sm" data-nav="new-invoice">New invoice</button>`, "file"),
-      });
+        empty: emptyState("No invoices", "Create one from a completed job.", html`<button class="btn btn-primary btn-sm" data-nav="new-invoice">New invoice</button>`, "file"),
+      }));
       holder.querySelectorAll("tr[data-row]").forEach((tr) => tr.addEventListener("click", () => { if (tr.dataset.row) window.location.hash = "#/invoice-details/" + tr.dataset.row; }));
     };
     root.querySelector("#inv-search").addEventListener("input", (e) => { search = e.target.value; draw(); });
@@ -65,32 +66,32 @@ export const invoiceDetails = {
     const job = jobById(inv.jobId);
     const payments = store.payments.filter((p) => p.invoiceId === inv.id);
     const paid = payments.reduce((s, p) => s + p.amount, 0);
-    return `
-    ${pageHead("Invoice " + inv.number, `${customerName(inv.customerId)} · issued ${fmtDate(inv.issuedAt)}`, `
+    return html`
+    ${pageHead("Invoice " + inv.number, `${customerName(inv.customerId)} · issued ${fmtDate(inv.issuedAt)}`, html`
       <div class="row">${invoiceBadge(inv.status)}
         <button class="btn btn-secondary" id="download-pdf">${iconSvg("download", 14)} PDF</button>
         <button class="btn btn-secondary" id="send-inv">${iconSvg("mail", 14)} Send</button>
-        ${inv.status !== "paid" ? `<button class="btn btn-primary" id="record-pay">${iconSvg("dollar", 14)} Record payment</button>` : ""}
+        ${inv.status !== "paid" ? html`<button class="btn btn-primary" id="record-pay">${iconSvg("dollar", 14)} Record payment</button>` : ""}
       </div>`)}
     <div class="grid" style="grid-template-columns:2fr 1fr">
-      ${card("", `
+      ${card("", html`
         <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px;margin-bottom:24px">
           <div>
-            <div class="row" style="gap:10px;margin-bottom:14px"><span class="brand-mark">F</span><b style="font-size:16px">${esc(store.settings.companyName)}</b></div>
-            <div class="small muted">${esc(store.settings.address)}</div>
-            <div class="small muted">${esc(store.settings.email)}</div>
+            <div class="row" style="gap:10px;margin-bottom:14px"><span class="brand-mark">F</span><b style="font-size:16px">${store.settings.companyName}</b></div>
+            <div class="small muted">${store.settings.address}</div>
+            <div class="small muted">${store.settings.email}</div>
           </div>
           <div style="text-align:right">
             <div style="font-size:20px;font-weight:700">INVOICE</div>
-            <div class="mono-val">${esc(inv.number)}</div>
-            <div class="small muted" style="margin-top:6px">Due ${esc(fmtDate(inv.dueAt))}</div>
+            <div class="mono-val">${inv.number}</div>
+            <div class="small muted" style="margin-top:6px">Due ${fmtDate(inv.dueAt)}</div>
           </div>
         </div>
         <div style="background:var(--surface);border-radius:10px;padding:14px;margin-bottom:20px">
           <div class="small muted" style="margin-bottom:4px">BILL TO</div>
-          <div style="font-weight:600">${esc(cust?.company || "—")}</div>
-          <div class="small muted">${esc(cust?.name || "")} · ${esc(cust?.email || "")}</div>
-          <div class="small muted">${esc(cust?.address || "")}, ${esc(cust?.city || "")}</div>
+          <div style="font-weight:600">${cust?.company || "—"}</div>
+          <div class="small muted">${cust?.name || ""} · ${cust?.email || ""}</div>
+          <div class="small muted">${cust?.address || ""}, ${cust?.city || ""}</div>
         </div>
         ${buildTable({
           columns: [
@@ -106,30 +107,30 @@ export const invoiceDetails = {
             <div class="row" style="justify-content:space-between;padding:6px 0"><span class="muted">Tax (${store.settings.taxRate}%)</span><span>${money(inv.taxAmount)}</span></div>
             <div class="divider" style="margin:6px 0"></div>
             <div class="row" style="justify-content:space-between;font-size:17px;font-weight:700"><span>Total</span><span>${money(inv.total)}</span></div>
-            ${paid ? `<div class="row" style="justify-content:space-between;padding:6px 0;color:var(--success)"><span>Paid</span><span>${money(paid)}</span></div>
+            ${paid ? html`<div class="row" style="justify-content:space-between;padding:6px 0;color:var(--success)"><span>Paid</span><span>${money(paid)}</span></div>
               <div class="row" style="justify-content:space-between;font-weight:600"><span>Balance</span><span>${money(inv.total - paid)}</span></div>` : ""}
           </div>
         </div>
         <div class="divider"></div>
-        <div class="small muted">${esc(inv.notes || "")}</div>`, { tight: true })}
+        <div class="small muted">${inv.notes || ""}</div>`, { tight: true })}
       <div class="grid" style="gap:16px">
-        ${card("Payment status", `
+        ${card("Payment status", html`
           <div style="text-align:center;padding:10px 0">
             <div class="badge ${INVOICE_STATUS[inv.status].cls}" style="font-size:13px;padding:6px 14px">${INVOICE_STATUS[inv.status].label}</div>
             <div style="font-size:28px;font-weight:700;margin-top:12px">${money(inv.total)}</div>
             <div class="small muted">${inv.status === "paid" ? "Paid in full" : "Due " + fmtDate(inv.dueAt)}</div>
           </div>
-          ${inv.status !== "paid" && inv.status !== "cancelled" ? `<button class="btn btn-primary btn-block" id="record-pay-2">${iconSvg("dollar", 14)} Record payment</button>` : ""}`, { tight: true })}
-        ${card("Linked records", `
+          ${inv.status !== "paid" && inv.status !== "cancelled" ? html`<button class="btn btn-primary btn-block" id="record-pay-2">${iconSvg("dollar", 14)} Record payment</button>` : ""}`, { tight: true })}
+        ${card("Linked records", html`
           <dl class="kv">
-            <dt>Job</dt><dd><span class="link" data-nav="job-details" data-id="${esc(job?.id || "")}">${esc(job?.id || "—")}</span></dd>
-            <dt>Customer</dt><dd><span class="link" data-nav="customer-details" data-id="${esc(cust?.id || "")}">${esc(cust?.company || "—")}</span></dd>
-            <dt>Issued</dt><dd>${esc(fmtDate(inv.issuedAt))}</dd>
-            <dt>Due</dt><dd>${esc(fmtDate(inv.dueAt))}</dd>
+            <dt>Job</dt><dd><span class="link" data-nav="job-details" data-id="${job?.id || ""}">${job?.id || "—"}</span></dd>
+            <dt>Customer</dt><dd><span class="link" data-nav="customer-details" data-id="${cust?.id || ""}">${cust?.company || "—"}</span></dd>
+            <dt>Issued</dt><dd>${fmtDate(inv.issuedAt)}</dd>
+            <dt>Due</dt><dd>${fmtDate(inv.dueAt)}</dd>
           </dl>`, { tight: true })}
-        ${payments.length ? card("Payments received", payments.map((p) => `
+        ${payments.length ? card("Payments received", payments.map((p) => html`
           <div class="list-item" style="padding:10px 0"><div style="flex:1"><div style="font-weight:600">${money(p.amount)}</div>
-            <div class="cell-sub">${esc(p.method.replace("_", " "))} · ${esc(p.reference)}</div></div><span class="small muted">${esc(fmtDate(p.recordedAt))}</span></div>`).join(""), { tight: true }) : ""}
+            <div class="cell-sub">${p.method.replace("_", " ")} · ${p.reference}</div></div><span class="small muted">${fmtDate(p.recordedAt)}</span></div>`), { tight: true }) : ""}
       </div>
     </div>`;
   },
@@ -159,7 +160,7 @@ export function openRecordPayment(inv) {
       { key: "reference", label: "Reference", value: "REF-" + Math.floor(10000 + Math.random() * 89999) },
       { key: "recordedAt", label: "Date", type: "date", value: new Date().toISOString().slice(0, 10) },
     ]),
-    footer: `<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save-pay">Record payment</button>`,
+    footer: html`<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save-pay">Record payment</button>`,
   });
   m.querySelector("#save-pay").addEventListener("click", () => {
     const d = readForm(m);
@@ -185,11 +186,11 @@ export const newInvoice = {
   render(params) {
     const jobs = store.jobs.filter((j) => ["completed", "invoiced"].includes(j.status) && !store.invoices.some((i) => i.jobId === j.id));
     const preselect = params.job || jobs[0]?.id || "";
-    return pageHead("New Invoice", "Generate an invoice from a completed job", `<button class="btn btn-secondary" data-nav="invoices">Cancel</button>`) +
-      card("Select job", buildForm([
+    return html`${pageHead("New Invoice", "Generate an invoice from a completed job", html`<button class="btn btn-secondary" data-nav="invoices">Cancel</button>`)}
+      ${card("Select job", buildForm([
         { key: "jobId", label: "Completed job", type: "select", required: true, full: true, options: jobs.length ? jobs.map((j) => ({ value: j.id, label: `${j.id} — ${customerName(j.customerId)} — ${j.title}` })) : [{ value: "", label: "No completed jobs without invoices" }] },
-      ], { jobId: preselect }), { tight: true }) +
-      card("Line items", `
+      ], { jobId: preselect }), { tight: true })}
+      ${card("Line items", html`
         <div id="line-items"></div>
         <button class="btn btn-secondary btn-sm" style="margin-top:12px" id="add-line">${iconSvg("plus", 14)} Add line item</button>
         <div style="display:flex;justify-content:flex-end;margin-top:18px">
@@ -200,8 +201,8 @@ export const newInvoice = {
             <div class="row" style="justify-content:space-between;font-size:16px;font-weight:700"><span>Total</span><span id="calc-total">$0.00</span></div>
           </div>
         </div>`, {
-        foot: `<button class="btn btn-secondary" data-nav="invoices">Cancel</button><button class="btn btn-primary" id="generate">${iconSvg("file", 14)} Generate invoice</button>`,
-      });
+        foot: html`<button class="btn btn-secondary" data-nav="invoices">Cancel</button><button class="btn btn-primary" id="generate">${iconSvg("file", 14)} Generate invoice</button>`,
+      })}`;
   },
   mount(root, params) {
     const jobs = store.jobs.filter((j) => ["completed", "invoiced"].includes(j.status));
@@ -210,15 +211,15 @@ export const newInvoice = {
     let lines = [];
 
     const renderLines = () => {
-      root.querySelector("#line-items").innerHTML = buildTable({
+      root.querySelector("#line-items").innerHTML = String(buildTable({
         columns: [
-          { key: "description", label: "Description", render: (r) => `<input class="input" data-li="${r._i}" data-f="description" value="${esc(r.description)}" />` },
-          { key: "qty", label: "Qty", render: (r) => `<input class="input" style="width:80px" type="number" data-li="${esc(r._i)}" data-f="qty" value="${esc(r.qty)}" />` },
-          { key: "unitPrice", label: "Unit Price", render: (r) => `<input class="input" style="width:110px" type="number" data-li="${esc(r._i)}" data-f="unitPrice" value="${esc(r.unitPrice)}" />` },
+          { key: "description", label: "Description", render: (r) => html`<input class="input" data-li="${r._i}" data-f="description" value="${r.description}" />` },
+          { key: "qty", label: "Qty", render: (r) => html`<input class="input" style="width:80px" type="number" data-li="${r._i}" data-f="qty" value="${r.qty}" />` },
+          { key: "unitPrice", label: "Unit Price", render: (r) => html`<input class="input" style="width:110px" type="number" data-li="${r._i}" data-f="unitPrice" value="${r.unitPrice}" />` },
           { key: "total", label: "Total", cls: "num", render: (r) => money(r.qty * r.unitPrice) },
-          { key: "_del", label: "", render: (r) => `<button class="btn btn-ghost btn-sm" data-del-line="${r._i}">${iconSvg("trash", 14)}</button>` },
+          { key: "_del", label: "", render: (r) => html`<button class="btn btn-ghost btn-sm" data-del-line="${r._i}">${iconSvg("trash", 14)}</button>` },
         ], rows: lines.map((l, i) => ({ ...l, _i: i })),
-      });
+      }));
       root.querySelectorAll("[data-f]").forEach((inp) => inp.addEventListener("change", () => {
         const i = +inp.dataset.li, f = inp.dataset.f;
         lines[i][f] = f === "description" ? inp.value : Number(inp.value);
@@ -276,8 +277,8 @@ export const payments = {
     const byMethod = {};
     store.payments.forEach((p) => (byMethod[p.method] = (byMethod[p.method] || 0) + p.amount));
     const series = monthlySeries(6).map((s) => ({ label: s.label, value: store.payments.filter((p) => new Date(p.recordedAt).toLocaleString("en-US", { month: "short" }) === s.label).reduce((a, p) => a + p.amount, 0) }));
-    return `
-    ${pageHead("Payments", "Record and track payments received", `<button class="btn btn-secondary" id="export-pay">${iconSvg("download", 15)} Export</button>`) }
+    return html`
+    ${pageHead("Payments", "Record and track payments received", html`<button class="btn btn-secondary" id="export-pay">${iconSvg("download", 15)} Export</button>`) }
     <div class="grid grid-4" style="margin-bottom:16px">
       ${statCard({ label: "Total Collected", value: money(total), iconName: "dollar", tone: "var(--success)" })}
       ${statCard({ label: "Payments", value: store.payments.length, iconName: "check" })}
@@ -288,13 +289,13 @@ export const payments = {
     <div style="height:16px"></div>
     ${card("", buildTable({
       columns: [
-        { key: "id", label: "Payment", render: (r) => `<span class="mono-val">${esc(r.id)}</span>` },
-        { key: "invoiceId", label: "Invoice", render: (r) => `<span class="link" data-nav="invoice-details" data-id="${esc(r.invoiceId)}">${esc(invoiceById(r.invoiceId)?.number || r.invoiceId)}</span>` },
-        { key: "customerId", label: "Customer", render: (r) => esc(customerName(r.customerId)) },
-        { key: "amount", label: "Amount", cls: "num", render: (r) => `<b>${money(r.amount)}</b>` },
-        { key: "method", label: "Method", render: (r) => `<span class="badge badge-neutral">${esc(r.method.replace("_", " "))}</span>` },
-        { key: "reference", label: "Reference", render: (r) => `<span class="mono-val small">${esc(r.reference)}</span>` },
-        { key: "recordedAt", label: "Date", render: (r) => esc(fmtDate(r.recordedAt)) },
+        { key: "id", label: "Payment", render: (r) => html`<span class="mono-val">${r.id}</span>` },
+        { key: "invoiceId", label: "Invoice", render: (r) => html`<span class="link" data-nav="invoice-details" data-id="${r.invoiceId}">${invoiceById(r.invoiceId)?.number || r.invoiceId}</span>` },
+        { key: "customerId", label: "Customer", render: (r) => customerName(r.customerId) },
+        { key: "amount", label: "Amount", cls: "num", render: (r) => html`<b>${money(r.amount)}</b>` },
+        { key: "method", label: "Method", render: (r) => html`<span class="badge badge-neutral">${r.method.replace("_", " ")}</span>` },
+        { key: "reference", label: "Reference", render: (r) => html`<span class="mono-val small">${r.reference}</span>` },
+        { key: "recordedAt", label: "Date", render: (r) => fmtDate(r.recordedAt) },
       ],
       rows: store.payments,
       empty: emptyState("No payments yet", "Record a payment from an invoice.", "", "dollar"),
@@ -318,24 +319,24 @@ export const invoiceAutomation = {
       { id: "R4", trigger: "Job completed + parts used", action: "Attach parts cost to invoice", active: true, runs: 37 },
     ];
     const invoiceable = store.jobs.filter((j) => j.status === "completed" && !store.invoices.some((i) => i.jobId === j.id));
-    return `
-    ${pageHead("Invoice Automation", "Automatically generate invoices and send reminders", `<button class="btn btn-primary" id="new-rule">${iconSvg("plus", 15)} New rule</button>`)}
+    return html`
+    ${pageHead("Invoice Automation", "Automatically generate invoices and send reminders", html`<button class="btn btn-primary" id="new-rule">${iconSvg("plus", 15)} New rule</button>`)}
     <div class="grid" style="grid-template-columns:2fr 1fr">
       <div class="grid" style="gap:16px">
-        ${card("Automation rules", rules.map((r) => `
+        ${card("Automation rules", rules.map((r) => html`
           <div class="list-item" style="padding:14px 0">
             <div class="e-ico" style="width:36px;height:36px;border-radius:9px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;margin:0">${iconSvg("sparkles", 16)}</div>
-            <div style="flex:1"><div style="font-weight:600;font-size:13.5px">${esc(r.trigger)}</div><div class="cell-sub">→ ${esc(r.action)} · run ${r.runs} times</div></div>
-            <label class="checkline"><input type="checkbox" ${r.active ? "checked" : ""} data-rule="${esc(r.id)}" /> Active</label>
-          </div>`).join(""), { tight: true })}
+            <div style="flex:1"><div style="font-weight:600;font-size:13.5px">${r.trigger}</div><div class="cell-sub">→ ${r.action} · run ${r.runs} times</div></div>
+            <label class="checkline"><input type="checkbox" ${r.active ? "checked" : ""} data-rule="${r.id}" /> Active</label>
+          </div>`), { tight: true })}
       </div>
-      ${card("Ready to invoice", `
+      ${card("Ready to invoice", html`
         <p class="muted small" style="margin-bottom:12px">${invoiceable.length} completed job${invoiceable.length === 1 ? "" : "s"} without an invoice.</p>
-        ${invoiceable.slice(0, 6).map((j) => `
+        ${invoiceable.length ? invoiceable.slice(0, 6).map((j) => html`
           <div class="list-item" style="padding:10px 0">
-            <div style="flex:1"><div style="font-weight:600;font-size:13px">${esc(j.id)}</div><div class="cell-sub">${esc(customerName(j.customerId))} · ${money(j.estimatedCost)}</div></div>
-            <button class="btn btn-secondary btn-sm" data-gen="${esc(j.id)}">Generate</button>
-          </div>`).join("") || emptyState("All invoiced", "No completed jobs are waiting.", "", "check")}`, { tight: true })}
+            <div style="flex:1"><div style="font-weight:600;font-size:13px">${j.id}</div><div class="cell-sub">${customerName(j.customerId)} · ${money(j.estimatedCost)}</div></div>
+            <button class="btn btn-secondary btn-sm" data-gen="${j.id}">Generate</button>
+          </div>`) : emptyState("All invoiced", "No completed jobs are waiting.", "", "check")}`, { tight: true })}
     </div>`;
   },
   mount(root) {
@@ -352,7 +353,7 @@ export const invoiceFollowUps = {
   render() {
     const overdue = store.invoices.filter((i) => i.status === "overdue" || (i.status === "sent" && new Date(i.dueAt) < new Date()));
     const rows = overdue.map((i) => ({ ...i, daysOverdue: Math.max(0, Math.floor((Date.now() - new Date(i.dueAt)) / 864e5)) })).sort((a, b) => b.daysOverdue - a.daysOverdue);
-    return `
+    return html`
     ${pageHead("Invoice Follow-Ups", "Track overdue invoices and send reminders")}
     <div class="grid grid-3" style="margin-bottom:16px">
       ${statCard({ label: "Overdue Invoices", value: rows.length, iconName: "bell", tone: "var(--danger)" })}
@@ -361,12 +362,12 @@ export const invoiceFollowUps = {
     </div>
     ${card("Overdue invoices", buildTable({
       columns: [
-        { key: "number", label: "Invoice", render: (r) => `<span class="mono-val">${esc(r.number)}</span>` },
-        { key: "customerId", label: "Customer", render: (r) => esc(customerName(r.customerId)) },
-        { key: "total", label: "Amount", cls: "num", render: (r) => `<b>${money(r.total)}</b>` },
-        { key: "dueAt", label: "Due", render: (r) => esc(fmtDate(r.dueAt)) },
-        { key: "daysOverdue", label: "Days overdue", render: (r) => `<span class="badge ${r.daysOverdue > 30 ? "badge-danger" : "badge-waiting"}">${r.daysOverdue} days</span>` },
-        { key: "act", label: "", render: (r) => `<div class="row"><button class="btn btn-secondary btn-sm" data-remind="${esc(r.id)}">${iconSvg("mail", 14)} Remind</button><button class="btn btn-ghost btn-sm" data-view="${esc(r.id)}">View</button></div>` },
+        { key: "number", label: "Invoice", render: (r) => html`<span class="mono-val">${r.number}</span>` },
+        { key: "customerId", label: "Customer", render: (r) => customerName(r.customerId) },
+        { key: "total", label: "Amount", cls: "num", render: (r) => html`<b>${money(r.total)}</b>` },
+        { key: "dueAt", label: "Due", render: (r) => fmtDate(r.dueAt) },
+        { key: "daysOverdue", label: "Days overdue", render: (r) => html`<span class="badge ${r.daysOverdue > 30 ? "badge-danger" : "badge-waiting"}">${r.daysOverdue} days</span>` },
+        { key: "act", label: "", render: (r) => html`<div class="row"><button class="btn btn-secondary btn-sm" data-remind="${r.id}">${iconSvg("mail", 14)} Remind</button><button class="btn btn-ghost btn-sm" data-view="${r.id}">View</button></div>` },
       ],
       rows,
       empty: emptyState("Nothing overdue", "All invoices are current.", "", "check"),

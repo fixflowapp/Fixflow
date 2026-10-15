@@ -1,5 +1,6 @@
 import { store, mutate, logAudit, id as uid } from "../store.js";
-import { esc, money, fmtDate, titleCase, avatar, toast, modal, closeModal, confirmDialog, iconSvg } from "../util.js";
+import { html } from "../markup.js";
+import { money, fmtDate, titleCase, avatar, toast, modal, closeModal, confirmDialog, iconSvg } from "../util.js";
 import { pageHead, statCard, card, buildTable, emptyState, toolbar, buildForm, readForm, validateForm, progressBar, donutChart } from "../components.js";
 import { supplierById, customerName } from "../lookups.js";
 import { exportCsv } from "./jobs.js";
@@ -11,8 +12,8 @@ export const partsInventory = {
   render() {
     const low = store.parts.filter((p) => p.quantity <= p.reorderLevel);
     const value = store.parts.reduce((s, p) => s + p.quantity * p.unitCost, 0);
-    return `
-    ${pageHead("Parts Inventory", "Track spare parts and supplies", `
+    return html`
+    ${pageHead("Parts Inventory", "Track spare parts and supplies", html`
       <button class="btn btn-secondary" id="export-parts">${iconSvg("download", 15)} Export</button>
       <button class="btn btn-primary" id="add-part">${iconSvg("plus", 15)} Add part</button>`)}
     <div class="grid grid-4" style="margin-bottom:16px">
@@ -21,17 +22,17 @@ export const partsInventory = {
       ${statCard({ label: "Low Stock", value: low.length, iconName: "bell", tone: "var(--danger)" })}
       ${statCard({ label: "Suppliers", value: store.suppliers.length, iconName: "truck" })}
     </div>
-    ${low.length ? card("⚠ Low stock alerts", low.map((p) => `
+    ${low.length ? html`${card("⚠ Low stock alerts", low.map((p) => html`
       <div class="list-item" style="padding:10px 0">
         <span style="color:var(--danger)">${iconSvg("bell", 16)}</span>
-        <div style="flex:1"><div style="font-weight:600;font-size:13px">${esc(p.name)}</div><div class="cell-sub">${esc(p.sku)} · ${esc(supplierById(p.supplierId)?.name || "")}</div></div>
+        <div style="flex:1"><div style="font-weight:600;font-size:13px">${p.name}</div><div class="cell-sub">${p.sku} · ${supplierById(p.supplierId)?.name || ""}</div></div>
         <span class="badge badge-danger">${p.quantity} / ${p.reorderLevel}</span>
-        <button class="btn btn-secondary btn-sm" data-restock="${esc(p.id)}">Restock</button>
-      </div>`).join(""), { tight: true }) + '<div style="height:16px"></div>' : ""}
+        <button class="btn btn-secondary btn-sm" data-restock="${p.id}">Restock</button>
+      </div>`), { tight: true })}<div style="height:16px"></div>` : ""}
     <div class="card">
       ${toolbar({ searchId: "part-search", placeholder: "Search parts by name or SKU...", filters: [
         { key: "supplierId", label: "Supplier", options: store.suppliers.map((s) => ({ value: s.id, label: s.name })) },
-      ], actions: `<button class="btn btn-secondary btn-sm" id="auto-po">${iconSvg("refresh", 14)} Auto-generate POs</button>` })}
+      ], actions: html`<button class="btn btn-secondary btn-sm" id="auto-po">${iconSvg("refresh", 14)} Auto-generate POs</button>` })}
       <div id="parts-table"></div>
     </div>`;
   },
@@ -42,19 +43,19 @@ export const partsInventory = {
       let rows = [...store.parts];
       for (const [k, v] of Object.entries(filters)) if (v && v !== "all") rows = rows.filter((r) => String(r[k]) === v);
       if (search.trim()) { const q = search.toLowerCase(); rows = rows.filter((r) => [r.name, r.sku].join(" ").toLowerCase().includes(q)); }
-      holder.innerHTML = buildTable({
+      holder.innerHTML = String(buildTable({
         columns: [
-          { key: "name", label: "Part", render: (r) => `<div class="cell-main">${esc(r.name)}</div><div class="cell-sub mono-val">${esc(r.sku)} · ${esc(r.location)}</div>` },
-          { key: "supplierId", label: "Supplier", render: (r) => esc(supplierById(r.supplierId)?.name || "—") },
-          { key: "quantity", label: "On Hand", cls: "num", render: (r) => `<span style="color:${r.quantity <= r.reorderLevel ? "var(--danger)" : "inherit"};font-weight:600">${r.quantity}</span>` },
+          { key: "name", label: "Part", render: (r) => html`<div class="cell-main">${r.name}</div><div class="cell-sub mono-val">${r.sku} · ${r.location}</div>` },
+          { key: "supplierId", label: "Supplier", render: (r) => supplierById(r.supplierId)?.name || "—" },
+          { key: "quantity", label: "On Hand", cls: "num", render: (r) => html`<span style="color:${r.quantity <= r.reorderLevel ? "var(--danger)" : "inherit"};font-weight:600">${r.quantity}</span>` },
           { key: "reorderLevel", label: "Reorder At", cls: "num" },
           { key: "unitCost", label: "Unit Cost", cls: "num", render: (r) => money(r.unitCost) },
           { key: "value", label: "Value", cls: "num", render: (r) => money(r.quantity * r.unitCost) },
-          { key: "status", label: "Stock", render: (r) => r.quantity <= r.reorderLevel ? `<span class="badge badge-danger">Low</span>` : r.quantity > r.reorderLevel * 2 ? `<span class="badge badge-active">Healthy</span>` : `<span class="badge badge-neutral">OK</span>` },
-          { key: "_act", label: "", render: (r) => `<button class="btn btn-ghost btn-sm" data-adjust="${esc(r.id)}">${iconSvg("edit", 14)}</button>` },
+          { key: "status", label: "Stock", render: (r) => r.quantity <= r.reorderLevel ? html`<span class="badge badge-danger">Low</span>` : r.quantity > r.reorderLevel * 2 ? html`<span class="badge badge-active">Healthy</span>` : html`<span class="badge badge-neutral">OK</span>` },
+          { key: "_act", label: "", render: (r) => html`<button class="btn btn-ghost btn-sm" data-adjust="${r.id}">${iconSvg("edit", 14)}</button>` },
         ], rows,
-        empty: emptyState("No parts", "Add your first part to get started.", `<button class="btn btn-primary btn-sm" id="add-part2">Add part</button>`, "box"),
-      });
+        empty: emptyState("No parts", "Add your first part to get started.", html`<button class="btn btn-primary btn-sm" id="add-part2">Add part</button>`, "box"),
+      }));
       holder.querySelectorAll("[data-adjust]").forEach((b) => b.addEventListener("click", () => openAdjust(b.dataset.adjust)));
       holder.querySelector("#add-part2")?.addEventListener("click", openAddPart);
     };
@@ -85,7 +86,7 @@ function openAddPart() {
       { key: "supplierId", label: "Supplier", type: "select", options: store.suppliers.map((s) => ({ value: s.id, label: s.name })) },
       { key: "location", label: "Bin location" },
     ]),
-    footer: `<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save">Add part</button>`,
+    footer: html`<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save">Add part</button>`,
   });
   m.querySelector("#save").addEventListener("click", () => {
     const d = readForm(m);
@@ -102,13 +103,12 @@ function openAdjust(partId) {
   const p = store.parts.find((x) => x.id === partId);
   const m = modal({
     title: "Adjust stock — " + p.name,
-    body: `<div class="row" style="justify-content:space-between;margin-bottom:16px;padding:12px;background:var(--surface);border-radius:8px">
-        <span>Current stock</span><b style="font-size:18px">${p.quantity}</b></div>` +
-      buildForm([
+    body: html`<div class="row" style="justify-content:space-between;margin-bottom:16px;padding:12px;background:var(--surface);border-radius:8px">
+        <span>Current stock</span><b style="font-size:18px">${p.quantity}</b></div>${buildForm([
         { key: "change", label: "Adjustment (+/-)", type: "number", value: String(p.reorderLevel * 2 - p.quantity), full: true, hint: "Positive to add stock, negative to remove" },
         { key: "reason", label: "Reason", type: "select", options: ["Restock", "Used in repair", "Damaged", "Inventory count", "Return to supplier"] },
-      ]),
-    footer: `<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save">Apply adjustment</button>`,
+      ])}`,
+    footer: html`<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save">Apply adjustment</button>`,
   });
   m.querySelector("#save").addEventListener("click", () => {
     const d = readForm(m);
@@ -127,22 +127,21 @@ export const suppliers = {
   render() {
     const cards = store.suppliers.map((s) => {
       const parts = store.parts.filter((p) => p.supplierId === s.id);
-      return `<div class="card"><div class="card-body">
+      return html`<div class="card"><div class="card-body">
         <div class="row" style="gap:12px">${avatar(s.name, 44)}
-          <div style="flex:1"><div style="font-weight:600">${esc(s.name)}</div><div class="cell-sub">${esc(s.category)}</div></div>
+          <div style="flex:1"><div style="font-weight:600">${s.name}</div><div class="cell-sub">${s.category}</div></div>
           <span class="badge badge-active">${s.rating}★</span></div>
         <dl class="kv" style="margin-top:14px;grid-template-columns:100px 1fr">
-          <dt>Contact</dt><dd>${esc(s.contactName)}</dd>
-          <dt>Email</dt><dd class="small">${esc(s.email)}</dd>
-          <dt>Phone</dt><dd>${esc(s.phone)}</dd>
-          <dt>Terms</dt><dd>${esc(s.paymentTerms)}</dd>
+          <dt>Contact</dt><dd>${s.contactName}</dd>
+          <dt>Email</dt><dd class="small">${s.email}</dd>
+          <dt>Phone</dt><dd>${s.phone}</dd>
+          <dt>Terms</dt><dd>${s.paymentTerms}</dd>
           <dt>Parts</dt><dd>${parts.length} supplied</dd>
         </dl>
-        <div class="row" style="margin-top:14px"><button class="btn btn-secondary btn-sm" data-parts="${esc(s.id)}">View parts</button><button class="btn btn-ghost btn-sm" data-edit="${esc(s.id)}">${iconSvg("edit", 14)}</button></div>
+        <div class="row" style="margin-top:14px"><button class="btn btn-secondary btn-sm" data-parts="${s.id}">View parts</button><button class="btn btn-ghost btn-sm" data-edit="${s.id}">${iconSvg("edit", 14)}</button></div>
       </div></div>`;
-    }).join("");
-    return pageHead("Suppliers", "Manage your supplier relationships", `<button class="btn btn-primary" id="add-sup">${iconSvg("plus", 15)} Add supplier</button>`) +
-      (store.suppliers.length ? `<div class="grid grid-2">${cards}</div>` : emptyState("No suppliers", "Add your first supplier to get started.", `<button class="btn btn-primary btn-sm" id="add-sup2">Add supplier</button>`, "truck"));
+    });
+    return html`${pageHead("Suppliers", "Manage your supplier relationships", html`<button class="btn btn-primary" id="add-sup">${iconSvg("plus", 15)} Add supplier</button>`)}${store.suppliers.length ? html`<div class="grid grid-2">${cards}</div>` : emptyState("No suppliers", "Add your first supplier to get started.", html`<button class="btn btn-primary btn-sm" id="add-sup2">Add supplier</button>`, "truck")}`;
   },
   mount(root) {
     const add = () => {
@@ -157,7 +156,7 @@ export const suppliers = {
           { key: "paymentTerms", label: "Payment terms", type: "select", options: ["Net 15", "Net 30", "Net 45", "Due on receipt"] },
           { key: "category", label: "Category", placeholder: "e.g. Components" },
         ]),
-        footer: `<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save">Add supplier</button>`,
+        footer: html`<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save">Add supplier</button>`,
       });
       m.querySelector("#save").addEventListener("click", () => {
         const d = readForm(m);
@@ -187,7 +186,7 @@ export const suppliers = {
           { key: "phone", label: "Phone", value: s.phone },
           { key: "paymentTerms", label: "Terms", type: "select", options: ["Net 15", "Net 30", "Net 45", "Due on receipt"], value: s.paymentTerms },
         ]),
-        footer: `<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save">Save</button>`,
+        footer: html`<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save">Save</button>`,
       });
       m.querySelector("#save").addEventListener("click", () => {
         mutate((st) => { const x = st.suppliers.find((y) => y.id === s.id); Object.assign(x, readForm(m)); });
@@ -206,8 +205,8 @@ export const maintenanceContracts = {
   render() {
     const active = store.contracts.filter((c) => c.status === "active");
     const mrr = active.reduce((s, c) => s + (c.billingCycle === "monthly" ? c.amount : c.billingCycle === "quarterly" ? c.amount / 3 : c.amount / 12), 0);
-    return `
-    ${pageHead("Maintenance Contracts", "Recurring service agreements with customers", `<button class="btn btn-primary" id="new-contract">${iconSvg("plus", 15)} Create contract</button>`)}
+    return html`
+    ${pageHead("Maintenance Contracts", "Recurring service agreements with customers", html`<button class="btn btn-primary" id="new-contract">${iconSvg("plus", 15)} Create contract</button>`)}
     <div class="grid grid-4" style="margin-bottom:16px">
       ${statCard({ label: "Active Contracts", value: active.length, iconName: "shield", tone: "var(--success)" })}
       ${statCard({ label: "Monthly Recurring", value: money(Math.round(mrr)), iconName: "dollar" })}
@@ -216,14 +215,14 @@ export const maintenanceContracts = {
     </div>
     ${card("", buildTable({
       columns: [
-        { key: "number", label: "Contract", render: (r) => `<div class="cell-main mono-val">${esc(r.number)}</div><div class="cell-sub">${esc(r.plan)}</div>` },
-        { key: "customerId", label: "Customer", render: (r) => esc(customerName(r.customerId)) },
-        { key: "billingCycle", label: "Billing", render: (r) => `<span class="badge badge-neutral">${esc(titleCase(r.billingCycle))}</span>` },
+        { key: "number", label: "Contract", render: (r) => html`<div class="cell-main mono-val">${r.number}</div><div class="cell-sub">${r.plan}</div>` },
+        { key: "customerId", label: "Customer", render: (r) => customerName(r.customerId) },
+        { key: "billingCycle", label: "Billing", render: (r) => html`<span class="badge badge-neutral">${titleCase(r.billingCycle)}</span>` },
         { key: "amount", label: "Amount", cls: "num", render: (r) => money(r.amount) },
-        { key: "startDate", label: "Start", render: (r) => esc(fmtDate(r.startDate)) },
-        { key: "endDate", label: "End", render: (r) => esc(fmtDate(r.endDate)) },
-        { key: "status", label: "Status", render: (r) => `<span class="badge ${r.status === "active" ? "badge-active" : "badge-expired"}">${esc(titleCase(r.status))}</span>` },
-        { key: "autoRenew", label: "Renew", render: (r) => r.autoRenew ? `<span class="badge badge-progress">Auto</span>` : `<span class="badge badge-neutral">Manual</span>` },
+        { key: "startDate", label: "Start", render: (r) => fmtDate(r.startDate) },
+        { key: "endDate", label: "End", render: (r) => fmtDate(r.endDate) },
+        { key: "status", label: "Status", render: (r) => html`<span class="badge ${r.status === "active" ? "badge-active" : "badge-expired"}">${titleCase(r.status)}</span>` },
+        { key: "autoRenew", label: "Renew", render: (r) => r.autoRenew ? html`<span class="badge badge-progress">Auto</span>` : html`<span class="badge badge-neutral">Manual</span>` },
       ], rows: store.contracts, rowId: (r) => r.id,
       empty: emptyState("No contracts", "Create a recurring service agreement.", "", "shield"),
     }), { tight: true })}`;
@@ -241,7 +240,7 @@ export const maintenanceContracts = {
           { key: "endDate", label: "End date", type: "date", value: new Date(Date.now() + 365 * 864e5).toISOString().slice(0, 10) },
           { key: "coverage", label: "Coverage description", type: "textarea", full: true },
         ], { billingCycle: "monthly" }),
-        footer: `<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save">Create</button>`,
+        footer: html`<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save">Create</button>`,
       });
       m.querySelector("#save").addEventListener("click", () => {
         const d = readForm(m);

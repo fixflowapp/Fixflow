@@ -1,5 +1,6 @@
 import { store } from "../store.js";
-import { esc, money, fmtDate, statusBadge, invoiceBadge, priorityBadge, timeAgo, iconSvg, avatar } from "../util.js";
+import { html } from "../markup.js";
+import { money, fmtDate, statusBadge, invoiceBadge, priorityBadge, timeAgo, iconSvg, avatar } from "../util.js";
 import { pageHead, statCard, card, buildTable, donutChart, lineChart, barChart, emptyState } from "../components.js";
 import { customerName, techName, monthlySeries } from "../lookups.js";
 
@@ -34,8 +35,8 @@ export const dashboard = {
       .sort((a, b) => new Date(a.scheduledDate) - new Date(b.scheduledDate)).slice(0, 5);
     const overdue = store.invoices.filter((i) => i.status === "overdue");
 
-    return `
-    ${pageHead("Dashboard", "Overview of jobs, revenue and operations", `
+    return html`
+    ${pageHead("Dashboard", "Overview of jobs, revenue and operations", html`
       <button class="btn btn-secondary" data-nav="reports">${iconSvg("chart", 15)} Reports</button>
       <button class="btn btn-primary" data-nav="new-job">${iconSvg("plus", 15)} New Job</button>`)}
 
@@ -51,42 +52,42 @@ export const dashboard = {
         { data: series.map((s) => ({ label: s.label, value: s.revenue })), color: "var(--accent)", fill: true },
       ]), {
         sub: "Last 6 months",
-        actions: `<div class="legend" style="margin:0"><span class="legend-item"><span class="legend-swatch" style="background:var(--accent)"></span>Revenue</span></div>`,
+        actions: html`<div class="legend" style="margin:0"><span class="legend-item"><span class="legend-swatch" style="background:var(--accent)"></span>Revenue</span></div>`,
       })}
-      ${card("Jobs by Status", `<div style="display:flex;justify-content:center">${donutChart(statusSegments)}</div>
-        <div class="legend">${statusSegments.map((s) => `<span class="legend-item"><span class="legend-swatch" style="background:${s.color}"></span>${esc(s.label)} (${s.value})</span>`).join("")}</div>`)}
+      ${card("Jobs by Status", html`<div style="display:flex;justify-content:center">${donutChart(statusSegments)}</div>
+        <div class="legend">${statusSegments.map((s) => html`<span class="legend-item"><span class="legend-swatch" style="background:${s.color}"></span>${s.label} (${s.value})</span>`)}</div>`)}
     </div>
 
     <div class="grid" style="grid-template-columns:2fr 1fr">
       ${card("Recent Jobs", buildTable({
         columns: [
-          { key: "id", label: "Job", render: (r) => `<div class="cell-main">${esc(r.id)}</div><div class="cell-sub">${esc(r.deviceType)}</div>` },
-          { key: "customer", label: "Customer", render: (r) => `<div class="cell-flex">${avatar(customerName(r.customerId))}<span>${esc(customerName(r.customerId))}</span></div>` },
-          { key: "technicianId", label: "Technician", render: (r) => esc(techName(r.technicianId)) },
+          { key: "id", label: "Job", render: (r) => html`<div class="cell-main">${r.id}</div><div class="cell-sub">${r.deviceType}</div>` },
+          { key: "customer", label: "Customer", render: (r) => html`<div class="cell-flex">${avatar(customerName(r.customerId))}<span>${customerName(r.customerId)}</span></div>` },
+          { key: "technicianId", label: "Technician", render: (r) => techName(r.technicianId) },
           { key: "status", label: "Status", render: (r) => statusBadge(r.status) },
           { key: "priority", label: "Priority", render: (r) => priorityBadge(r.priority) },
         ],
         rows: recent,
         rowId: (r) => r.id,
-      }), { tight: true, actions: `<span class="link small" data-nav="jobs">View all</span>` })}
+      }), { tight: true, actions: html`<span class="link small" data-nav="jobs">View all</span>` })}
       <div class="grid" style="gap:16px">
-        ${card("Low Stock Alerts", lowStock.length ? lowStock.slice(0, 4).map((p) => `
+        ${card("Low Stock Alerts", lowStock.length ? lowStock.slice(0, 4).map((p) => html`
           <div class="list-item" style="padding:10px 0">
-            <div style="flex:1"><div style="font-weight:600;font-size:13px">${esc(p.name)}</div><div class="cell-sub">${esc(p.sku)}</div></div>
+            <div style="flex:1"><div style="font-weight:600;font-size:13px">${p.name}</div><div class="cell-sub">${p.sku}</div></div>
             <span class="badge badge-danger">${p.quantity} left</span>
-          </div>`).join("") : emptyState("All stocked", "No parts below reorder level.", "", "check"), { tight: true, body: "" })}
-        ${card("Upcoming Schedule", upcoming.length ? upcoming.map((j) => `
+          </div>`) : emptyState("All stocked", "No parts below reorder level.", "", "check"), { tight: true })}
+        ${card("Upcoming Schedule", upcoming.length ? upcoming.map((j) => html`
           <div class="list-item" style="padding:10px 0">
-            <div style="flex:1"><div style="font-weight:600;font-size:13px">${esc(j.title)}</div>
-            <div class="cell-sub">${esc(customerName(j.customerId))}</div></div>
-            <span class="small muted">${esc(fmtDate(j.scheduledDate))}</span>
-          </div>`).join("") : emptyState("Nothing scheduled", "No jobs on the calendar.", "", "calendar"), { tight: true })}
-        ${overdue.length ? card("Overdue Invoices", overdue.slice(0, 3).map((i) => `
-          <div class="list-item" style="padding:10px 0" data-detail-invoice="${esc(i.id)}">
-            <div style="flex:1"><div style="font-weight:600;font-size:13px">${esc(i.number)}</div>
-            <div class="cell-sub">${esc(customerName(i.customerId))}</div></div>
+            <div style="flex:1"><div style="font-weight:600;font-size:13px">${j.title}</div>
+            <div class="cell-sub">${customerName(j.customerId)}</div></div>
+            <span class="small muted">${fmtDate(j.scheduledDate)}</span>
+          </div>`) : emptyState("Nothing scheduled", "No jobs on the calendar.", "", "calendar"), { tight: true })}
+        ${overdue.length ? card("Overdue Invoices", overdue.slice(0, 3).map((i) => html`
+          <div class="list-item" style="padding:10px 0" data-detail-invoice="${i.id}">
+            <div style="flex:1"><div style="font-weight:600;font-size:13px">${i.number}</div>
+            <div class="cell-sub">${customerName(i.customerId)}</div></div>
             <div style="text-align:right"><div style="font-weight:600">${money(i.total)}</div>${invoiceBadge(i.status)}</div>
-          </div>`).join("") , { tight: true }) : ""}
+          </div>`) , { tight: true }) : ""}
       </div>
     </div>`;
   },
@@ -116,7 +117,7 @@ export const home = {
       ["request-service", "clipboard", "Request Service", "Customer intake form"],
       ["reports", "chart", "Run Report", "Revenue & turnaround"],
     ];
-    return `
+    return html`
     ${pageHead(greet + ", " + (store.session?.user?.split(" ")[0] || "there"), "Here is what is happening at " + s.companyName + " today")}
     <div class="grid grid-4" style="margin-bottom:16px">
       ${statCard({ label: "Open Jobs", value: k.open, iconName: "briefcase", foot: "needs attention" })}
@@ -124,29 +125,29 @@ export const home = {
       ${statCard({ label: "Customers", value: store.customers.length, iconName: "users", foot: "active accounts" })}
       ${statCard({ label: "Outstanding", value: money(k.pendingTotal), iconName: "dollar", foot: k.pendingInv.length + " invoices" })}
     </div>
-    ${card("Quick Actions", `<div class="grid grid-3">
-      ${quick.map(([id, ic, t, d]) => `
+    ${card("Quick Actions", html`<div class="grid grid-3">
+      ${quick.map(([id, ic, t, d]) => html`
         <div class="list-item" style="border:1px solid var(--border);border-radius:12px;cursor:pointer" data-nav="${id}">
           <div class="e-ico" style="width:38px;height:38px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;margin:0">${iconSvg(ic, 18)}</div>
-          <div><div style="font-weight:600;font-size:13.5px">${esc(t)}</div><div class="cell-sub">${esc(d)}</div></div>
-        </div>`).join("")}
+          <div><div style="font-weight:600;font-size:13.5px">${t}</div><div class="cell-sub">${d}</div></div>
+        </div>`)}
     </div>`)}
     <div class="grid grid-2" style="margin-top:16px">
       ${card("Today's Agenda", (() => {
         const today = store.jobs.filter((j) => j.scheduledDate && new Date(j.scheduledDate).toDateString() === new Date().toDateString());
-        return today.length ? today.map((j) => `
+        return today.length ? today.map((j) => html`
           <div class="list-item" style="padding:10px 0">
-            <span class="badge badge-progress">${esc(fmtDate(j.scheduledDate))}</span>
-            <div style="flex:1"><div style="font-weight:600;font-size:13px">${esc(j.title)}</div><div class="cell-sub">${esc(customerName(j.customerId))} · ${esc(techName(j.technicianId))}</div></div>
+            <span class="badge badge-progress">${fmtDate(j.scheduledDate)}</span>
+            <div style="flex:1"><div style="font-weight:600;font-size:13px">${j.title}</div><div class="cell-sub">${customerName(j.customerId)} · ${techName(j.technicianId)}</div></div>
             ${statusBadge(j.status)}
-          </div>`).join("") : emptyState("No jobs today", "Your agenda is clear.", "", "calendar");
+          </div>`) : emptyState("No jobs today", "Your agenda is clear.", "", "calendar");
       })(), { tight: true })}
-      ${card("Recent Activity", store.auditLogs.slice(0, 6).map((l) => `
+      ${card("Recent Activity", store.auditLogs.slice(0, 6).map((l) => html`
         <div class="list-item" style="padding:10px 0">
-          <span class="pill">${esc(l.action)}</span>
-          <div style="flex:1"><div style="font-size:13px"><b>${esc(l.entityType)}</b> ${esc(l.entityId)}</div>
-          <div class="cell-sub">${esc(l.user)} · ${timeAgo(l.at)}</div></div>
-        </div>`).join(""), { tight: true })}
+          <span class="pill">${l.action}</span>
+          <div style="flex:1"><div style="font-size:13px"><b>${l.entityType}</b> ${l.entityId}</div>
+          <div class="cell-sub">${l.user} · ${timeAgo(l.at)}</div></div>
+        </div>`), { tight: true })}
     </div>`;
   },
 };

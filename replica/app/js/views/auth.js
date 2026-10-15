@@ -1,5 +1,5 @@
 import { store } from "../store.js";
-import { esc } from "../util.js";
+import { html } from "../markup.js";
 
 function configured() {
   const c = (typeof window !== "undefined" && window.FIXFLOW_SUPABASE) || {};
@@ -8,7 +8,7 @@ function configured() {
 
 export function loginView() {
   const online = configured();
-  const html = `
+  const html_ = html`
   <div style="min-height:100vh;display:grid;grid-template-columns:1.1fr 1fr">
     <div style="background:linear-gradient(160deg,#1b2a4a,#2f5bea);color:#fff;padding:48px;display:flex;flex-direction:column;justify-content:space-between">
       <div class="row" style="gap:10px">
@@ -27,11 +27,11 @@ export function loginView() {
           ${[["Jobs & status tracking", "Intake → diagnosis → repair → invoice"],
              ["Dispatch & scheduling", "Assign techs and manage the calendar"],
              ["Invoicing & payments", "Auto-generate invoices, record payments"],
-             ["Reports & analytics", "Revenue, turnaround and margins"]].map(([t, d]) => `
+             ["Reports & analytics", "Revenue, turnaround and margins"]].map(([t, d]) => html`
             <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:14px">
-              <div style="font-weight:600;font-size:13.5px">${esc(t)}</div>
-              <div style="font-size:12px;opacity:.75;margin-top:4px">${esc(d)}</div>
-            </div>`).join("")}
+              <div style="font-weight:600;font-size:13.5px">${t}</div>
+              <div style="font-size:12px;opacity:.75;margin-top:4px">${d}</div>
+            </div>`)}
         </div>
       </div>
       <div style="opacity:.6;font-size:12px">© ${new Date().getFullYear()} FixFlow Repairs · Demo build</div>
@@ -47,7 +47,7 @@ export function loginView() {
         </div>
         <div class="field" style="margin-bottom:14px">
           <label>Email</label>
-          <input class="input" id="login-email" type="email" autocomplete="username" value="${esc(online ? "admin@fixflow.io" : "")}" />
+          <input class="input" id="login-email" type="email" autocomplete="username" value="${online ? "admin@fixflow.io" : ""}" />
         </div>
         <div class="field" style="margin-bottom:18px">
           <label>Password</label>
@@ -61,7 +61,7 @@ export function loginView() {
     </div>
   </div>`;
   return {
-    html,
+    html: html_,
     mount(root) {
       const btn = root.querySelector("#login-btn");
       const errBox = root.querySelector("#login-error");

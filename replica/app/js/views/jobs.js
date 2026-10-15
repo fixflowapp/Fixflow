@@ -1,9 +1,10 @@
 import { store, mutate, logAudit, id as uid } from "../store.js";
-import { esc, money, fmtDate, fmtDateTime, timeAgo, statusBadge, priorityBadge, invoiceBadge, avatar, toast, modal, closeModal, confirmDialog, iconSvg, JOB_STATUS, PRIORITY } from "../util.js";
+import { html } from "../markup.js";
+import { money, fmtDate, fmtDateTime, timeAgo, statusBadge, priorityBadge, invoiceBadge, avatar, toast, modal, closeModal, confirmDialog, iconSvg, JOB_STATUS, PRIORITY } from "../util.js";
 import { pageHead, statCard, card, buildTable, emptyState, toolbar, buildForm, readForm, validateForm, barChart, progressBar } from "../components.js";
 import { customerById, customerName, techById, techName, jobById, invoiceById } from "../lookups.js";
 
-const NAV_ACTIONS = `
+const NAV_ACTIONS = html`
   <button class="btn btn-secondary" data-nav="job-templates">Templates</button>
   <button class="btn btn-primary" data-nav="new-job">${iconSvg("plus", 15)} New Job</button>`;
 
@@ -12,7 +13,7 @@ export const jobs = {
   title: "Jobs",
   crumb: () => ["Jobs"],
   render(params) {
-    return `
+    return html`
     ${pageHead("Jobs", "Browse, filter and manage every repair job", NAV_ACTIONS)}
     <div class="grid grid-4" style="margin-bottom:16px">
       ${statCard({ label: "Total Jobs", value: store.jobs.length, iconName: "briefcase" })}
@@ -25,7 +26,7 @@ export const jobs = {
         { key: "status", label: "Status", options: Object.entries(JOB_STATUS).map(([v, m]) => ({ value: v, label: m.label })) },
         { key: "priority", label: "Priority", options: Object.entries(PRIORITY).map(([v, m]) => ({ value: v, label: m.label })) },
         { key: "technicianId", label: "Technician", options: store.technicians.map((t) => ({ value: t.id, label: t.name })) },
-      ], actions: `<button class="btn btn-secondary btn-sm" id="export-jobs">${iconSvg("download", 14)} Export</button>` })}
+      ], actions: html`<button class="btn btn-secondary btn-sm" id="export-jobs">${iconSvg("download", 14)} Export</button>` })}
       <div id="jobs-table"></div>
     </div>`;
   },
@@ -37,21 +38,21 @@ export const jobs = {
     searchInput.value = search;
 
     const draw = () => {
-      holder.innerHTML = buildTable({
+      holder.innerHTML = String(buildTable({
         columns: [
-          { key: "id", label: "Job", render: (r) => `<div class="cell-main">${esc(r.id)}</div><div class="cell-sub">${esc(r.serviceType)}</div>` },
-          { key: "title", label: "Device / Issue", render: (r) => `<div class="cell-main">${esc(r.deviceType)}</div><div class="cell-sub">${esc(r.issue.slice(0, 40))}${r.issue.length > 40 ? "…" : ""}</div>` },
-          { key: "customerId", label: "Customer", render: (r) => `<div class="cell-flex">${avatar(customerName(r.customerId))}${esc(customerName(r.customerId))}</div>` },
-          { key: "technicianId", label: "Technician", render: (r) => esc(techName(r.technicianId)) },
+          { key: "id", label: "Job", render: (r) => html`<div class="cell-main">${r.id}</div><div class="cell-sub">${r.serviceType}</div>` },
+          { key: "title", label: "Device / Issue", render: (r) => html`<div class="cell-main">${r.deviceType}</div><div class="cell-sub">${r.issue.slice(0, 40)}${r.issue.length > 40 ? "…" : ""}</div>` },
+          { key: "customerId", label: "Customer", render: (r) => html`<div class="cell-flex">${avatar(customerName(r.customerId))}${customerName(r.customerId)}</div>` },
+          { key: "technicianId", label: "Technician", render: (r) => techName(r.technicianId) },
           { key: "status", label: "Status", render: (r) => statusBadge(r.status) },
           { key: "priority", label: "Priority", render: (r) => priorityBadge(r.priority) },
           { key: "estimatedCost", label: "Est. Cost", cls: "num", render: (r) => money(r.estimatedCost) },
-          { key: "createdAt", label: "Created", render: (r) => esc(fmtDate(r.createdAt)) },
+          { key: "createdAt", label: "Created", render: (r) => fmtDate(r.createdAt) },
         ],
         rows: filteredJobs(search, filters),
         rowId: (r) => r.id,
-        empty: emptyState("No jobs found", "Try adjusting search or filters.", `<button class="btn btn-primary btn-sm" data-nav="new-job">Create job</button>`, "briefcase"),
-      });
+        empty: emptyState("No jobs found", "Try adjusting search or filters.", html`<button class="btn btn-primary btn-sm" data-nav="new-job">Create job</button>`, "briefcase"),
+      }));
       holder.querySelectorAll("tr[data-row]").forEach((tr) => tr.addEventListener("click", () => {
         if (tr.dataset.row) window.location.hash = "#/job-details/" + tr.dataset.row;
       }));
@@ -86,12 +87,12 @@ export const jobDetails = {
     const tech = techById(job.technicianId);
     const inv = store.invoices.find((i) => i.jobId === job.id);
     const stageIdx = STAGES.indexOf(job.status);
-    const stepper = STAGES.map((s, i) => `
+    const stepper = STAGES.map((s, i) => html`
       <div class="step ${i < stageIdx ? "done" : ""} ${i === stageIdx ? "current" : ""}">
         <span class="step-node">${i < stageIdx ? iconSvg("check", 13) : i + 1}</span>
-        <span class="step-label">${esc(JOB_STATUS[s].label)}</span>
-        ${i < STAGES.length - 1 ? `<span class="step-line ${i < stageIdx ? "done" : ""}"></span>` : ""}
-      </div>`).join("");
+        <span class="step-label">${JOB_STATUS[s].label}</span>
+        ${i < STAGES.length - 1 ? html`<span class="step-line ${i < stageIdx ? "done" : ""}"></span>` : ""}
+      </div>`);
 
     const timeline = [
       { t: "Job created", d: job.createdAt, done: true },
@@ -102,12 +103,12 @@ export const jobDetails = {
       { t: "Invoiced " + (inv ? `(${inv.number})` : ""), d: inv?.issuedAt, done: !!inv },
     ];
 
-    return `
-    ${pageHead(job.title, `${job.id} · ${job.deviceType} · created ${fmtDate(job.createdAt)}`, `
+    return html`
+    ${pageHead(job.title, `${job.id} · ${job.deviceType} · created ${fmtDate(job.createdAt)}`, html`
       <div class="row">
         ${statusBadge(job.status)}
         ${priorityBadge(job.priority)}
-        <button class="btn btn-secondary" id="edit-job" data-nav="job-edit" data-id="${esc(job.id)}">${iconSvg("edit", 14)} Edit</button>
+        <button class="btn btn-secondary" id="edit-job" data-nav="job-edit" data-id="${job.id}">${iconSvg("edit", 14)} Edit</button>
         <button class="btn btn-danger btn-sm" id="delete-job">${iconSvg("trash", 14)}</button>
       </div>`)}
     <div class="card" style="margin-bottom:16px">
@@ -115,12 +116,12 @@ export const jobDetails = {
     </div>
     <div class="grid" style="grid-template-columns:2fr 1fr">
       <div class="grid" style="gap:16px">
-        ${card("Issue & Diagnosis", `
+        ${card("Issue & Diagnosis", html`
           <dl class="kv">
-            <dt>Reported issue</dt><dd>${esc(job.issue)}</dd>
-            <dt>Service type</dt><dd>${esc(job.serviceType)}</dd>
-            <dt>Device</dt><dd>${esc(job.deviceType)}</dd>
-            <dt>Notes</dt><dd>${esc(job.notes || "—")}</dd>
+            <dt>Reported issue</dt><dd>${job.issue}</dd>
+            <dt>Service type</dt><dd>${job.serviceType}</dd>
+            <dt>Device</dt><dd>${job.deviceType}</dd>
+            <dt>Notes</dt><dd>${job.notes || "—"}</dd>
           </dl>`)}
         ${card("Parts Used", job.partsUsed.length ? buildTable({
           columns: [
@@ -130,38 +131,38 @@ export const jobDetails = {
             { key: "total", label: "Total", cls: "num", render: (r) => money(r.unitCost * r.qty) },
           ],
           rows: job.partsUsed,
-        }) : emptyState("No parts recorded", "No parts have been added to this job yet.", `<button class="btn btn-secondary btn-sm" id="add-part">Add part</button>`, "box"), { tight: job.partsUsed.length > 0, actions: `<button class="btn btn-secondary btn-sm" id="add-part">Add part</button>` })}
-        ${card("History & Activity", `<div class="timeline">
-          ${timeline.map((x) => `<div class="tl-item ${x.done ? "done" : ""}">
+        }) : emptyState("No parts recorded", "No parts have been added to this job yet.", html`<button class="btn btn-secondary btn-sm" id="add-part">Add part</button>`, "box"), { tight: job.partsUsed.length > 0, actions: html`<button class="btn btn-secondary btn-sm" id="add-part">Add part</button>` })}
+        ${card("History & Activity", html`<div class="timeline">
+          ${timeline.map((x) => html`<div class="tl-item ${x.done ? "done" : ""}">
             <span class="tl-dot">${x.done ? iconSvg("check", 11) : ""}</span>
-            <div class="tl-title">${esc(x.t)}</div>
+            <div class="tl-title">${x.t}</div>
             <div class="tl-time">${x.d ? fmtDateTime(x.d) : "Pending"}</div>
-          </div>`).join("")}
+          </div>`)}
         </div>`)}
       </div>
       <div class="grid" style="gap:16px">
-        ${card("Customer", cust ? `
+        ${card("Customer", cust ? html`
           <div class="row" style="gap:12px;margin-bottom:12px">${avatar(cust.company, 40)}
-            <div><div style="font-weight:600">${esc(cust.company)}</div><div class="cell-sub">${esc(cust.name)}</div></div></div>
+            <div><div style="font-weight:600">${cust.company}</div><div class="cell-sub">${cust.name}</div></div></div>
           <dl class="kv">
-            <dt>Email</dt><dd>${esc(cust.email)}</dd>
-            <dt>Phone</dt><dd>${esc(cust.phone)}</dd>
-            <dt>City</dt><dd>${esc(cust.city)}</dd>
+            <dt>Email</dt><dd>${cust.email}</dd>
+            <dt>Phone</dt><dd>${cust.phone}</dd>
+            <dt>City</dt><dd>${cust.city}</dd>
           </dl>
-          <button class="btn btn-secondary btn-sm btn-block" style="margin-top:12px" data-nav="customer-details" data-id="${esc(cust.id)}">View customer</button>` : emptyState("No customer", ""), { tight: true })}
-        ${card("Assignment", `
+          <button class="btn btn-secondary btn-sm btn-block" style="margin-top:12px" data-nav="customer-details" data-id="${cust.id}">View customer</button>` : emptyState("No customer", ""), { tight: true })}
+        ${card("Assignment", html`
           <div class="row" style="gap:12px;margin-bottom:12px">${avatar(tech?.name || "?", 40)}
-            <div><div style="font-weight:600">${esc(tech?.name || "Unassigned")}</div><div class="cell-sub">${esc(tech?.specialty || "")}</div></div></div>
+            <div><div style="font-weight:600">${tech?.name || "Unassigned"}</div><div class="cell-sub">${tech?.specialty || ""}</div></div></div>
           <div class="field"><label>Change status</label>
             <select class="select" id="status-select">
-              ${Object.entries(JOB_STATUS).map(([v, m]) => `<option value="${v}" ${v === job.status ? "selected" : ""}>${m.label}</option>`).join("")}
+              ${Object.entries(JOB_STATUS).map(([v, m]) => html`<option value="${v}" ${v === job.status ? "selected" : ""}>${m.label}</option>`)}
             </select></div>
           <div class="field" style="margin-top:12px"><label>Assign technician</label>
             <select class="select" id="tech-select">
               <option value="">Unassigned</option>
-              ${store.technicians.map((t) => `<option value="${esc(t.id)}" ${t.id === job.technicianId ? "selected" : ""}>${esc(t.name)}</option>`).join("")}
+              ${store.technicians.map((t) => html`<option value="${t.id}" ${t.id === job.technicianId ? "selected" : ""}>${t.name}</option>`)}
             </select></div>`, { tight: true })}
-        ${card("Costs", `
+        ${card("Costs", html`
           <dl class="kv">
             <dt>Estimated</dt><dd>${money(job.estimatedCost)}</dd>
             <dt>Parts</dt><dd>${money(job.partsCost)}</dd>
@@ -169,9 +170,9 @@ export const jobDetails = {
             <dt>Labor hours</dt><dd>${job.laborHours}h</dd>
           </dl>
           <div class="divider"></div>
-          ${inv ? `<div class="row" style="justify-content:space-between"><span class="muted small">Invoice</span>${invoiceBadge(inv.status)}</div>
-            <button class="btn btn-secondary btn-sm btn-block" style="margin-top:10px" data-nav="invoice-details" data-id="${esc(inv.id)}">View ${esc(inv.number)}</button>`
-            : `<button class="btn btn-primary btn-sm btn-block" id="gen-invoice">${iconSvg("file", 14)} Generate invoice</button>`}
+          ${inv ? html`<div class="row" style="justify-content:space-between"><span class="muted small">Invoice</span>${invoiceBadge(inv.status)}</div>
+            <button class="btn btn-secondary btn-sm btn-block" style="margin-top:10px" data-nav="invoice-details" data-id="${inv.id}">View ${inv.number}</button>`
+            : html`<button class="btn btn-primary btn-sm btn-block" id="gen-invoice">${iconSvg("file", 14)} Generate invoice</button>`}
         `, { tight: true })}
       </div>
     </div>`;
@@ -210,7 +211,7 @@ function openAddPart(job) {
       { key: "qty", label: "Quantity", type: "number", value: "1" },
       { key: "unitCost", label: "Unit cost", type: "number" },
     ]),
-    footer: `<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save-part">Add part</button>`,
+    footer: html`<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save-part">Add part</button>`,
   });
   m.querySelector('[name="partId"]').addEventListener("change", (e) => {
     const p = store.parts.find((x) => x.id === e.target.value);
@@ -254,10 +255,10 @@ export const newJob = {
   render() {
     const { fields, values } = jobForm(null);
     const customerId = new URLSearchParams(location.hash.split("?")[1] || "").get("customer") || "";
-    return pageHead("New Job", "Create a new repair job record", `<button class="btn btn-secondary" data-nav="jobs">Cancel</button>`) +
-      card("Job details", buildForm(fields, { ...values, customerId }), {
-        foot: `<button class="btn btn-secondary" data-nav="jobs">Cancel</button><button class="btn btn-primary" id="save-job">Create job</button>`,
-      });
+    return html`${pageHead("New Job", "Create a new repair job record", html`<button class="btn btn-secondary" data-nav="jobs">Cancel</button>`)}
+      ${card("Job details", buildForm(fields, { ...values, customerId }), {
+        foot: html`<button class="btn btn-secondary" data-nav="jobs">Cancel</button><button class="btn btn-primary" id="save-job">Create job</button>`,
+      })}`;
   },
   mount(root) {
     const holder = root.querySelector("#save-job");
@@ -283,10 +284,10 @@ export const jobEdit = {
   render(params) {
     const job = jobById(params.id) || store.jobs[0];
     const { fields, values } = jobForm(job);
-    return pageHead("Edit Job", job.id, `<button class="btn btn-secondary" data-nav="job-details" data-id="${esc(job.id)}">Cancel</button>`) +
-      card("Job details", buildForm(fields, values), {
-        foot: `<button class="btn btn-secondary" id="cancel-edit">Cancel</button><button class="btn btn-primary" id="save-job">Save changes</button>`,
-      });
+    return html`${pageHead("Edit Job", job.id, html`<button class="btn btn-secondary" data-nav="job-details" data-id="${job.id}">Cancel</button>`)}
+      ${card("Job details", buildForm(fields, values), {
+        foot: html`<button class="btn btn-secondary" id="cancel-edit">Cancel</button><button class="btn btn-primary" id="save-job">Save changes</button>`,
+      })}`;
   },
   mount(root, params) {
     const job = jobById(params.id) || store.jobs[0];
@@ -308,22 +309,22 @@ export const jobTemplates = {
   title: "Job Templates",
   crumb: () => ["Jobs", "Templates"],
   render() {
-    const cards = store.templates.map((t) => `
+    const cards = store.templates.map((t) => html`
       <div class="card"><div class="card-body">
         <div class="row"><div class="e-ico" style="width:40px;height:40px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;margin:0">${iconSvg("clipboard", 18)}</div>
-          <div><div style="font-weight:600">${esc(t.title)}</div><div class="cell-sub">${esc(t.category)}</div></div></div>
-        <p class="muted small" style="margin:12px 0">${esc(t.description)}</p>
+          <div><div style="font-weight:600">${t.title}</div><div class="cell-sub">${t.category}</div></div></div>
+        <p class="muted small" style="margin:12px 0">${t.description}</p>
         <div class="row" style="justify-content:space-between">
           <span class="pill">${money(t.laborRate)}/hr · ${t.estimatedHours}h</span>
           <span class="tag">${t.defaultParts.length} part${t.defaultParts.length === 1 ? "" : "s"}</span>
         </div>
         <div class="row" style="margin-top:14px">
-          <button class="btn btn-primary btn-sm" data-use-template="${esc(t.id)}">Use template</button>
-          <button class="btn btn-ghost btn-sm" data-del-template="${esc(t.id)}">${iconSvg("trash", 14)}</button>
+          <button class="btn btn-primary btn-sm" data-use-template="${t.id}">Use template</button>
+          <button class="btn btn-ghost btn-sm" data-del-template="${t.id}">${iconSvg("trash", 14)}</button>
         </div>
-      </div></div>`).join("");
-    return pageHead("Job Templates", "Reusable job configurations for common repairs", `<button class="btn btn-primary" id="new-template">${iconSvg("plus", 15)} Create template</button>`) +
-      (store.templates.length ? `<div class="grid grid-3">${cards}</div>` : emptyState("No templates yet", "Create templates to speed up job intake.", `<button class="btn btn-primary btn-sm" id="new-template">Create template</button>`, "clipboard"));
+      </div></div>`);
+    return html`${pageHead("Job Templates", "Reusable job configurations for common repairs", html`<button class="btn btn-primary" id="new-template">${iconSvg("plus", 15)} Create template</button>`)}
+      ${store.templates.length ? html`<div class="grid grid-3">${cards}</div>` : emptyState("No templates yet", "Create templates to speed up job intake.", html`<button class="btn btn-primary btn-sm" id="new-template">Create template</button>`, "clipboard")}`;
   },
   mount(root) {
     root.querySelectorAll("[data-use-template]").forEach((b) => b.addEventListener("click", () => {
@@ -351,7 +352,7 @@ function openNewTemplate() {
       { key: "defaultParts", label: "Default part", full: true, placeholder: "e.g. SSD 1TB NVMe" },
       { key: "description", label: "Description", type: "textarea", full: true },
     ]),
-    footer: `<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save">Create</button>`,
+    footer: html`<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save">Create</button>`,
   });
   m.querySelector("#save").addEventListener("click", () => {
     const d = readForm(m);
@@ -368,18 +369,18 @@ export const recurringJobs = {
   title: "Recurring Jobs",
   crumb: () => ["Jobs", "Recurring"],
   render() {
-    return pageHead("Recurring Jobs", "Schedule recurring repair and maintenance work", `<button class="btn btn-primary" id="new-recurring">${iconSvg("plus", 15)} New schedule</button>`) +
-      card("", buildTable({
+    return html`${pageHead("Recurring Jobs", "Schedule recurring repair and maintenance work", html`<button class="btn btn-primary" id="new-recurring">${iconSvg("plus", 15)} New schedule</button>`)}
+      ${card("", buildTable({
         columns: [
-          { key: "title", label: "Schedule", render: (r) => `<div class="cell-main">${esc(r.title)}</div><div class="cell-sub">${esc(customerName(r.customerId))}</div>` },
-          { key: "frequency", label: "Frequency", render: (r) => `<span class="badge badge-progress">${esc(r.frequency)}</span>` },
-          { key: "lastRun", label: "Last run", render: (r) => esc(fmtDate(r.lastRun)) },
-          { key: "nextRun", label: "Next run", render: (r) => esc(fmtDate(r.nextRun)) },
-          { key: "active", label: "Status", render: (r) => r.active ? `<span class="badge badge-active">Active</span>` : `<span class="badge badge-neutral">Paused</span>` },
-          { key: "actions", label: "", render: (r) => `<button class="btn btn-secondary btn-sm" data-toggle="${esc(r.id)}">${r.active ? "Pause" : "Resume"}</button>` },
+          { key: "title", label: "Schedule", render: (r) => html`<div class="cell-main">${r.title}</div><div class="cell-sub">${customerName(r.customerId)}</div>` },
+          { key: "frequency", label: "Frequency", render: (r) => html`<span class="badge badge-progress">${r.frequency}</span>` },
+          { key: "lastRun", label: "Last run", render: (r) => fmtDate(r.lastRun) },
+          { key: "nextRun", label: "Next run", render: (r) => fmtDate(r.nextRun) },
+          { key: "active", label: "Status", render: (r) => r.active ? html`<span class="badge badge-active">Active</span>` : html`<span class="badge badge-neutral">Paused</span>` },
+          { key: "actions", label: "", render: (r) => html`<button class="btn btn-secondary btn-sm" data-toggle="${r.id}">${r.active ? "Pause" : "Resume"}</button>` },
         ],
         rows: store.recurringJobs,
-      }), { tight: true });
+      }), { tight: true })}`;
   },
   mount(root) {
     root.querySelectorAll("[data-toggle]").forEach((b) => b.addEventListener("click", () => {
@@ -396,7 +397,7 @@ export const recurringJobs = {
           { key: "frequency", label: "Frequency", type: "select", options: ["daily", "weekly", "monthly", "quarterly", "annual"] },
           { key: "nextRun", label: "Next run", type: "date" },
         ]),
-        footer: `<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save">Create</button>`,
+        footer: html`<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save">Create</button>`,
       });
       m.querySelector("#save").addEventListener("click", () => {
         const d = readForm(m);
@@ -415,19 +416,19 @@ export const workOrders = {
   title: "Work Orders",
   crumb: () => ["Jobs", "Work Orders"],
   render() {
-    return pageHead("Work Orders", "Internal work requests and technician transfers", `<button class="btn btn-primary" id="new-wo">${iconSvg("plus", 15)} Create work order</button>`) +
-      card("", buildTable({
+    return html`${pageHead("Work Orders", "Internal work requests and technician transfers", html`<button class="btn btn-primary" id="new-wo">${iconSvg("plus", 15)} Create work order</button>`)}
+      ${card("", buildTable({
         columns: [
-          { key: "id", label: "WO#", render: (r) => `<span class="mono-val">${esc(r.id)}</span>` },
-          { key: "title", label: "Title", render: (r) => `<div class="cell-main">${esc(r.title)}</div><div class="cell-sub">Related ${esc(r.relatedJobId)}</div>` },
-          { key: "fromTechnicianId", label: "From", render: (r) => esc(techName(r.fromTechnicianId)) },
-          { key: "toTechnicianId", label: "To", render: (r) => esc(techName(r.toTechnicianId)) },
+          { key: "id", label: "WO#", render: (r) => html`<span class="mono-val">${r.id}</span>` },
+          { key: "title", label: "Title", render: (r) => html`<div class="cell-main">${r.title}</div><div class="cell-sub">Related ${r.relatedJobId}</div>` },
+          { key: "fromTechnicianId", label: "From", render: (r) => techName(r.fromTechnicianId) },
+          { key: "toTechnicianId", label: "To", render: (r) => techName(r.toTechnicianId) },
           { key: "priority", label: "Priority", render: (r) => priorityBadge(r.priority) },
-          { key: "status", label: "Status", render: (r) => `<span class="badge ${r.status === "done" ? "badge-completed" : r.status === "in_progress" ? "badge-progress" : "badge-open"}">${esc(r.status.replace("_", " "))}</span>` },
-          { key: "createdAt", label: "Created", render: (r) => esc(fmtDate(r.createdAt)) },
+          { key: "status", label: "Status", render: (r) => html`<span class="badge ${r.status === "done" ? "badge-completed" : r.status === "in_progress" ? "badge-progress" : "badge-open"}">${r.status.replace("_", " ")}</span>` },
+          { key: "createdAt", label: "Created", render: (r) => fmtDate(r.createdAt) },
         ],
         rows: store.workOrders,
-      }), { tight: true });
+      }), { tight: true })}`;
   },
   mount(root) {
     root.querySelector("#new-wo")?.addEventListener("click", () => {
@@ -441,7 +442,7 @@ export const workOrders = {
           { key: "relatedJobId", label: "Related job", type: "select", options: store.jobs.slice(0, 30).map((j) => ({ value: j.id, label: `${j.id} — ${j.title}` })) },
           { key: "description", label: "Description", type: "textarea", full: true },
         ]),
-        footer: `<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save">Create</button>`,
+        footer: html`<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save">Create</button>`,
       });
       m.querySelector("#save").addEventListener("click", () => {
         const d = readForm(m);
@@ -469,7 +470,7 @@ export const jobCosting = {
     const totalRev = rows.reduce((s, r) => s + r.revenue, 0);
     const totalCost = rows.reduce((s, r) => s + r.cost, 0);
     const avgMargin = rows.length ? Math.round(rows.reduce((s, r) => s + r.marginPct, 0) / rows.length) : 0;
-    return `
+    return html`
     ${pageHead("Job Costing", "Profitability analysis per completed job")}
     <div class="grid grid-4" style="margin-bottom:16px">
       ${statCard({ label: "Billable Revenue", value: money(totalRev), iconName: "dollar" })}
@@ -479,14 +480,14 @@ export const jobCosting = {
     </div>
     ${card("Cost breakdown by job", buildTable({
       columns: [
-        { key: "id", label: "Job", render: (r) => `<div class="cell-main">${esc(r.id)}</div><div class="cell-sub">${esc(r.deviceType)}</div>` },
-        { key: "customerId", label: "Customer", render: (r) => esc(customerName(r.customerId)) },
+        { key: "id", label: "Job", render: (r) => html`<div class="cell-main">${r.id}</div><div class="cell-sub">${r.deviceType}</div>` },
+        { key: "customerId", label: "Customer", render: (r) => customerName(r.customerId) },
         { key: "laborHours", label: "Labor", cls: "num", render: (r) => r.laborHours + "h" },
         { key: "partsCost", label: "Parts Cost", cls: "num", render: (r) => money(r.partsCost) },
         { key: "cost", label: "Total Cost", cls: "num", render: (r) => money(r.cost) },
         { key: "revenue", label: "Revenue", cls: "num", render: (r) => money(r.revenue) },
-        { key: "margin", label: "Margin", cls: "num", render: (r) => `<span style="color:${r.margin >= 0 ? "var(--success)" : "var(--danger)"}">${money(r.margin)}</span>` },
-        { key: "marginPct", label: "Margin %", cls: "num", render: (r) => `<div style="min-width:90px">${progressBar(r.marginPct, r.marginPct >= 30 ? "var(--success)" : r.marginPct >= 0 ? "var(--warning)" : "var(--danger)")}<span class="small muted">${r.marginPct}%</span></div>` },
+        { key: "margin", label: "Margin", cls: "num", render: (r) => html`<span style="color:${r.margin >= 0 ? "var(--success)" : "var(--danger)"}">${money(r.margin)}</span>` },
+        { key: "marginPct", label: "Margin %", cls: "num", render: (r) => html`<div style="min-width:90px">${progressBar(r.marginPct, r.marginPct >= 30 ? "var(--success)" : r.marginPct >= 0 ? "var(--warning)" : "var(--danger)")}<span class="small muted">${r.marginPct}%</span></div>` },
       ],
       rows,
       rowId: (r) => r.id,

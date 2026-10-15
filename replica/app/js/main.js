@@ -91,12 +91,14 @@ const contentEl = () => document.getElementById("content");
 
 function route() {
   const { id, params } = parseHash();
-  const view = getView(id);
 
-  if (!store.session && id !== "login" && id !== "request-service" && id !== "customer-portal") {
+  if (id === "login") { renderLogin(); return; }
+  if (!store.session && id !== "request-service" && id !== "customer-portal") {
     renderLogin();
     return;
   }
+
+  const view = getView(id);
   document.body.classList.remove("logged-out");
 
   setActiveNav(id);
