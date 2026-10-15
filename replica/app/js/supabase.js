@@ -9,6 +9,7 @@
 // session. Never move privileged work (seeding, admin) into this module.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { COLLECTIONS } from "./persistence.js";
 
 const cfg = (typeof window !== "undefined" && window.FIXFLOW_SUPABASE) || {};
 export const SUPABASE_URL = cfg.url || "";
@@ -22,11 +23,7 @@ export const supabase = supabaseConfigured
 const RECORDS = "ff_records";
 const SETTINGS = "ff_settings";
 
-export const COLLECTIONS = [
-  "technicians", "customers", "jobs", "invoices", "payments", "suppliers", "parts",
-  "contracts", "workOrders", "templates", "recurringJobs", "assets", "conversations",
-  "auditLogs", "gdprRequests", "notifications", "serviceRequests",
-];
+export { COLLECTIONS };
 
 // ---------------------------------------------------------------------------
 // Auth — the only source of truth for "who is signed in".

@@ -1,4 +1,6 @@
 // FixFlow replica — local persistence layer + demo seed data.
+import { LocalStoragePersistence, SupabasePersistence } from "./persistence.js";
+
 const STORAGE_KEY = "fixflow.replica.v1";
 
 const uid = (prefix) => `${prefix}-${Math.random().toString(36).slice(2, 8)}${Date.now().toString(36).slice(-4)}`;
@@ -324,14 +326,12 @@ function seed() {
 let state = null;
 const listeners = new Set();
 
-// ---- Supabase sync state -------------------------------------------------
+// Storage is delegated to a persistence adapter. `local` is always present;
+// `remote` appears only after a signed-in Supabase pull succeeds.
+const local = new LocalStoragePersistence({ key: STORAGE_KEY, seed });
+let remote = null;
 let sb = null;                 // lazily-imported ./supabase.js module (only if configured)
-let sbOn = false;              // true once a signed-in session has been pulled
 let authed = false;            // true when a Supabase Auth session exists
-const lastPushed = {};         // collection -> JSON snapshot confirmed written to Supabase
-const inFlight = new Set();    // collections with a push currently in flight
-let syncTimer = null;
-let retryDelay = 400;
 
 async function getSupabase() {
   const cfg = (typeof window !== "undefined" && window.FIXFLOW_SUPABASE) || {};
@@ -339,103 +339,50 @@ async function getSupabase() {
   try { return await import("./supabase.js"); } catch (e) { console.warn("[fixflow] supabase import failed:", e); return null; }
 }
 
-export const COLLECTIONS = ["jobs", "customers", "technicians", "invoices", "payments", "parts", "suppliers", "contracts", "workOrders", "templates", "recurringJobs", "assets", "conversations", "auditLogs", "gdprRequests", "notifications", "serviceRequests"];
-
-function load() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch (e) {}
-  const s = seed();
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch (e) {}
-  return s;
-}
+export { COLLECTIONS } from "./persistence.js";
 
 // Pull from Supabase on boot. Requires a signed-in session: the anon key has no
 // table access, so an unauthenticated client has nothing to read and stays local.
 export async function initStore() {
-  if (!state) state = load();
+  if (!state) state = local.load();
   sb = await getSupabase();
-  if (!sb) { snapshotAll(); return { source: "local" }; }
+  if (!sb) return { source: "local" };
 
   const session = await sb.getSession();
   authed = Boolean(session);
   if (!authed) {
     state.session = null;                            // a forged local session is not honoured
-    persistCache();
-    snapshotAll();
+    local.save(state);
     return { source: "local", authed: false };
   }
   state.session = sb.sessionToDisplay(session) || state.session;
 
-  const res = await sb.pullAll();
-  if (!res.ok) { snapshotAll(); return { source: "local", authed: true, error: res.error }; }
+  remote = new SupabasePersistence({ sb, seed });
+  const res = await remote.load(state);
+  if (!res.ok) { remote = null; return { source: "local", authed: true, error: res.error }; }
 
-  sbOn = true;
-  const remoteHasData = (res.count || 0) > 0;
-  if (remoteHasData) {
-    const merged = { ...state };
-    for (const c of COLLECTIONS) merged[c] = Array.isArray(res.collections[c]) ? res.collections[c] : [];
-    if (res.settings && Object.keys(res.settings).length) merged.settings = res.settings;
-    merged.session = state.session;
-    state = merged;
-    sb.markInitialized();                            // database holds data → never re-seed it
-  } else {
-    await sb.seedIfEmpty(state);                     // first run → seed the cloud
-  }
-  persistCache();
-  snapshotAll();
-  return { source: "supabase", seeded: !remoteHasData };
+  state = res.state;
+  local.save(state);
+  return { source: "supabase", seeded: res.seeded };
 }
 
-function snapshotAll() {
-  for (const c of COLLECTIONS) lastPushed[c] = JSON.stringify(state[c] || []);
-  lastPushed.settings = JSON.stringify(state.settings || {});
-}
-
-function scheduleSync(delay = 400) {
-  if (!sbOn || !sb) return;
-  clearTimeout(syncTimer);
-  syncTimer = setTimeout(syncNow, delay);
-}
-
-// lastPushed advances only after a confirmed write, so a failed push is retried
-// (with backoff) instead of being silently dropped.
-export function syncNow() {
-  if (!sbOn || !sb) return;
-  const settle = (key, json, res) => {
-    if (res && res.ok) { lastPushed[key] = json; retryDelay = 400; }
-    else scheduleSync((retryDelay = Math.min(retryDelay * 2, 30000)));
-  };
-  for (const c of COLLECTIONS) {
-    const json = JSON.stringify(state[c] || []);
-    if (lastPushed[c] === json || inFlight.has(c)) continue;
-    inFlight.add(c);
-    sb.pushCollection(c, state[c] || []).then((res) => { inFlight.delete(c); settle(c, json, res); });
-  }
-  const sj = JSON.stringify(state.settings || {});
-  if (lastPushed.settings !== sj && !inFlight.has("settings")) {
-    inFlight.add("settings");
-    sb.pushSettings(state.settings || {}).then((res) => { inFlight.delete("settings"); settle("settings", sj, res); });
-  }
-}
+export function syncNow() { if (remote) remote.flush(state); }
 
 export const store = new Proxy({}, {
   get(_t, prop) {
-    if (!state) state = load();
+    if (!state) state = local.load();
     if (prop === "reset") return async () => {
-      state = seed();
-      persistCache();
-      if (sbOn && sb) { for (const c of COLLECTIONS) lastPushed[c] = null; lastPushed.settings = null; syncNow(); }
+      state = await local.reset();
+      if (remote) await remote.reset(state);
       return state;
     };
     if (prop === "subscribe") return (fn) => { listeners.add(fn); return () => listeners.delete(fn); };
-    if (prop === "source") return sbOn ? "supabase" : "local";
+    if (prop === "source") return remote ? "supabase" : "local";
     if (prop === "authed") return authed;
     return state[prop];
   },
   set(_t, prop, value) {
-    if (!state) state = load();
+    if (!state) state = local.load();
     state[prop] = value;
     persist();
     listeners.forEach((fn) => fn());
@@ -443,17 +390,13 @@ export const store = new Proxy({}, {
   },
 });
 
-function persistCache() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
-}
-
 function persist() {
-  persistCache();
-  scheduleSync();
+  local.save(state);
+  if (remote) remote.save(state);
 }
 
 export function mutate(fn) {
-  if (!state) state = load();
+  if (!state) state = local.load();
   fn(state);
   persist();
   listeners.forEach((l) => l());
