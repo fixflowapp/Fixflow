@@ -1,6 +1,6 @@
 import { store, mutate, logAudit, id as uid } from "../store.js";
 import { html } from "../markup.js";
-import { money, fmtDate, timeAgo, invoiceBadge, statusBadge, avatar, toast, modal, closeModal, confirmDialog, iconSvg, INVOICE_STATUS } from "../util.js";
+import { money, fmtDate, fmtMonth, timeAgo, invoiceBadge, statusBadge, avatar, toast, modal, closeModal, confirmDialog, iconSvg, INVOICE_STATUS } from "../util.js";
 import { pageHead, statCard, card, buildTable, emptyState, toolbar, buildForm, readForm, validateForm, barChart, progressBar } from "../components.js";
 import { customerName, customerById, jobById, invoiceById, monthlySeries } from "../lookups.js";
 import { exportCsv } from "./jobs.js";
@@ -276,7 +276,7 @@ export const payments = {
     const total = store.payments.reduce((s, p) => s + p.amount, 0);
     const byMethod = {};
     store.payments.forEach((p) => (byMethod[p.method] = (byMethod[p.method] || 0) + p.amount));
-    const series = monthlySeries(6).map((s) => ({ label: s.label, value: store.payments.filter((p) => new Date(p.recordedAt).toLocaleString("en-US", { month: "short" }) === s.label).reduce((a, p) => a + p.amount, 0) }));
+    const series = monthlySeries(6).map((s) => ({ label: s.label, value: store.payments.filter((p) => fmtMonth(p.recordedAt) === s.label).reduce((a, p) => a + p.amount, 0) }));
     return html`
     ${pageHead("Payments", "Record and track payments received", html`<button class="btn btn-secondary" id="export-pay">${iconSvg("download", 15)} Export</button>`) }
     <div class="grid grid-4" style="margin-bottom:16px">

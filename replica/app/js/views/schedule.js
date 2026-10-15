@@ -1,6 +1,6 @@
 import { store, mutate, logAudit, id as uid } from "../store.js";
 import { html, raw } from "../markup.js";
-import { money, fmtDate, timeAgo, statusBadge, priorityBadge, avatar, toast, modal, closeModal, confirmDialog, iconSvg, titleCase, initials } from "../util.js";
+import { money, fmtDate, fmtMonth, timeAgo, isSameDay, statusBadge, priorityBadge, avatar, toast, modal, closeModal, confirmDialog, iconSvg, titleCase, initials } from "../util.js";
 import { pageHead, statCard, card, buildTable, emptyState, toolbar, buildForm, readForm, validateForm, barChart, lineChart, progressBar, donutChart } from "../components.js";
 import { customerName, techName, techById, jobById, customerById, monthlySeries } from "../lookups.js";
 
@@ -14,7 +14,7 @@ export const schedule = {
     const first = new Date(year, month, 1);
     const startDow = first.getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const monthLabel = first.toLocaleString("en-US", { month: "long", year: "numeric" });
+    const monthLabel = fmtMonth(first, { long: true, year: true });
     const cells = [];
     for (let i = 0; i < startDow; i++) {
       const d = new Date(year, month, i - startDow + 1);
@@ -25,8 +25,8 @@ export const schedule = {
 
     const eventColors = { open: "", in_progress: "", waiting_parts: "ev-yellow", completed: "ev-green", invoiced: "ev-purple", cancelled: "ev-red" };
     const calCells = cells.map((c) => {
-      const dayJobs = store.jobs.filter((j) => j.scheduledDate && new Date(j.scheduledDate).toDateString() === c.date.toDateString());
-      const isToday = c.date.toDateString() === now.toDateString();
+      const dayJobs = store.jobs.filter((j) => j.scheduledDate && isSameDay(j.scheduledDate, c.date));
+      const isToday = isSameDay(c.date, now);
       return html`<div class="cal-day ${c.muted ? "muted" : ""} ${isToday ? "today" : ""}">
         <div class="cal-daynum">${c.date.getDate()}</div>
         ${dayJobs.slice(0, 3).map((j) => html`<div class="cal-event ${eventColors[j.status] || ""}" title="${j.title} — ${techName(j.technicianId)}" data-job="${j.id}">${techById(j.technicianId)?.firstName || ""} · ${j.deviceType}</div>`)}
@@ -34,7 +34,7 @@ export const schedule = {
       </div>`;
     });
 
-    const todayJobs = store.jobs.filter((j) => j.scheduledDate && new Date(j.scheduledDate).toDateString() === now.toDateString());
+    const todayJobs = store.jobs.filter((j) => j.scheduledDate && isSameDay(j.scheduledDate, now));
 
     return html`
     ${pageHead("Schedule", "Calendar view of technician availability and job assignments", html`

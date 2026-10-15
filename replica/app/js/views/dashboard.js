@@ -1,6 +1,6 @@
 import { store } from "../store.js";
 import { html } from "../markup.js";
-import { money, fmtDate, statusBadge, invoiceBadge, priorityBadge, timeAgo, iconSvg, avatar } from "../util.js";
+import { money, fmtDate, statusBadge, invoiceBadge, priorityBadge, timeAgo, isSameDay, iconSvg, avatar } from "../util.js";
 import { pageHead, statCard, card, buildTable, donutChart, lineChart, barChart, emptyState } from "../components.js";
 import { customerName, techName, monthlySeries } from "../lookups.js";
 
@@ -134,7 +134,7 @@ export const home = {
     </div>`)}
     <div class="grid grid-2" style="margin-top:16px">
       ${card("Today's Agenda", (() => {
-        const today = store.jobs.filter((j) => j.scheduledDate && new Date(j.scheduledDate).toDateString() === new Date().toDateString());
+        const today = store.jobs.filter((j) => j.scheduledDate && isSameDay(j.scheduledDate, new Date()));
         return today.length ? today.map((j) => html`
           <div class="list-item" style="padding:10px 0">
             <span class="badge badge-progress">${fmtDate(j.scheduledDate)}</span>

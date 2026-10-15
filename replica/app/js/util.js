@@ -24,37 +24,9 @@ export function compactMoney(n) {
   return `$${Number(n).toFixed(0)}`;
 }
 
-export function fmtDate(d, fmt = "MM/DD/YYYY") {
-  if (!d) return "—";
-  const date = new Date(d);
-  if (isNaN(date)) return "—";
-  const mm = String(date.getMonth() + 1).padStart(2, "0");
-  const dd = String(date.getDate()).padStart(2, "0");
-  const yyyy = date.getFullYear();
-  if (fmt === "YYYY-MM-DD") return `${yyyy}-${mm}-${dd}`;
-  if (fmt === "DD/MM/YYYY") return `${dd}/${mm}/${yyyy}`;
-  return `${mm}/${dd}/${yyyy}`;
-}
-
-export function fmtDateTime(d) {
-  if (!d) return "—";
-  const date = new Date(d);
-  if (isNaN(date)) return "—";
-  return date.toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" });
-}
-
-export function timeAgo(d) {
-  if (!d) return "—";
-  const diff = Date.now() - new Date(d).getTime();
-  const mins = Math.round(diff / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.round(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.round(hrs / 24);
-  if (days < 30) return `${days}d ago`;
-  return fmtDate(d);
-}
+// Date/time formatting and day math live in clock.js; re-exported here so the
+// long-standing `import { fmtDate } from "./util.js"` call sites keep working.
+export { fmtDate, fmtDateTime, fmtMonth, timeAgo, isSameDay, isToday, daysFromToday, startOfDay, addDays, now } from "./clock.js";
 
 export function initials(name) {
   return String(name || "?").split(" ").filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("");

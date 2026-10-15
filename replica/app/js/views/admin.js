@@ -1,6 +1,6 @@
 import { store, mutate, logAudit } from "../store.js";
 import { html, raw } from "../markup.js";
-import { money, fmtDate, fmtDateTime, timeAgo, toast, modal, closeModal, confirmDialog, iconSvg, titleCase } from "../util.js";
+import { money, fmtDate, fmtDateTime, timeAgo, isSameDay, now, toast, modal, closeModal, confirmDialog, iconSvg, titleCase } from "../util.js";
 import { pageHead, statCard, card, buildTable, emptyState, toolbar, buildForm, readForm, progressBar } from "../components.js";
 import { customerName, customerById } from "../lookups.js";
 import { exportCsv } from "./jobs.js";
@@ -183,7 +183,7 @@ export const auditLogs = {
     ${pageHead("Audit Logs", "Track all system changes over time", html`<button class="btn btn-secondary" id="export-logs">${iconSvg("download", 15)} Export</button>`)}
     <div class="grid grid-4" style="margin-bottom:16px">
       ${statCard({ label: "Total Events", value: store.auditLogs.length, iconName: "archive" })}
-      ${statCard({ label: "Today", value: store.auditLogs.filter((l) => new Date(l.at).toDateString() === new Date().toDateString()).length, iconName: "clock" })}
+      ${statCard({ label: "Today", value: store.auditLogs.filter((l) => isSameDay(l.at, now())).length, iconName: "clock" })}
       ${statCard({ label: "Unique Users", value: new Set(store.auditLogs.map((l) => l.user)).size, iconName: "users" })}
       ${statCard({ label: "Entities", value: new Set(store.auditLogs.map((l) => l.entityType)).size, iconName: "database" })}
     </div>

@@ -1,4 +1,5 @@
 import { store } from "./store.js";
+import { fmtMonth } from "./clock.js";
 
 export const customerById = (id) => store.customers.find((c) => c.id === id);
 export const techById = (id) => store.technicians.find((t) => t.id === id);
@@ -31,7 +32,7 @@ export function monthlySeries(months = 6) {
   const out = [];
   for (let i = months - 1; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const label = d.toLocaleString("en-US", { month: "short" });
+    const label = fmtMonth(d);
     const inMonth = (ts) => { const x = new Date(ts); return x.getFullYear() === d.getFullYear() && x.getMonth() === d.getMonth(); };
     const revenue = store.invoices.filter((inv) => inv.status !== "cancelled" && inMonth(inv.issuedAt)).reduce((s, inv) => s + inv.total, 0);
     const jobs = store.jobs.filter((j) => inMonth(j.createdAt)).length;
