@@ -1,0 +1,33 @@
+feature,area,priority,original,clone,notes
+Dashboard with KPI cards (jobs, revenue, active technicians),business overview,must,yes,no,Stats for total jobs, open jobs, revenue, pending invoices
+Job CRUD (list, create, view details, edit),jobs,must,yes,no,Core entity — everything ties to jobs
+Job status workflow (Open → In Progress → Waiting Parts → Completed → Invoiced),jobs,must,yes,no,Status stepper/timeline on job detail
+Assign technician to a job,dispatch,must,yes,no,Tied to schedule and tech dashboard
+Customer CRUD (list, create, view details, edit),customers,must,yes,no,Every job needs a customer
+Invoice creation from job,invoicing,must,yes,no,line items auto-filled from job data
+Invoice list with status filter,invoicing,must,yes,no,draft/sent/paid/overdue states
+Payment recording,payments,must,yes,no,linked to invoices
+Technician work queue (dashboard),technicians,must,yes,no,tech sees their assigned jobs today
+Schedule view (calendar),scheduling,must,yes,no,color-coded by tech or status
+Search and filter across all list screens,navigation,must,yes,no,scoped search per table
+Customer portal (self-service job status),customers,could,yes,no,self-service login/magic link
+Recurring jobs scheduler,scheduling,could,yes,no,for maintenance contracts
+Job costing / profitability analysis,reports,must,yes,no,labor cost + parts vs revenue margin
+Parts inventory management,parts,must,yes,no,stock levels, reorder alerts
+Supplier directory,suppliers,must,yes,no,contact info and catalog linking
+Invoice automation rules,invoicing,should,yes,no,auto-create invoice on job completion
+Invoice follow-up tracking for overdue,payments,should,yes,no,overdue list + reminder send
+Technician performance metrics,reports,could,yes,no,jobs completed, avg time, revenue per tech
+Messages / team chat,communication,could,yes,no,internal messaging between users
+Report builder (revenue, turnaround, top services),reports,could,yes,no,charts and export to CSV
+Data import (CSV/Excel for customers/jobs),admin,must,yes,no,onboarding data migration tool
+Audit logs,admin,must,yes,no,track who changed what and when
+GDPR admin (data export/delete requests),admin,could,yes,no,compliance requirement
+Asset monitoring,warranty,could,yes,no,track warranty status for repaired assets
+Work orders,dispatch,could,yes,no,internal technician transfers
+Maintenance contracts,billing,must,yes,no,recurring billing for service agreements
+Technician mobile view,technicians,should,yes,no,compact UI for field use
+Job templates (reusable job configs),jobs,should,yes,no,speed up new job creation
+Invoice PDF generation and email,invoicing,should,yes,no,pdf download + send to customer link
+Time zone detection on booking / scheduling,scheduling,could,yes,no,auto-detect tech's timezone
+Embeddable invoice status page,payments,could,yes,no,shareable link for customers to see payment status
