@@ -1,7 +1,7 @@
 import { store, mutate, logAudit, id as uid } from "../store.js";
 import { refresh } from "../router.js";
 import { html, raw } from "../markup.js";
-import { money, fmtDate, fmtMonth, timeAgo, isSameDay, statusBadge, priorityBadge, avatar, toast, modal, closeModal, confirmDialog, iconSvg, titleCase, initials } from "../util.js";
+import { money, fmtDate, fmtMonth, timeAgo, isSameDay, statusBadge, priorityBadge, avatar, toast, modal, closeModal, confirmDialog, iconSvg, titleCase, initials, SERIES } from "../util.js";
 import { pageHead, statCard, card, buildTable, emptyState, toolbar, barChart, lineChart, progressBar, donutChart } from "../components.js";
 import { customerName, techName, techById, jobById, customerById, monthlySeries } from "../lookups.js";
 import { isActiveJob } from "../domain.js";
@@ -236,9 +236,9 @@ export const technicianMobile = {
     return html`
     ${pageHead("Technician Mobile", "Compact interface for field technicians")}
     <div style="display:flex;justify-content:center">
-      <div style="width:380px;background:#000;border-radius:36px;padding:12px;box-shadow:var(--shadow-pop)">
+      <div style="width:380px;background:#0a0a0b;border-radius:36px;padding:12px;box-shadow:var(--shadow-pop)">
         <div style="background:var(--bg);border-radius:26px;overflow:hidden;height:720px;display:flex;flex-direction:column">
-          <div style="background:linear-gradient(160deg,#1b2a4a,#2f5bea);color:#fff;padding:18px 18px 22px">
+          <div style="background:linear-gradient(160deg,#131316,#2a2a30);color:#fff;padding:18px 18px 22px">
             <div class="row" style="justify-content:space-between"><span style="font-weight:700">FixFlow Field</span>${avatar(me.name)}</div>
             <div style="margin-top:10px;font-size:13px;opacity:.85">${me.name} · ${titleCase(me.status)}</div>
           </div>
@@ -337,7 +337,7 @@ export const technicianPerformance = {
       const revenue = jobs.filter((j) => ["completed", "invoiced"].includes(j.status)).reduce((s, j) => s + (j.actualCost || j.estimatedCost), 0);
       return { ...t, completed, revenue, completionRate: jobs.length ? Math.round((completed / jobs.length) * 100) : 0 };
     }).sort((a, b) => b.revenue - a.revenue);
-    const donut = perf.map((p, i) => ({ label: p.name, value: p.completed, color: ["#2f5bea", "#0ea5e9", "#8b5cf6", "#f97316", "#10b981", "#ef4444"][i % 6] }));
+    const donut = perf.map((p, i) => ({ label: p.name, value: p.completed, color: SERIES[i % SERIES.length] }));
     return html`
     ${pageHead("Technician Performance", "Metrics and KPIs for your team", html`<button class="btn btn-secondary" id="export-perf">${iconSvg("download", 15)} Export</button>`)}
     <div class="grid" style="grid-template-columns:2fr 1fr;margin-bottom:16px">

@@ -256,7 +256,7 @@ export const customerPortal = {
     return html`
     ${pageHead("Customer Portal", "Self-service status page customers see", html`<span class="badge badge-progress">Preview as ${cust.company}</span>`)}
     ${card("", html`
-      <div style="background:linear-gradient(160deg,#1b2a4a,#2f5bea);color:#fff;border-radius:12px;padding:24px;margin-bottom:18px">
+      <div style="background:linear-gradient(160deg,#131316,#2a2a30);color:#fff;border-radius:12px;padding:24px;margin-bottom:18px">
         <div style="font-size:12px;opacity:.8">Welcome back</div>
         <div style="font-size:22px;font-weight:700;margin-top:2px">${cust.company}</div>
         <div style="opacity:.85;font-size:13px;margin-top:6px">You have ${active.length} active repair${active.length === 1 ? "" : "s"} in progress.</div>

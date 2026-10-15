@@ -37,8 +37,16 @@ function toggleTheme() {
   const cur = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
   document.documentElement.setAttribute("data-theme", cur);
   try { localStorage.setItem("fixflow.theme", cur); } catch {}
+  syncThemeIcon();
+}
+function syncThemeIcon() {
+  const btn = document.getElementById("theme-btn");
+  if (!btn) return;
+  const dark = document.documentElement.getAttribute("data-theme") === "dark";
+  btn.innerHTML = String(iconSvg(dark ? "sun" : "moon", 17));
 }
 try { const t = localStorage.getItem("fixflow.theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch {}
+syncThemeIcon();
 
 // global navigation via data-nav
 document.addEventListener("click", (e) => {

@@ -1,7 +1,7 @@
 // Layout shell + reusable UI builders.
 import { store, mutate } from "./store.js";
 import { can, ACTIONS } from "./session.js";
-import { html, raw } from "./markup.js";
+import { html, raw, join } from "./markup.js";
 import { el, icon, iconSvg, initials, avatar, toast, timeAgo, statusBadge, fmtDate } from "./util.js";
 
 export const NAV = [
@@ -92,7 +92,7 @@ export function renderShell() {
           <input id="global-search" placeholder="Search jobs, customers, invoices..." />
           <kbd>⌘K</kbd>
         </div>
-        <button class="icon-btn dropdown" id="theme-btn" aria-label="Toggle theme">${iconSvg("sparkles", 17)}</button>
+        <button class="icon-btn" id="theme-btn" aria-label="Toggle colour theme" title="Toggle colour theme">${iconSvg("moon", 17)}</button>
         <div class="dropdown">
           <button class="icon-btn" id="bell-btn" aria-label="Notifications" style="position:relative">
             ${icon("bell")}
@@ -134,7 +134,10 @@ export function renderShell() {
 export function setBreadcrumb(parts) {
   const bc = document.getElementById("breadcrumb");
   if (!bc) return;
-  bc.innerHTML = String(html`${parts.map((p, i) => i === parts.length - 1 ? html`<b>${p}</b>` : html`<span>${p}</span>${iconSvg("chevronRight", 13)}`).join(" ")}`);
+  const nodes = parts.map((p, i) => i === parts.length - 1
+    ? html`<b>${p}</b>`
+    : html`<span>${p}</span>${iconSvg("chevronRight", 13)}`);
+  bc.innerHTML = String(join(nodes, " "));
 }
 
 export function setActiveNav(id) {
@@ -317,7 +320,7 @@ export function donutChart(segments, { size = 180 } = {}) {
     const large = a1 - a0 > Math.PI ? 1 : 0;
     const x0 = cx + r * Math.cos(a0), y0 = cy + r * Math.sin(a0);
     const x1 = cx + r * Math.cos(a1), y1 = cy + r * Math.sin(a1);
-    return html`<path class="donut-seg" d="M${cx},${cy} L${x0},${y0} A${r},${r} 0 ${large} 1 ${x1},${y1} Z" fill="${s.color}"><title>${s.label}: ${s.value}</title></path>`;
+    return html`<path class="donut-seg" d="M${cx},${cy} L${x0},${y0} A${r},${r} 0 ${large} 1 ${x1},${y1} Z" style="fill:${s.color}"><title>${s.label}: ${s.value}</title></path>`;
   });
   return html`<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" role="img">
     ${arcs}<circle cx="${cx}" cy="${cy}" r="${r * 0.6}" fill="var(--bg)"/>
@@ -331,7 +334,7 @@ export function sparkline(values, color = "var(--accent)", w = 120, h = 32) {
   const xAt = (i) => (i / (values.length - 1)) * w;
   const yAt = (v) => h - ((v - min) / (max - min || 1)) * (h - 4) - 2;
   const d = values.map((v, i) => `${i ? "L" : "M"}${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`).join(" ");
-  return html`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><path d="${d}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round"/></svg>`;
+  return html`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><path d="${d}" fill="none" style="stroke:${color}" stroke-width="2" stroke-linecap="round"/></svg>`;
 }
 
 export function progressBar(pct, color = "var(--accent)") {

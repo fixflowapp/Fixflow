@@ -9,53 +9,52 @@ function configured() {
 
 export function loginView() {
   const online = configured();
+  const caps = [
+    ["Job pipeline", "Intake, diagnosis, repair and hand-off in one queue"],
+    ["Dispatch", "Assign technicians and run the service calendar"],
+    ["Billing", "Generate invoices and reconcile payments"],
+    ["Reporting", "Revenue, turnaround time and margin"],
+  ];
   const html_ = html`
-  <div style="min-height:100vh;display:grid;grid-template-columns:1.1fr 1fr">
-    <div style="background:linear-gradient(160deg,#1b2a4a,#2f5bea);color:#fff;padding:48px;display:flex;flex-direction:column;justify-content:space-between">
-      <div class="row" style="gap:10px">
-        <span class="brand-mark" style="background:rgba(255,255,255,.15)">F</span>
-        <span style="font-weight:700;font-size:18px">FixFlow</span>
+  <div class="auth">
+    <div class="auth-panel">
+      <div class="auth-brand">
+        <span class="brand-mark">F</span>
+        <span class="brand-name">FixFlow</span>
       </div>
       <div>
-        <h1 style="font-size:34px;line-height:1.15;font-weight:700;letter-spacing:-.02em;max-width:480px">
-          The streamlined way to run your repair shop.
-        </h1>
-        <p style="margin-top:16px;opacity:.85;max-width:440px;font-size:15px;line-height:1.6">
-          Track repair jobs from intake to invoice, dispatch technicians, manage parts inventory,
-          and keep customers informed — all from one dashboard.
+        <h1 class="auth-headline">Every repair job, from intake to invoice.</h1>
+        <p class="auth-sub">
+          Track work orders, dispatch technicians, manage parts inventory and keep customers
+          informed — from a single operations desk.
         </p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:32px;max-width:460px">
-          ${[["Jobs & status tracking", "Intake → diagnosis → repair → invoice"],
-             ["Dispatch & scheduling", "Assign techs and manage the calendar"],
-             ["Invoicing & payments", "Auto-generate invoices, record payments"],
-             ["Reports & analytics", "Revenue, turnaround and margins"]].map(([t, d]) => html`
-            <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:14px">
-              <div style="font-weight:600;font-size:13.5px">${t}</div>
-              <div style="font-size:12px;opacity:.75;margin-top:4px">${d}</div>
-            </div>`)}
+        <div class="auth-caps">
+          ${caps.map(([t, d], i) => html`<div class="auth-cap">
+            <em>${String(i + 1).padStart(2, "0")}</em>
+            <b>${t}</b>
+            <span>${d}</span>
+          </div>`)}
         </div>
       </div>
-      <div style="opacity:.6;font-size:12px">© ${new Date().getFullYear()} FixFlow Repairs · Demo build</div>
+      <div class="auth-foot">© ${new Date().getFullYear()} FixFlow Repairs — demonstration build</div>
     </div>
-    <div style="display:grid;place-items:center;padding:40px;background:var(--bg)">
-      <div style="width:100%;max-width:360px">
-        <h2 style="font-size:22px;font-weight:700">Sign in</h2>
-        <p class="muted" style="margin-top:4px;margin-bottom:18px;font-size:13.5px">
-          ${online ? "Sign in with your FixFlow account." : "Offline demo — data stays in this browser only."}
-        </p>
-        <div id="login-error" class="field" style="display:none;margin-bottom:12px">
+    <div class="auth-form-side">
+      <div class="auth-form">
+        <h2>Sign in</h2>
+        <p class="auth-lede">${online ? "Use your FixFlow account to continue." : "Offline demo — data stays in this browser."}</p>
+        <div id="login-error" class="field" style="display:none;margin-bottom:14px">
           <div class="hint" style="color:var(--danger)"></div>
         </div>
         <div class="field" style="margin-bottom:14px">
-          <label>Email</label>
+          <label for="login-email">Email</label>
           <input class="input" id="login-email" type="email" autocomplete="username" value="${online ? "admin@fixflow.io" : ""}" />
         </div>
         <div class="field" style="margin-bottom:18px">
-          <label>Password</label>
+          <label for="login-pass">Password</label>
           <input class="input" type="password" id="login-pass" autocomplete="current-password" />
         </div>
         <button class="btn btn-primary btn-block" id="login-btn">Sign in</button>
-        <p class="muted small" style="text-align:center;margin-top:20px">
+        <p class="auth-alt">
           New here? <span class="link" data-nav="request-service">Request a service</span>
         </p>
       </div>

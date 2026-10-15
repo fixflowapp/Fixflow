@@ -1,6 +1,6 @@
 import { store } from "../store.js";
 import { html } from "../markup.js";
-import { money, fmtDate, statusBadge, invoiceBadge, priorityBadge, timeAgo, isSameDay, iconSvg, avatar } from "../util.js";
+import { money, fmtDate, statusBadge, invoiceBadge, priorityBadge, timeAgo, isSameDay, iconSvg, avatar, SERIES } from "../util.js";
 import { pageHead, statCard, card, buildTable, donutChart, lineChart, barChart, emptyState } from "../components.js";
 import { customerName, techName, monthlySeries } from "../lookups.js";
 import { isActiveJob, pendingInvoices, overdueInvoices } from "../domain.js";
@@ -23,11 +23,11 @@ export const dashboard = {
     const k = kpis();
     const series = monthlySeries(6);
     const statusSegments = [
-      { label: "Open", value: store.jobs.filter((j) => j.status === "open").length, color: "#2563eb" },
-      { label: "In Progress", value: store.jobs.filter((j) => j.status === "in_progress").length, color: "#2f5bea" },
-      { label: "Waiting Parts", value: store.jobs.filter((j) => j.status === "waiting_parts").length, color: "#eab308" },
-      { label: "Completed", value: store.jobs.filter((j) => j.status === "completed").length, color: "#16a34a" },
-      { label: "Invoiced", value: store.jobs.filter((j) => j.status === "invoiced").length, color: "#6d28d9" },
+      { label: "Open", value: store.jobs.filter((j) => j.status === "open").length, color: SERIES[0] },
+      { label: "In Progress", value: store.jobs.filter((j) => j.status === "in_progress").length, color: SERIES[1] },
+      { label: "Waiting Parts", value: store.jobs.filter((j) => j.status === "waiting_parts").length, color: SERIES[2] },
+      { label: "Completed", value: store.jobs.filter((j) => j.status === "completed").length, color: SERIES[3] },
+      { label: "Invoiced", value: store.jobs.filter((j) => j.status === "invoiced").length, color: SERIES[5] },
     ];
     const recent = [...store.jobs].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 7);
     const lowStock = store.parts.filter((p) => p.quantity <= p.reorderLevel);

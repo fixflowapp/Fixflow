@@ -1,6 +1,6 @@
 import { store } from "../store.js";
 import { html } from "../markup.js";
-import { money, fmtDate, toast, iconSvg } from "../util.js";
+import { money, fmtDate, toast, iconSvg, SERIES } from "../util.js";
 import { pageHead, statCard, card, buildTable, barChart, lineChart, donutChart, emptyState, progressBar } from "../components.js";
 import { customerName, customerById, techName, monthlySeries, jobRevenue } from "../lookups.js";
 import { exportCsv } from "./jobs.js";
@@ -13,7 +13,7 @@ export const reports = {
     const completed = store.jobs.filter((j) => ["completed", "invoiced"].includes(j.status));
     const byDevice = {};
     store.jobs.forEach((j) => (byDevice[j.deviceType] = (byDevice[j.deviceType] || 0) + 1));
-    const deviceSegments = Object.entries(byDevice).map(([label, value], i) => ({ label, value, color: ["#2f5bea", "#0ea5e9", "#8b5cf6", "#f97316", "#10b981", "#ef4444", "#14b8a6", "#eab308"][i % 8] }));
+    const deviceSegments = Object.entries(byDevice).map(([label, value], i) => ({ label, value, color: SERIES[i % SERIES.length] }));
     const byType = {};
     store.jobs.forEach((j) => (byType[j.serviceType] = (byType[j.serviceType] || 0) + 1));
     const topCustomers = [...store.customers].map((c) => ({ ...c, spend: store.invoices.filter((i) => i.customerId === c.id).reduce((s, i) => s + i.total, 0) })).sort((a, b) => b.spend - a.spend).slice(0, 6);
