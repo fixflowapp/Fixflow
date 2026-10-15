@@ -66,7 +66,15 @@ export const settings = {
         panel.querySelector("#theme-light")?.addEventListener("click", () => { document.documentElement.setAttribute("data-theme", "light"); toast("Theme", "Light mode", "success"); });
         panel.querySelector("#theme-dark")?.addEventListener("click", () => { document.documentElement.setAttribute("data-theme", "dark"); toast("Theme", "Dark mode", "success"); });
       } else {
-        panel.innerHTML = card("Advanced", `
+        const src = store.source || "local";
+        panel.innerHTML = card("Storage", `
+          <div class="row" style="justify-content:space-between">
+            <div><div style="font-weight:600">Persistence backend</div>
+              <div class="cell-sub">${src === "supabase" ? "Connected to Supabase — changes sync to the cloud." : "Browser localStorage only — not shared or backed up."}</div></div>
+            <span class="badge ${src === "supabase" ? "badge-active" : "badge-neutral"}">${src === "supabase" ? "Supabase" : "Local only"}</span>
+          </div>
+          ${src !== "supabase" ? `<div class="code-box" style="margin-top:12px">Fill app/js/supabase-config.js with your project url + anon key, and run supabase/schema.sql.</div>` : ""}
+        `, { tight: true }) + card("Advanced", `
           <label class="checkline" style="padding:8px 0"><input type="checkbox" /> Enable API access</label>
           <label class="checkline" style="padding:8px 0"><input type="checkbox" /> Automatic backup</label>
           <label class="checkline" style="padding:8px 0"><input type="checkbox" /> Debug mode</label>

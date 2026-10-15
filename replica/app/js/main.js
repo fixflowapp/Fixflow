@@ -1,4 +1,4 @@
-import { store } from "./store.js";
+import { store, initStore } from "./store.js";
 import { renderShell, setActiveNav, setBreadcrumb } from "./components.js";
 import { iconSvg } from "./util.js";
 import { getView } from "./views/index.js";
@@ -115,5 +115,12 @@ function renderLogin() {
 }
 
 window.addEventListener("hashchange", route);
-window.addEventListener("DOMContentLoaded", route);
-route();
+
+// Boot: pull data from Supabase (if configured) before the first render.
+(async () => {
+  let res = { source: "local" };
+  try { res = await initStore(); } catch (e) { console.warn("[fixflow] initStore failed:", e); }
+  window.FIXFLOW_SOURCE = res.source;
+  if (res.source === "supabase" && res.seeded) console.info("[fixflow] Seeded Supabase from local seed data.");
+  route();
+})();

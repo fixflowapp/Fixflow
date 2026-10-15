@@ -324,6 +324,20 @@ function seed() {
 let state = null;
 const listeners = new Set();
 
+// ---- Supabase sync state -------------------------------------------------
+let sb = null;               // lazily-imported ./supabase.js module (only if configured)
+let sbOn = false;            // true once connected & first pull/push done
+const lastPushed = {};       // collection -> JSON snapshot last written to Supabase
+let syncTimer = null;
+
+async function getSupabase() {
+  const cfg = (typeof window !== "undefined" && window.FIXFLOW_SUPABASE) || {};
+  if (!cfg.url || !cfg.anonKey) return null;         // not configured → stay local-only
+  try { return await import("./supabase.js"); } catch (e) { console.warn("[fixflow] supabase import failed:", e); return null; }
+}
+
+export const COLLECTIONS = ["jobs", "customers", "technicians", "invoices", "payments", "parts", "suppliers", "contracts", "workOrders", "templates", "recurringJobs", "assets", "conversations", "auditLogs", "gdprRequests", "notifications", "serviceRequests"];
+
 function load() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -334,11 +348,59 @@ function load() {
   return s;
 }
 
+// Pull from Supabase on boot. Falls back to local data if unavailable.
+export async function initStore() {
+  if (!state) state = load();
+  sb = await getSupabase();
+  if (!sb) { snapshotAll(); return { source: "local" }; }
+  const res = await sb.pullAll();
+  if (!res.ok) { snapshotAll(); return { source: "local", error: res.error }; }
+
+  sbOn = true;
+  const remoteHasData = (res.count || 0) > 0;
+  if (remoteHasData) {
+    const base = seed();
+    const merged = { ...base };
+    for (const c of COLLECTIONS) if (res.collections[c] && res.collections[c].length) merged[c] = res.collections[c];
+    if (res.settings && Object.keys(res.settings).length) merged.settings = res.settings;
+    merged.session = state.session;                 // keep current session
+    state = merged;
+  } else {
+    await sb.seedIfEmpty(state);                    // first run → seed the cloud
+  }
+  persistCache();
+  snapshotAll();
+  return { source: "supabase", seeded: !remoteHasData };
+}
+
+function snapshotAll() {
+  for (const c of COLLECTIONS) lastPushed[c] = JSON.stringify(state[c] || []);
+  lastPushed.settings = JSON.stringify(state.settings || {});
+  lastPushed.session = JSON.stringify(state.session || {});
+}
+
+function scheduleSync() {
+  if (!sbOn || !sb) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(syncNow, 400);
+}
+
+export function syncNow() {
+  if (!sbOn || !sb) return;
+  for (const c of COLLECTIONS) {
+    const json = JSON.stringify(state[c] || []);
+    if (lastPushed[c] !== json) { lastPushed[c] = json; sb.pushCollection(c, state[c] || []); }
+  }
+  const sj = JSON.stringify(state.settings || {});
+  if (lastPushed.settings !== sj) { lastPushed.settings = sj; sb.pushSettings(state.settings || {}); }
+}
+
 export const store = new Proxy({}, {
   get(_t, prop) {
     if (!state) state = load();
-    if (prop === "reset") return () => { state = seed(); persist(); return state; };
+    if (prop === "reset") return async () => { state = seed(); persist(); if (sbOn) await sb.seedIfEmpty(state); return state; };
     if (prop === "subscribe") return (fn) => { listeners.add(fn); return () => listeners.delete(fn); };
+    if (prop === "source") return sbOn ? "supabase" : "local";
     return state[prop];
   },
   set(_t, prop, value) {
@@ -350,8 +412,13 @@ export const store = new Proxy({}, {
   },
 });
 
-function persist() {
+function persistCache() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+}
+
+function persist() {
+  persistCache();
+  scheduleSync();
 }
 
 export function mutate(fn) {
@@ -362,7 +429,6 @@ export function mutate(fn) {
 }
 
 export const id = uid;
-export const COLLECTIONS = ["jobs", "customers", "technicians", "invoices", "payments", "parts", "suppliers", "contracts", "workOrders", "templates", "recurringJobs", "assets", "conversations", "auditLogs", "gdprRequests"];
 
 export function logAudit(action, entityType, entityId, detail) {
   mutate((s) => {
