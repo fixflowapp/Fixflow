@@ -1,9 +1,10 @@
 import { store, mutate, logAudit, id as uid } from "../store.js";
 import { html } from "../markup.js";
-import { money, fmtDate, fmtMonth, timeAgo, invoiceBadge, statusBadge, avatar, toast, modal, closeModal, confirmDialog, iconSvg, INVOICE_STATUS } from "../util.js";
-import { pageHead, statCard, card, buildTable, emptyState, toolbar, buildForm, readForm, validateForm, barChart, progressBar } from "../components.js";
+import { money, fmtDate, fmtMonth, timeAgo, invoiceBadge, statusBadge, avatar, toast, confirmDialog, iconSvg, INVOICE_STATUS } from "../util.js";
+import { pageHead, statCard, card, buildTable, emptyState, toolbar, buildForm, barChart, progressBar } from "../components.js";
 import { customerName, customerById, jobById, invoiceById, monthlySeries } from "../lookups.js";
 import { pendingInvoices, overdueInvoices, daysOverdue } from "../domain.js";
+import { openForm } from "../form.js";
 import { exportCsv } from "./jobs.js";
 
 // ---------- Invoices list ----------
@@ -153,30 +154,26 @@ export const invoiceDetails = {
 };
 
 export function openRecordPayment(inv) {
-  const m = modal({
+  openForm({
     title: "Record payment — " + inv.number,
-    body: buildForm([
+    submitLabel: "Record payment",
+    fields: [
       { key: "amount", label: "Amount", type: "number", required: true, value: String(inv.total) },
       { key: "method", label: "Method", type: "select", options: [{ value: "card", label: "Card" }, { value: "bank_transfer", label: "Bank transfer" }, { value: "cash", label: "Cash" }, { value: "check", label: "Check" }] },
       { key: "reference", label: "Reference", value: "REF-" + Math.floor(10000 + Math.random() * 89999) },
       { key: "recordedAt", label: "Date", type: "date", value: new Date().toISOString().slice(0, 10) },
-    ]),
-    footer: html`<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save-pay">Record payment</button>`,
-  });
-  m.querySelector("#save-pay").addEventListener("click", () => {
-    const d = readForm(m);
-    if (!d.amount) return toast("Amount required", "", "error");
-    mutate((s) => {
-      s.payments.unshift({ id: uid("PAY"), invoiceId: inv.id, customerId: inv.customerId, amount: d.amount, method: d.method, reference: d.reference, recordedAt: d.recordedAt, recordedBy: s.session?.user || "Admin User" });
-      const i = s.invoices.find((x) => x.id === inv.id);
-      const totalPaid = s.payments.filter((p) => p.invoiceId === inv.id).reduce((sum, p) => sum + p.amount, 0);
-      if (totalPaid >= i.total - 0.01) i.status = "paid";
-    });
-    logAudit("created", "Payment", inv.id, "Payment of " + money(d.amount));
-    toast("Payment recorded", money(d.amount) + " applied to " + inv.number, "success");
-    closeModal();
-    window.location.hash = "#/invoice-details/" + inv.id;
-    window.location.reload();
+    ],
+    onSubmit: (d) => {
+      mutate((s) => {
+        s.payments.unshift({ id: uid("PAY"), invoiceId: inv.id, customerId: inv.customerId, amount: d.amount, method: d.method, reference: d.reference, recordedAt: d.recordedAt, recordedBy: s.session?.user || "Admin User" });
+        const i = s.invoices.find((x) => x.id === inv.id);
+        const totalPaid = s.payments.filter((p) => p.invoiceId === inv.id).reduce((sum, p) => sum + p.amount, 0);
+        if (totalPaid >= i.total - 0.01) i.status = "paid";
+      });
+      logAudit("created", "Payment", inv.id, "Payment of " + money(d.amount));
+      toast("Payment recorded", money(d.amount) + " applied to " + inv.number, "success");
+      window.location.hash = "#/invoice-details/" + inv.id;
+    },
   });
 }
 

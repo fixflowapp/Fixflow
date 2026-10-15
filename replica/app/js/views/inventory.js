@@ -1,8 +1,9 @@
 import { store, mutate, logAudit, id as uid } from "../store.js";
 import { html } from "../markup.js";
-import { money, fmtDate, titleCase, avatar, toast, modal, closeModal, confirmDialog, iconSvg } from "../util.js";
-import { pageHead, statCard, card, buildTable, emptyState, toolbar, buildForm, readForm, validateForm, progressBar, donutChart } from "../components.js";
+import { money, fmtDate, titleCase, avatar, toast, modal, confirmDialog, iconSvg } from "../util.js";
+import { pageHead, statCard, card, buildTable, emptyState, toolbar, buildForm, progressBar, donutChart } from "../components.js";
 import { supplierById, customerName } from "../lookups.js";
+import { openForm } from "../form.js";
 import { exportCsv } from "./jobs.js";
 
 // ---------- Parts inventory ----------
@@ -75,9 +76,10 @@ export const partsInventory = {
 };
 
 function openAddPart() {
-  const m = modal({
+  openForm({
     title: "Add new part",
-    body: buildForm([
+    submitLabel: "Add part",
+    fields: [
       { key: "name", label: "Part name", required: true, full: true },
       { key: "sku", label: "SKU / Barcode", placeholder: "Enter or scan" },
       { key: "quantity", label: "Quantity on hand", type: "number", value: "0" },
@@ -85,38 +87,30 @@ function openAddPart() {
       { key: "unitCost", label: "Unit cost", type: "number" },
       { key: "supplierId", label: "Supplier", type: "select", options: store.suppliers.map((s) => ({ value: s.id, label: s.name })) },
       { key: "location", label: "Bin location" },
-    ]),
-    footer: html`<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save">Add part</button>`,
-  });
-  m.querySelector("#save").addEventListener("click", () => {
-    const d = readForm(m);
-    if (!d.name) return toast("Name required", "", "error");
-    mutate((s) => s.parts.unshift({ id: uid("PART"), ...d, lastRestocked: new Date().toISOString() }));
-    logAudit("created", "Part", d.name, "Part added to inventory");
-    toast("Part added", d.name, "success");
-    closeModal();
-    window.location.reload();
+    ],
+    onSubmit: (d) => {
+      mutate((s) => s.parts.unshift({ id: uid("PART"), ...d, lastRestocked: new Date().toISOString() }));
+      logAudit("created", "Part", d.name, "Part added to inventory");
+      toast("Part added", d.name, "success");
+    },
   });
 }
 
 function openAdjust(partId) {
   const p = store.parts.find((x) => x.id === partId);
-  const m = modal({
+  openForm({
     title: "Adjust stock — " + p.name,
+    submitLabel: "Apply adjustment",
     body: html`<div class="row" style="justify-content:space-between;margin-bottom:16px;padding:12px;background:var(--surface);border-radius:8px">
         <span>Current stock</span><b style="font-size:18px">${p.quantity}</b></div>${buildForm([
         { key: "change", label: "Adjustment (+/-)", type: "number", value: String(p.reorderLevel * 2 - p.quantity), full: true, hint: "Positive to add stock, negative to remove" },
         { key: "reason", label: "Reason", type: "select", options: ["Restock", "Used in repair", "Damaged", "Inventory count", "Return to supplier"] },
       ])}`,
-    footer: html`<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save">Apply adjustment</button>`,
-  });
-  m.querySelector("#save").addEventListener("click", () => {
-    const d = readForm(m);
-    mutate((s) => { const x = s.parts.find((y) => y.id === partId); x.quantity = Math.max(0, x.quantity + (d.change || 0)); x.lastRestocked = new Date().toISOString(); });
-    logAudit("updated", "Part", p.name, `Stock ${d.change >= 0 ? "+" : ""}${d.change} (${d.reason})`);
-    toast("Stock adjusted", `${d.change >= 0 ? "+" : ""}${d.change} → ${store.parts.find((y) => y.id === partId).quantity} on hand`, "success");
-    closeModal();
-    window.location.reload();
+    onSubmit: (d) => {
+      mutate((s) => { const x = s.parts.find((y) => y.id === partId); x.quantity = Math.max(0, x.quantity + (d.change || 0)); x.lastRestocked = new Date().toISOString(); });
+      logAudit("updated", "Part", p.name, `Stock ${d.change >= 0 ? "+" : ""}${d.change} (${d.reason})`);
+      toast("Stock adjusted", `${d.change >= 0 ? "+" : ""}${d.change} → ${store.parts.find((y) => y.id === partId).quantity} on hand`, "success");
+    },
   });
 }
 
@@ -145,9 +139,10 @@ export const suppliers = {
   },
   mount(root) {
     const add = () => {
-      const m = modal({
+      openForm({
         title: "Add supplier",
-        body: buildForm([
+        submitLabel: "Add supplier",
+        fields: [
           { key: "name", label: "Supplier name", required: true, full: true },
           { key: "contactName", label: "Contact person" },
           { key: "email", label: "Email", type: "email" },
@@ -155,16 +150,11 @@ export const suppliers = {
           { key: "address", label: "Address", full: true },
           { key: "paymentTerms", label: "Payment terms", type: "select", options: ["Net 15", "Net 30", "Net 45", "Due on receipt"] },
           { key: "category", label: "Category", placeholder: "e.g. Components" },
-        ]),
-        footer: html`<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save">Add supplier</button>`,
-      });
-      m.querySelector("#save").addEventListener("click", () => {
-        const d = readForm(m);
-        if (!d.name) return toast("Name required", "", "error");
-        mutate((s) => s.suppliers.unshift({ id: uid("SUP"), ...d, rating: 5 }));
-        toast("Supplier added", d.name, "success");
-        closeModal();
-        window.location.reload();
+        ],
+        onSubmit: (d) => {
+          mutate((s) => s.suppliers.unshift({ id: uid("SUP"), ...d, rating: 5 }));
+          toast("Supplier added", d.name, "success");
+        },
       });
     };
     root.querySelectorAll("#add-sup, #add-sup2").forEach((b) => b.addEventListener("click", add));
@@ -177,22 +167,20 @@ export const suppliers = {
     }));
     root.querySelectorAll("[data-edit]").forEach((b) => b.addEventListener("click", () => {
       const s = supplierById(b.dataset.edit);
-      const m = modal({
+      openForm({
         title: "Edit supplier",
-        body: buildForm([
-          { key: "name", label: "Name", value: s.name, full: true },
-          { key: "contactName", label: "Contact", value: s.contactName },
-          { key: "email", label: "Email", value: s.email },
-          { key: "phone", label: "Phone", value: s.phone },
-          { key: "paymentTerms", label: "Terms", type: "select", options: ["Net 15", "Net 30", "Net 45", "Due on receipt"], value: s.paymentTerms },
-        ]),
-        footer: html`<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save">Save</button>`,
-      });
-      m.querySelector("#save").addEventListener("click", () => {
-        mutate((st) => { const x = st.suppliers.find((y) => y.id === s.id); Object.assign(x, readForm(m)); });
-        toast("Supplier updated", "", "success");
-        closeModal();
-        window.location.reload();
+        fields: [
+          { key: "name", label: "Name", full: true },
+          { key: "contactName", label: "Contact" },
+          { key: "email", label: "Email" },
+          { key: "phone", label: "Phone" },
+          { key: "paymentTerms", label: "Terms", type: "select", options: ["Net 15", "Net 30", "Net 45", "Due on receipt"] },
+        ],
+        values: s,
+        onSubmit: (d) => {
+          mutate((st) => { const x = st.suppliers.find((y) => y.id === s.id); Object.assign(x, d); });
+          toast("Supplier updated", "", "success");
+        },
       });
     }));
   },
@@ -229,9 +217,9 @@ export const maintenanceContracts = {
   },
   mount(root) {
     root.querySelector("#new-contract")?.addEventListener("click", () => {
-      const m = modal({
+      openForm({
         title: "Create maintenance contract",
-        body: buildForm([
+        fields: [
           { key: "customerId", label: "Customer", type: "select", required: true, options: store.customers.map((c) => ({ value: c.id, label: c.company })), full: true },
           { key: "plan", label: "Plan name", required: true, placeholder: "e.g. Annual Maintenance" },
           { key: "amount", label: "Amount", type: "number", value: "240" },
@@ -239,18 +227,14 @@ export const maintenanceContracts = {
           { key: "startDate", label: "Start date", type: "date", value: new Date().toISOString().slice(0, 10) },
           { key: "endDate", label: "End date", type: "date", value: new Date(Date.now() + 365 * 864e5).toISOString().slice(0, 10) },
           { key: "coverage", label: "Coverage description", type: "textarea", full: true },
-        ], { billingCycle: "monthly" }),
-        footer: html`<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save">Create</button>`,
-      });
-      m.querySelector("#save").addEventListener("click", () => {
-        const d = readForm(m);
-        if (!d.plan || !d.customerId) return toast("Complete required fields", "", "error");
-        const num = "MC-" + (600 + store.contracts.length + Math.floor(Math.random() * 300));
-        mutate((s) => s.contracts.unshift({ id: uid("CON"), number: num, ...d, status: "active", autoRenew: true }));
-        logAudit("created", "Contract", num, "Contract created");
-        toast("Contract created", num, "success");
-        closeModal();
-        window.location.reload();
+        ],
+        values: { billingCycle: "monthly" },
+        onSubmit: (d) => {
+          const num = "MC-" + (600 + store.contracts.length + Math.floor(Math.random() * 300));
+          mutate((s) => s.contracts.unshift({ id: uid("CON"), number: num, ...d, status: "active", autoRenew: true }));
+          logAudit("created", "Contract", num, "Contract created");
+          toast("Contract created", num, "success");
+        },
       });
     });
     root.querySelectorAll("tr[data-row]").forEach((tr) => tr.addEventListener("click", () => toast("Contract " + tr.dataset.row, "View contract details", "info")));

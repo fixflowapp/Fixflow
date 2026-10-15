@@ -1,9 +1,10 @@
 import { store, mutate, logAudit, id as uid } from "../store.js";
 import { html, join } from "../markup.js";
-import { money, fmtDate, fmtDateTime, timeAgo, statusBadge, invoiceBadge, avatar, toast, modal, closeModal, confirmDialog, iconSvg, initials } from "../util.js";
-import { pageHead, statCard, card, buildTable, emptyState, toolbar, buildForm, readForm, validateForm, progressBar } from "../components.js";
+import { money, fmtDate, fmtDateTime, timeAgo, statusBadge, invoiceBadge, avatar, toast, confirmDialog, iconSvg, initials } from "../util.js";
+import { pageHead, statCard, card, buildTable, emptyState, toolbar, buildForm, progressBar } from "../components.js";
 import { customerById, customerName, jobById, techById } from "../lookups.js";
 import { isActiveJob } from "../domain.js";
+import { openForm, bindForm } from "../form.js";
 import { exportCsv } from "./jobs.js";
 
 // ---------- Customers list ----------
@@ -160,15 +161,15 @@ export const newCustomer = {
       })}`;
   },
   mount(root) {
-    root.querySelector("#save").addEventListener("click", () => {
-      const form = root.querySelector(".card-body");
-      if (!validateForm(form, ["company", "name", "email"])) return toast("Complete required fields", "", "error");
-      const d = readForm(form);
-      const newId = "CUST-" + (100 + store.customers.length + Math.floor(Math.random() * 400));
-      mutate((s) => s.customers.unshift({ id: newId, ...d, createdAt: new Date().toISOString(), tags: [] }));
-      logAudit("created", "Customer", newId, "Customer created");
-      toast("Customer created", d.company, "success");
-      window.location.hash = "#/customer-details/" + newId;
+    bindForm(root, {
+      fields: custFields(),
+      onSubmit: (d) => {
+        const newId = "CUST-" + (100 + store.customers.length + Math.floor(Math.random() * 400));
+        mutate((s) => s.customers.unshift({ id: newId, ...d, createdAt: new Date().toISOString(), tags: [] }));
+        logAudit("created", "Customer", newId, "Customer created");
+        toast("Customer created", d.company, "success");
+        window.location.hash = "#/customer-details/" + newId;
+      },
     });
   },
 };
@@ -186,14 +187,14 @@ export const customerEdit = {
   mount(root, params) {
     const c = customerById(params.id) || store.customers[0];
     root.querySelector("#cancel").addEventListener("click", () => { window.location.hash = "#/customer-details/" + c.id; });
-    root.querySelector("#save").addEventListener("click", () => {
-      const form = root.querySelector(".card-body");
-      if (!validateForm(form, ["company", "name", "email"])) return toast("Complete required fields", "", "error");
-      const d = readForm(form);
-      mutate((s) => { const x = s.customers.find((y) => y.id === c.id); Object.assign(x, d); });
-      logAudit("updated", "Customer", c.id, "Customer edited");
-      toast("Customer updated", c.company, "success");
-      window.location.hash = "#/customer-details/" + c.id;
+    bindForm(root, {
+      fields: custFields(),
+      onSubmit: (d) => {
+        mutate((s) => { const x = s.customers.find((y) => y.id === c.id); Object.assign(x, d); });
+        logAudit("updated", "Customer", c.id, "Customer edited");
+        toast("Customer updated", c.company, "success");
+        window.location.hash = "#/customer-details/" + c.id;
+      },
     });
   },
 };
@@ -225,24 +226,20 @@ export const assetMonitoring = {
   },
   mount(root) {
     root.querySelector("#add-asset")?.addEventListener("click", () => {
-      const m = modal({
+      openForm({
         title: "Add asset",
-        body: buildForm([
+        submitLabel: "Add asset",
+        fields: [
           { key: "name", label: "Asset name", required: true, full: true },
           { key: "serial", label: "Serial number" },
           { key: "customerId", label: "Customer", type: "select", options: store.customers.map((c) => ({ value: c.id, label: c.company })) },
           { key: "warrantyUntil", label: "Warranty until", type: "date" },
           { key: "purchaseDate", label: "Purchase date", type: "date" },
-        ]),
-        footer: html`<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save">Add asset</button>`,
-      });
-      m.querySelector("#save").addEventListener("click", () => {
-        const d = readForm(m);
-        if (!d.name) return toast("Name required", "", "error");
-        mutate((s) => s.assets.unshift({ id: uid("AST"), ...d, status: "covered", healthScore: 100, lastService: new Date().toISOString() }));
-        toast("Asset added", d.name, "success");
-        closeModal();
-        window.location.reload();
+        ],
+        onSubmit: (d) => {
+          mutate((s) => s.assets.unshift({ id: uid("AST"), ...d, status: "covered", healthScore: 100, lastService: new Date().toISOString() }));
+          toast("Asset added", d.name, "success");
+        },
       });
     });
   },
@@ -298,6 +295,19 @@ export const customerPortal = {
 };
 
 // ---------- Request service ----------
+function requestFields() {
+  return [
+    { key: "name", label: "Your name", required: true },
+    { key: "phone", label: "Phone", required: true },
+    { key: "email", label: "Email", type: "email", required: true },
+    { key: "deviceType", label: "Device type", type: "select", options: ["Laptop", "Desktop", "Printer", "Server", "Phone", "Tablet", "Appliance", "Network Device"] },
+    { key: "serviceType", label: "Service needed", type: "select", options: ["Repair", "Diagnostic", "Maintenance", "Installation", "Data Recovery"], full: true },
+    { key: "issue", label: "Describe the problem", type: "textarea", required: true, full: true, placeholder: "What is happening with your device?" },
+    { key: "preferredDate", label: "Preferred date", type: "date" },
+    { key: "urgent", label: "Urgent request", type: "select", options: [{ value: "no", label: "No" }, { value: "yes", label: "Yes — same day" }] },
+  ];
+}
+
 export const requestService = {
   title: "Request Service",
   crumb: () => ["Request Service"],
@@ -305,16 +315,7 @@ export const requestService = {
     return html`
     ${pageHead("Request Service", "Customer-facing intake form")}
     <div class="grid" style="grid-template-columns:2fr 1fr">
-      ${card("Tell us about your device", buildForm([
-        { key: "name", label: "Your name", required: true },
-        { key: "phone", label: "Phone", required: true },
-        { key: "email", label: "Email", type: "email", required: true },
-        { key: "deviceType", label: "Device type", type: "select", options: ["Laptop", "Desktop", "Printer", "Server", "Phone", "Tablet", "Appliance", "Network Device"] },
-        { key: "serviceType", label: "Service needed", type: "select", options: ["Repair", "Diagnostic", "Maintenance", "Installation", "Data Recovery"], full: true },
-        { key: "issue", label: "Describe the problem", type: "textarea", required: true, full: true, placeholder: "What is happening with your device?" },
-        { key: "preferredDate", label: "Preferred date", type: "date" },
-        { key: "urgent", label: "Urgent request", type: "select", options: [{ value: "no", label: "No" }, { value: "yes", label: "Yes — same day" }] },
-      ]), { foot: html`<button class="btn btn-primary" id="submit-req">Submit request</button>` })}
+      ${card("Tell us about your device", buildForm(requestFields()), { foot: html`<button class="btn btn-primary" id="submit-req">Submit request</button>` })}
       ${card("How it works", html`
         <div class="timeline">
           ${[["Submit your request", "Tell us what is wrong"], ["We confirm & quote", "We reach out within 24 hours"], ["Drop off or pickup", "Choose what suits you"], ["Track your repair", "Follow status in the portal"]].map(([t, d], i) => html`
@@ -327,13 +328,14 @@ export const requestService = {
     </div>`;
   },
   mount(root) {
-    root.querySelector("#submit-req")?.addEventListener("click", () => {
-      const form = root.querySelector(".card-body");
-      if (!validateForm(form, ["name", "phone", "email", "issue"])) return toast("Complete required fields", "", "error");
-      const d = readForm(form);
-      mutate((s) => s.serviceRequests.unshift({ id: uid("REQ"), ...d, createdAt: new Date().toISOString(), status: "new" }));
-      toast("Request submitted", "We'll be in touch within 24 hours.", "success");
-      form.querySelectorAll("input,textarea").forEach((f) => (f.value = ""));
+    bindForm(root, {
+      fields: requestFields(),
+      submit: "#submit-req",
+      onSubmit: (d) => {
+        mutate((s) => s.serviceRequests.unshift({ id: uid("REQ"), ...d, createdAt: new Date().toISOString(), status: "new" }));
+        toast("Request submitted", "We'll be in touch within 24 hours.", "success");
+        root.querySelector(".card-body").querySelectorAll("input,textarea").forEach((f) => (f.value = ""));
+      },
     });
   },
 };

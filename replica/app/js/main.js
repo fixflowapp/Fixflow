@@ -1,8 +1,11 @@
 import { store, initStore } from "./store.js";
 import { can, ACTIONS } from "./session.js";
+import { parseHash, onRoute } from "./router.js";
 import { renderShell, setActiveNav, setBreadcrumb } from "./components.js";
 import { iconSvg } from "./util.js";
 import { getView } from "./views/index.js";
+
+export { navigate, parseHash } from "./router.js";
 
 const shell = renderShell();
 
@@ -74,21 +77,6 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-export function navigate(id, params = {}) {
-  const qs = new URLSearchParams(params).toString();
-  window.location.hash = "#/" + id + (qs ? "?" + qs : "");
-}
-
-export function parseHash() {
-  const raw = window.location.hash.replace(/^#\/?/, "");
-  const [pathPart, queryPart] = raw.split("?");
-  const segments = pathPart.split("/").filter(Boolean);
-  const id = segments[0] || (store.session ? "dashboard" : "login");
-  const params = Object.fromEntries(new URLSearchParams(queryPart || ""));
-  if (segments[1]) params.id = decodeURIComponent(segments[1]);
-  return { id, params };
-}
-
 const contentEl = () => document.getElementById("content");
 
 function route() {
@@ -122,6 +110,7 @@ function renderLogin() {
 }
 
 window.addEventListener("hashchange", route);
+onRoute(route);
 
 // Boot: pull data from Supabase (if configured) before the first render.
 (async () => {

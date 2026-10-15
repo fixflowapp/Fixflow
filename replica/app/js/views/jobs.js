@@ -1,8 +1,10 @@
 import { store, mutate, logAudit, id as uid } from "../store.js";
+import { refresh } from "../router.js";
 import { html } from "../markup.js";
-import { money, fmtDate, fmtDateTime, timeAgo, statusBadge, priorityBadge, invoiceBadge, avatar, toast, modal, closeModal, confirmDialog, iconSvg, JOB_STATUS, PRIORITY } from "../util.js";
-import { pageHead, statCard, card, buildTable, emptyState, toolbar, buildForm, readForm, validateForm, barChart, progressBar } from "../components.js";
+import { money, fmtDate, fmtDateTime, timeAgo, statusBadge, priorityBadge, invoiceBadge, avatar, toast, confirmDialog, iconSvg, JOB_STATUS, PRIORITY } from "../util.js";
+import { pageHead, statCard, card, buildTable, emptyState, toolbar, buildForm, barChart, progressBar } from "../components.js";
 import { customerById, customerName, techById, techName, jobById, invoiceById } from "../lookups.js";
+import { openForm, bindForm } from "../form.js";
 
 const NAV_ACTIONS = html`
   <button class="btn btn-secondary" data-nav="job-templates">Templates</button>
@@ -203,28 +205,24 @@ export const jobDetails = {
 };
 
 function openAddPart(job) {
-  const m = modal({
+  const m = openForm({
     title: "Add part to job",
-    body: buildForm([
+    submitLabel: "Add part",
+    fields: [
       { key: "partId", label: "Part from inventory", type: "select", options: [{ value: "", label: "— Manual entry —" }, ...store.parts.map((p) => ({ value: p.id, label: `${p.name} (${p.quantity} in stock)` }))], full: true },
       { key: "name", label: "Part name", required: true },
       { key: "qty", label: "Quantity", type: "number", value: "1" },
       { key: "unitCost", label: "Unit cost", type: "number" },
-    ]),
-    footer: html`<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save-part">Add part</button>`,
+    ],
+    onSubmit: (data) => {
+      mutate((s) => { const j = s.jobs.find((x) => x.id === job.id); j.partsUsed.push({ name: data.name, qty: data.qty || 1, unitCost: data.unitCost || 0 }); j.partsCost += (data.qty || 1) * (data.unitCost || 0); });
+      logAudit("updated", "Job", job.id, "Part added: " + data.name);
+      toast("Part added", data.name, "success");
+    },
   });
   m.querySelector('[name="partId"]').addEventListener("change", (e) => {
     const p = store.parts.find((x) => x.id === e.target.value);
     if (p) { m.querySelector('[name="name"]').value = p.name; m.querySelector('[name="unitCost"]').value = p.unitCost; }
-  });
-  m.querySelector("#save-part").addEventListener("click", () => {
-    const data = readForm(m);
-    if (!data.name) return toast("Name required", "", "error");
-    mutate((s) => { const j = s.jobs.find((x) => x.id === job.id); j.partsUsed.push({ name: data.name, qty: data.qty || 1, unitCost: data.unitCost || 0 }); j.partsCost += (data.qty || 1) * (data.unitCost || 0); });
-    logAudit("updated", "Job", job.id, "Part added: " + data.name);
-    toast("Part added", data.name, "success");
-    closeModal();
-    window.location.hash = "#/job-details/" + job.id;
   });
 }
 
@@ -261,19 +259,19 @@ export const newJob = {
       })}`;
   },
   mount(root) {
-    const holder = root.querySelector("#save-job");
-    holder?.addEventListener("click", () => {
-      const form = root.querySelector(".card-body");
-      if (!validateForm(form, ["customerId", "title", "issue"])) return toast("Please complete required fields", "", "error");
-      const data = readForm(form);
-      const newId = store.settings.jobPrefix + (2000 + store.jobs.length + Math.floor(Math.random() * 500));
-      mutate((s) => s.jobs.unshift({
-        id: newId, ...data, status: "open", partsUsed: [], partsCost: 0,
-        actualCost: null, completedAt: null, createdAt: new Date().toISOString(),
-      }));
-      logAudit("created", "Job", newId, "Job created");
-      toast("Job created", newId, "success");
-      window.location.hash = "#/job-details/" + newId;
+    bindForm(root, {
+      fields: jobForm(null).fields,
+      submit: "#save-job",
+      onSubmit: (data) => {
+        const newId = store.settings.jobPrefix + (2000 + store.jobs.length + Math.floor(Math.random() * 500));
+        mutate((s) => s.jobs.unshift({
+          id: newId, ...data, status: "open", partsUsed: [], partsCost: 0,
+          actualCost: null, completedAt: null, createdAt: new Date().toISOString(),
+        }));
+        logAudit("created", "Job", newId, "Job created");
+        toast("Job created", newId, "success");
+        window.location.hash = "#/job-details/" + newId;
+      },
     });
   },
 };
@@ -292,14 +290,15 @@ export const jobEdit = {
   mount(root, params) {
     const job = jobById(params.id) || store.jobs[0];
     root.querySelector("#cancel-edit")?.addEventListener("click", () => { window.location.hash = "#/job-details/" + job.id; });
-    root.querySelector("#save-job")?.addEventListener("click", () => {
-      const form = root.querySelector(".card-body");
-      if (!validateForm(form, ["customerId", "title", "issue"])) return toast("Please complete required fields", "", "error");
-      const data = readForm(form);
-      mutate((s) => { const j = s.jobs.find((x) => x.id === job.id); Object.assign(j, data); });
-      logAudit("updated", "Job", job.id, "Job edited");
-      toast("Job updated", job.id, "success");
-      window.location.hash = "#/job-details/" + job.id;
+    bindForm(root, {
+      fields: jobForm(job).fields,
+      submit: "#save-job",
+      onSubmit: (data) => {
+        mutate((s) => { const j = s.jobs.find((x) => x.id === job.id); Object.assign(j, data); });
+        logAudit("updated", "Job", job.id, "Job edited");
+        toast("Job updated", job.id, "success");
+        window.location.hash = "#/job-details/" + job.id;
+      },
     });
   },
 };
@@ -335,32 +334,28 @@ export const jobTemplates = {
     root.querySelectorAll("[data-del-template]").forEach((b) => b.addEventListener("click", () => confirmDialog("Delete template?", "This template will be removed.", () => {
       mutate((s) => { s.templates = s.templates.filter((t) => t.id !== b.dataset.delTemplate); });
       toast("Template deleted", "", "success");
-      window.location.reload();
+      refresh();
     })));
     root.querySelectorAll("#new-template").forEach((b) => b.addEventListener("click", openNewTemplate));
   },
 };
 
 function openNewTemplate() {
-  const m = modal({
+  openForm({
     title: "Create job template",
-    body: buildForm([
+    submitLabel: "Create",
+    fields: [
       { key: "title", label: "Template name", required: true, full: true },
       { key: "category", label: "Category" },
       { key: "laborRate", label: "Labor rate", type: "number", value: "85" },
       { key: "estimatedHours", label: "Estimated hours", type: "number", value: "1" },
       { key: "defaultParts", label: "Default part", full: true, placeholder: "e.g. SSD 1TB NVMe" },
       { key: "description", label: "Description", type: "textarea", full: true },
-    ]),
-    footer: html`<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save">Create</button>`,
-  });
-  m.querySelector("#save").addEventListener("click", () => {
-    const d = readForm(m);
-    if (!d.title) return toast("Name required", "", "error");
-    mutate((s) => s.templates.unshift({ id: uid("TPL"), ...d, defaultParts: d.defaultParts ? [{ name: d.defaultParts, qty: 1 }] : [] }));
-    toast("Template created", d.title, "success");
-    closeModal();
-    window.location.reload();
+    ],
+    onSubmit: (d) => {
+      mutate((s) => s.templates.unshift({ id: uid("TPL"), ...d, defaultParts: d.defaultParts ? [{ name: d.defaultParts, qty: 1 }] : [] }));
+      toast("Template created", d.title, "success");
+    },
   });
 }
 
@@ -386,26 +381,22 @@ export const recurringJobs = {
     root.querySelectorAll("[data-toggle]").forEach((b) => b.addEventListener("click", () => {
       mutate((s) => { const r = s.recurringJobs.find((x) => x.id === b.dataset.toggle); r.active = !r.active; });
       toast("Schedule updated", "", "success");
-      window.location.reload();
+      refresh();
     }));
     root.querySelector("#new-recurring")?.addEventListener("click", () => {
-      const m = modal({
+      openForm({
         title: "New recurring schedule",
-        body: buildForm([
+        submitLabel: "Create",
+        fields: [
           { key: "customerId", label: "Customer", type: "select", options: store.customers.map((c) => ({ value: c.id, label: c.company })), full: true },
           { key: "title", label: "Title", required: true, full: true },
           { key: "frequency", label: "Frequency", type: "select", options: ["daily", "weekly", "monthly", "quarterly", "annual"] },
           { key: "nextRun", label: "Next run", type: "date" },
-        ]),
-        footer: html`<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save">Create</button>`,
-      });
-      m.querySelector("#save").addEventListener("click", () => {
-        const d = readForm(m);
-        if (!d.title) return toast("Title required", "", "error");
-        mutate((s) => s.recurringJobs.unshift({ id: uid("REC"), ...d, active: true, lastRun: null }));
-        toast("Schedule created", d.title, "success");
-        closeModal();
-        window.location.reload();
+        ],
+        onSubmit: (d) => {
+          mutate((s) => s.recurringJobs.unshift({ id: uid("REC"), ...d, active: true, lastRun: null }));
+          toast("Schedule created", d.title, "success");
+        },
       });
     });
   },
@@ -432,26 +423,22 @@ export const workOrders = {
   },
   mount(root) {
     root.querySelector("#new-wo")?.addEventListener("click", () => {
-      const m = modal({
+      openForm({
         title: "Create work order",
-        body: buildForm([
+        submitLabel: "Create",
+        fields: [
           { key: "title", label: "Title", required: true, full: true },
           { key: "fromTechnicianId", label: "From technician", type: "select", options: store.technicians.map((t) => ({ value: t.id, label: t.name })) },
           { key: "toTechnicianId", label: "To technician", type: "select", options: store.technicians.map((t) => ({ value: t.id, label: t.name })) },
           { key: "priority", label: "Priority", type: "select", options: Object.entries(PRIORITY).map(([v, x]) => ({ value: v, label: x.label })) },
           { key: "relatedJobId", label: "Related job", type: "select", options: store.jobs.slice(0, 30).map((j) => ({ value: j.id, label: `${j.id} — ${j.title}` })) },
           { key: "description", label: "Description", type: "textarea", full: true },
-        ]),
-        footer: html`<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save">Create</button>`,
-      });
-      m.querySelector("#save").addEventListener("click", () => {
-        const d = readForm(m);
-        if (!d.title) return toast("Title required", "", "error");
-        mutate((s) => s.workOrders.unshift({ id: uid("WO"), ...d, status: "open", createdAt: new Date().toISOString() }));
-        logAudit("created", "WorkOrder", d.title, "Work order created");
-        toast("Work order created", "", "success");
-        closeModal();
-        window.location.reload();
+        ],
+        onSubmit: (d) => {
+          mutate((s) => s.workOrders.unshift({ id: uid("WO"), ...d, status: "open", createdAt: new Date().toISOString() }));
+          logAudit("created", "WorkOrder", d.title, "Work order created");
+          toast("Work order created", "", "success");
+        },
       });
     });
   },

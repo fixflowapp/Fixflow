@@ -1,9 +1,11 @@
 import { store, mutate, logAudit, id as uid } from "../store.js";
+import { refresh } from "../router.js";
 import { html, raw } from "../markup.js";
 import { money, fmtDate, fmtMonth, timeAgo, isSameDay, statusBadge, priorityBadge, avatar, toast, modal, closeModal, confirmDialog, iconSvg, titleCase, initials } from "../util.js";
-import { pageHead, statCard, card, buildTable, emptyState, toolbar, buildForm, readForm, validateForm, barChart, lineChart, progressBar, donutChart } from "../components.js";
+import { pageHead, statCard, card, buildTable, emptyState, toolbar, barChart, lineChart, progressBar, donutChart } from "../components.js";
 import { customerName, techName, techById, jobById, customerById, monthlySeries } from "../lookups.js";
 import { isActiveJob } from "../domain.js";
+import { openForm } from "../form.js";
 
 // ---------- Schedule (calendar) ----------
 export const schedule = {
@@ -108,9 +110,10 @@ export const technicians = {
   },
   mount(root) {
     root.querySelector("#add-tech")?.addEventListener("click", () => {
-      const m = modal({
+      openForm({
         title: "Add technician",
-        body: buildForm([
+        submitLabel: "Add technician",
+        fields: [
           { key: "name", label: "Full name", required: true, full: true },
           { key: "email", label: "Email", type: "email" },
           { key: "phone", label: "Phone" },
@@ -118,18 +121,14 @@ export const technicians = {
           { key: "status", label: "Status", type: "select", options: ["available", "busy", "off"] },
           { key: "hourlyRate", label: "Hourly rate", type: "number", value: "65" },
           { key: "maxJobsPerDay", label: "Max jobs/day", type: "number", value: "6" },
-        ], { status: "available" }),
-        footer: html`<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save">Add technician</button>`,
-      });
-      m.querySelector("#save").addEventListener("click", () => {
-        const d = readForm(m);
-        if (!d.name) return toast("Name required", "", "error");
-        const parts = d.name.split(" ");
-        mutate((s) => s.technicians.unshift({ id: uid("TECH"), ...d, firstName: parts[0], lastName: parts.slice(1).join(" "), rating: 5, jobsCompleted: 0, revenue: 0, startDate: new Date().toISOString() }));
-        logAudit("created", "Technician", d.name, "Technician added");
-        toast("Technician added", d.name, "success");
-        closeModal();
-        window.location.reload();
+        ],
+        values: { status: "available" },
+        onSubmit: (d) => {
+          const parts = d.name.split(" ");
+          mutate((s) => s.technicians.unshift({ id: uid("TECH"), ...d, firstName: parts[0], lastName: parts.slice(1).join(" "), rating: 5, jobsCompleted: 0, revenue: 0, startDate: new Date().toISOString() }));
+          logAudit("created", "Technician", d.name, "Technician added");
+          toast("Technician added", d.name, "success");
+        },
       });
     });
     root.querySelectorAll("[data-view-tech]").forEach((b) => b.addEventListener("click", () => {
@@ -150,24 +149,21 @@ export const technicians = {
     }));
     root.querySelectorAll("[data-edit-tech]").forEach((b) => b.addEventListener("click", () => {
       const t = techById(b.dataset.editTech);
-      const m = modal({
+      openForm({
         title: "Edit technician",
-        body: buildForm([
-          { key: "name", label: "Full name", value: t.name, full: true },
-          { key: "email", label: "Email", value: t.email },
-          { key: "phone", label: "Phone", value: t.phone },
-          { key: "specialty", label: "Specialty", value: t.specialty, full: true },
-          { key: "status", label: "Status", type: "select", options: ["available", "busy", "off"], value: t.status },
-          { key: "hourlyRate", label: "Hourly rate", type: "number", value: t.hourlyRate },
-        ]),
-        footer: html`<button class="btn btn-secondary" data-close>Cancel</button><button class="btn btn-primary" id="save">Save</button>`,
-      });
-      m.querySelector("#save").addEventListener("click", () => {
-        const d = readForm(m);
-        mutate((s) => { const x = s.technicians.find((y) => y.id === t.id); Object.assign(x, d); });
-        toast("Technician updated", "", "success");
-        closeModal();
-        window.location.reload();
+        fields: [
+          { key: "name", label: "Full name", full: true },
+          { key: "email", label: "Email" },
+          { key: "phone", label: "Phone" },
+          { key: "specialty", label: "Specialty", full: true },
+          { key: "status", label: "Status", type: "select", options: ["available", "busy", "off"] },
+          { key: "hourlyRate", label: "Hourly rate", type: "number" },
+        ],
+        values: t,
+        onSubmit: (d) => {
+          mutate((s) => { const x = s.technicians.find((y) => y.id === t.id); Object.assign(x, d); });
+          toast("Technician updated", "", "success");
+        },
       });
     }));
   },
@@ -218,13 +214,13 @@ export const technicianDashboard = {
     root.querySelectorAll("[data-start]").forEach((b) => b.addEventListener("click", () => {
       mutate((s) => { const j = s.jobs.find((x) => x.id === b.dataset.start); j.status = "in_progress"; });
       toast("Job started", b.dataset.start, "success");
-      window.location.reload();
+      refresh();
     }));
     root.querySelectorAll("[data-done]").forEach((b) => b.addEventListener("click", () => {
       mutate((s) => { const j = s.jobs.find((x) => x.id === b.dataset.done); j.status = "completed"; j.completedAt = new Date().toISOString(); });
       logAudit("updated", "Job", b.dataset.done, "Marked completed");
       toast("Job completed", b.dataset.done, "success");
-      window.location.reload();
+      refresh();
     }));
     root.querySelectorAll("[data-detail]").forEach((b) => b.addEventListener("click", () => { window.location.hash = "#/job-details/" + b.dataset.detail; }));
   },
@@ -269,8 +265,8 @@ export const technicianMobile = {
     </div>`;
   },
   mount(root) {
-    root.querySelectorAll("[data-mstart]").forEach((b) => b.addEventListener("click", () => { mutate((s) => { s.jobs.find((x) => x.id === b.dataset.mstart).status = "in_progress"; }); toast("Job started", b.dataset.mstart, "success"); window.location.reload(); }));
-    root.querySelectorAll("[data-mdone]").forEach((b) => b.addEventListener("click", () => { mutate((s) => { const j = s.jobs.find((x) => x.id === b.dataset.mdone); j.status = "completed"; j.completedAt = new Date().toISOString(); }); toast("Job completed", b.dataset.mdone, "success"); window.location.reload(); }));
+    root.querySelectorAll("[data-mstart]").forEach((b) => b.addEventListener("click", () => { mutate((s) => { s.jobs.find((x) => x.id === b.dataset.mstart).status = "in_progress"; }); toast("Job started", b.dataset.mstart, "success"); refresh(); }));
+    root.querySelectorAll("[data-mdone]").forEach((b) => b.addEventListener("click", () => { mutate((s) => { const j = s.jobs.find((x) => x.id === b.dataset.mdone); j.status = "completed"; j.completedAt = new Date().toISOString(); }); toast("Job completed", b.dataset.mdone, "success"); refresh(); }));
     root.querySelectorAll("[data-mgps]").forEach((b) => b.addEventListener("click", () => toast("GPS captured", "Location recorded for " + b.dataset.mgps, "success")));
     root.querySelector("#m-photo")?.addEventListener("click", () => toast("Photo uploaded", "Attached to current job.", "success"));
   },
