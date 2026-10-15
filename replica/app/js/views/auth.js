@@ -1,4 +1,5 @@
 import { store } from "../store.js";
+import { supabaseAdapter } from "../session.js";
 import { html } from "../markup.js";
 
 function configured() {
@@ -79,9 +80,9 @@ export function loginView() {
         btn.textContent = "Signing in…";
         try {
           const mod = await import("../supabase.js");
-          const res = await mod.signIn(email, password);
+          const res = await supabaseAdapter(mod).signIn(email, password);
           if (!res.ok) { btn.disabled = false; btn.textContent = label; return showError(res.error || "Sign in failed."); }
-          store.session = res.display;
+          store.session = res.session;
           window.location.hash = "#/dashboard";
           window.location.reload();
         } catch (e) {

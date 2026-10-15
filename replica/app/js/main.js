@@ -1,4 +1,5 @@
 import { store, initStore } from "./store.js";
+import { can, ACTIONS } from "./session.js";
 import { renderShell, setActiveNav, setBreadcrumb } from "./components.js";
 import { iconSvg } from "./util.js";
 import { getView } from "./views/index.js";
@@ -41,6 +42,7 @@ document.addEventListener("click", (e) => {
   if (!nav) return;
   const id = nav.dataset.nav;
   if (id === "__reset") {
+    if (!can(ACTIONS.DATA_RESET)) return;
     store.reset();
     // eslint-disable-next-line no-alert
     window.location.hash = "#/dashboard";

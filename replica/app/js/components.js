@@ -1,5 +1,6 @@
 // Layout shell + reusable UI builders.
 import { store, mutate } from "./store.js";
+import { can, ACTIONS } from "./session.js";
 import { html, raw } from "./markup.js";
 import { el, icon, iconSvg, initials, avatar, toast, timeAgo, statusBadge, fmtDate } from "./util.js";
 
@@ -116,7 +117,7 @@ export function renderShell() {
             </div>
             <div class="menu-sep"></div>
             <div class="menu-item" data-nav="settings">${iconSvg("settings", 15)} Settings</div>
-            <div class="menu-item" data-nav="__reset">${iconSvg("refresh", 15)} Reset demo data</div>
+            ${can(ACTIONS.DATA_RESET) ? html`<div class="menu-item" data-nav="__reset">${iconSvg("refresh", 15)} Reset demo data</div>` : ""}
             <div class="menu-sep"></div>
             <div class="menu-item" data-nav="__logout">${iconSvg("logout", 15)} Sign out</div>
           </div>
