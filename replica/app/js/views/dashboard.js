@@ -140,7 +140,7 @@ export const home = {
             <div style="flex:1"><div style="font-weight:600;font-size:13px">${esc(j.title)}</div><div class="cell-sub">${esc(customerName(j.customerId))} · ${esc(techName(j.technicianId))}</div></div>
             ${statusBadge(j.status)}
           </div>`).join("") : emptyState("No jobs today", "Your agenda is clear.", "", "calendar");
-      }), { tight: true })}
+      })(), { tight: true })}
       ${card("Recent Activity", store.auditLogs.slice(0, 6).map((l) => `
         <div class="list-item" style="padding:10px 0">
           <span class="pill">${esc(l.action)}</span>
