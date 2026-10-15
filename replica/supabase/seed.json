@@ -1,0 +1,3476 @@
+{
+  "technicians": [
+    {
+      "id": "TECH-100",
+      "name": "Marcus Reyes",
+      "firstName": "Marcus",
+      "lastName": "Reyes",
+      "email": "marcus.reyes@fixflow.io",
+      "phone": "+1 (555) 200-0104",
+      "specialty": "Hardware & Diagnostics",
+      "status": "available",
+      "hourlyRate": 65,
+      "maxJobsPerDay": 6,
+      "rating": 4.3,
+      "jobsCompleted": 40,
+      "revenue": 8400,
+      "startDate": "2025-06-02T19:14:33.531Z"
+    },
+    {
+      "id": "TECH-101",
+      "name": "Priya Nair",
+      "firstName": "Priya",
+      "lastName": "Nair",
+      "email": "priya.nair@fixflow.io",
+      "phone": "+1 (555) 201-0114",
+      "specialty": "Software & Data Recovery",
+      "status": "busy",
+      "hourlyRate": 70,
+      "maxJobsPerDay": 6,
+      "rating": 4.45,
+      "jobsCompleted": 53,
+      "revenue": 10150,
+      "startDate": "2025-05-03T19:14:33.531Z"
+    },
+    {
+      "id": "TECH-102",
+      "name": "Diego Alvarez",
+      "firstName": "Diego",
+      "lastName": "Alvarez",
+      "email": "diego.alvarez@fixflow.io",
+      "phone": "+1 (555) 202-0124",
+      "specialty": "Laptops & Tablets",
+      "status": "available",
+      "hourlyRate": 75,
+      "maxJobsPerDay": 6,
+      "rating": 4.6,
+      "jobsCompleted": 66,
+      "revenue": 11900,
+      "startDate": "2025-04-03T19:14:33.531Z"
+    },
+    {
+      "id": "TECH-103",
+      "name": "Hannah Okafor",
+      "firstName": "Hannah",
+      "lastName": "Okafor",
+      "email": "hannah.okafor@fixflow.io",
+      "phone": "+1 (555) 203-0134",
+      "specialty": "Appliances",
+      "status": "off",
+      "hourlyRate": 80,
+      "maxJobsPerDay": 6,
+      "rating": 4.75,
+      "jobsCompleted": 79,
+      "revenue": 13650,
+      "startDate": "2025-03-04T19:14:33.531Z"
+    },
+    {
+      "id": "TECH-104",
+      "name": "Tom Bennett",
+      "firstName": "Tom",
+      "lastName": "Bennett",
+      "email": "tom.bennett@fixflow.io",
+      "phone": "+1 (555) 204-0144",
+      "specialty": "Networking",
+      "status": "busy",
+      "hourlyRate": 85,
+      "maxJobsPerDay": 6,
+      "rating": 4.3,
+      "jobsCompleted": 92,
+      "revenue": 15400,
+      "startDate": "2025-02-02T19:14:33.531Z"
+    },
+    {
+      "id": "TECH-105",
+      "name": "Sofia Costa",
+      "firstName": "Sofia",
+      "lastName": "Costa",
+      "email": "sofia.costa@fixflow.io",
+      "phone": "+1 (555) 205-0154",
+      "specialty": "Phones & Accessories",
+      "status": "available",
+      "hourlyRate": 90,
+      "maxJobsPerDay": 6,
+      "rating": 4.45,
+      "jobsCompleted": 105,
+      "revenue": 17150,
+      "startDate": "2025-01-03T19:14:33.531Z"
+    }
+  ],
+  "customers": [
+    {
+      "id": "CUST-100",
+      "company": "Acme Solutions",
+      "name": "Jordan Fisher",
+      "email": "jordan@acmesolutions.com",
+      "phone": "+1 (555) 300-0100",
+      "address": "120 Oak St",
+      "city": "Portland, OR",
+      "preferredContact": "email",
+      "createdAt": "2025-09-10T19:14:33.531Z",
+      "notes": "Priority account — SLA 24h response.",
+      "tags": [
+        "vip"
+      ]
+    },
+    {
+      "id": "CUST-101",
+      "company": "Northwind Traders",
+      "name": "Rebecca Wells",
+      "email": "rebecca.wells@northwind.co",
+      "phone": "+1 (555) 301-0110",
+      "address": "127 Maple St",
+      "city": "Austin, TX",
+      "preferredContact": "phone",
+      "createdAt": "2025-09-22T19:14:33.531Z",
+      "notes": "",
+      "tags": []
+    },
+    {
+      "id": "CUST-102",
+      "company": "Bright Dental Group",
+      "name": "Dr. Alan Meyer",
+      "email": "alan@brightdental.com",
+      "phone": "+1 (555) 302-0120",
+      "address": "134 Pine St",
+      "city": "Denver, CO",
+      "preferredContact": "sms",
+      "createdAt": "2025-10-04T19:14:33.531Z",
+      "notes": "",
+      "tags": [
+        "net-30"
+      ]
+    },
+    {
+      "id": "CUST-103",
+      "company": "Cedar Ridge Hotel",
+      "name": "Monica Hall",
+      "email": "monica@cedarridgehotel.com",
+      "phone": "+1 (555) 303-0130",
+      "address": "141 Birch St",
+      "city": "Seattle, WA",
+      "preferredContact": "email",
+      "createdAt": "2025-10-16T19:14:33.531Z",
+      "notes": "Priority account — SLA 24h response.",
+      "tags": [
+        "vip",
+        "net-30"
+      ]
+    },
+    {
+      "id": "CUST-104",
+      "company": "Harbor Logistics",
+      "name": "Victor Nguyen",
+      "email": "victor@harborlog.com",
+      "phone": "+1 (555) 304-0140",
+      "address": "148 Cedar St",
+      "city": "Chicago, IL",
+      "preferredContact": "phone",
+      "createdAt": "2025-10-28T19:14:33.531Z",
+      "notes": "",
+      "tags": []
+    },
+    {
+      "id": "CUST-105",
+      "company": "Sunrise Café",
+      "name": "Elena Rossi",
+      "email": "elena@sunrisecafe.com",
+      "phone": "+1 (555) 305-0150",
+      "address": "155 Oak St",
+      "city": "Miami, FL",
+      "preferredContact": "sms",
+      "createdAt": "2025-11-09T19:14:33.531Z",
+      "notes": "",
+      "tags": [
+        "vip"
+      ]
+    },
+    {
+      "id": "CUST-106",
+      "company": "Vertex Legal",
+      "name": "Priya Shah",
+      "email": "priya@vertexlegal.com",
+      "phone": "+1 (555) 306-0160",
+      "address": "162 Maple St",
+      "city": "Portland, OR",
+      "preferredContact": "email",
+      "createdAt": "2025-11-21T19:14:33.531Z",
+      "notes": "Priority account — SLA 24h response.",
+      "tags": []
+    },
+    {
+      "id": "CUST-107",
+      "company": "Greenway Schools",
+      "name": "Daniel Brooks",
+      "email": "daniel@greenway.edu",
+      "phone": "+1 (555) 307-0170",
+      "address": "169 Pine St",
+      "city": "Austin, TX",
+      "preferredContact": "phone",
+      "createdAt": "2025-12-03T19:14:33.531Z",
+      "notes": "",
+      "tags": [
+        "net-30"
+      ]
+    },
+    {
+      "id": "CUST-108",
+      "company": "Orbit Fitness",
+      "name": "Sasha Kim",
+      "email": "sasha@orbitfit.com",
+      "phone": "+1 (555) 308-0180",
+      "address": "176 Birch St",
+      "city": "Denver, CO",
+      "preferredContact": "sms",
+      "createdAt": "2025-12-15T19:14:33.531Z",
+      "notes": "",
+      "tags": [
+        "vip",
+        "net-30"
+      ]
+    },
+    {
+      "id": "CUST-109",
+      "company": "Lakeside Clinic",
+      "name": "Dr. Grace Lin",
+      "email": "grace@lakesideclinic.com",
+      "phone": "+1 (555) 309-0190",
+      "address": "183 Cedar St",
+      "city": "Seattle, WA",
+      "preferredContact": "email",
+      "createdAt": "2025-12-27T19:14:33.531Z",
+      "notes": "Priority account — SLA 24h response.",
+      "tags": []
+    },
+    {
+      "id": "CUST-110",
+      "company": "Riverside Bakery",
+      "name": "Omar Haddad",
+      "email": "omar@riversidebakery.com",
+      "phone": "+1 (555) 310-01100",
+      "address": "190 Oak St",
+      "city": "Chicago, IL",
+      "preferredContact": "phone",
+      "createdAt": "2026-01-08T19:14:33.531Z",
+      "notes": "",
+      "tags": [
+        "vip"
+      ]
+    },
+    {
+      "id": "CUST-111",
+      "company": "Summit Realty",
+      "name": "Tara Whitfield",
+      "email": "tara@summitrealty.com",
+      "phone": "+1 (555) 311-01110",
+      "address": "197 Maple St",
+      "city": "Miami, FL",
+      "preferredContact": "sms",
+      "createdAt": "2026-01-20T19:14:33.531Z",
+      "notes": "",
+      "tags": []
+    }
+  ],
+  "jobs": [
+    {
+      "id": "JOB-2000",
+      "customerId": "CUST-100",
+      "title": "Laptop Repair",
+      "deviceType": "Laptop",
+      "issue": "Won't power on after surge",
+      "status": "open",
+      "priority": "low",
+      "technicianId": "TECH-100",
+      "serviceType": "Repair",
+      "estimatedCost": 120,
+      "actualCost": null,
+      "partsCost": 30,
+      "laborHours": 1,
+      "partsUsed": [
+        {
+          "name": "SSD 1TB NVMe",
+          "qty": 1,
+          "unitCost": 89
+        },
+        {
+          "name": "Thermal Paste",
+          "qty": 1,
+          "unitCost": 12
+        }
+      ],
+      "scheduledDate": "2026-10-09T19:14:33.531Z",
+      "createdAt": "2026-08-16T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "Customer approved additional diagnostics.",
+      "warrantyUntil": "2027-02-12T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2001",
+      "customerId": "CUST-101",
+      "title": "Desktop Diagnostic",
+      "deviceType": "Desktop",
+      "issue": "Overheating and fan noise",
+      "status": "in_progress",
+      "priority": "medium",
+      "technicianId": "TECH-101",
+      "serviceType": "Diagnostic",
+      "estimatedCost": 157,
+      "actualCost": null,
+      "partsCost": 43,
+      "laborHours": 1.5,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-10T19:14:33.531Z",
+      "createdAt": "2026-08-17T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "",
+      "warrantyUntil": "2027-02-17T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2002",
+      "customerId": "CUST-102",
+      "title": "Printer Maintenance",
+      "deviceType": "Printer",
+      "issue": "Cracked screen, touch unresponsive",
+      "status": "waiting_parts",
+      "priority": "high",
+      "technicianId": "TECH-102",
+      "serviceType": "Maintenance",
+      "estimatedCost": 194,
+      "actualCost": null,
+      "partsCost": 56,
+      "laborHours": 2,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-11T19:14:33.531Z",
+      "createdAt": "2026-08-18T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "",
+      "warrantyUntil": "2027-02-22T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2003",
+      "customerId": "CUST-103",
+      "title": "Server Installation",
+      "deviceType": "Server",
+      "issue": "Slow performance, suspected malware",
+      "status": "completed",
+      "priority": "urgent",
+      "technicianId": "TECH-103",
+      "serviceType": "Installation",
+      "estimatedCost": 231,
+      "actualCost": 256,
+      "partsCost": 69,
+      "laborHours": 2.5,
+      "partsUsed": [
+        {
+          "name": "SSD 1TB NVMe",
+          "qty": 1,
+          "unitCost": 89
+        },
+        {
+          "name": "Thermal Paste",
+          "qty": 1,
+          "unitCost": 12
+        }
+      ],
+      "scheduledDate": "2026-10-12T19:14:33.531Z",
+      "createdAt": "2026-08-19T19:14:33.531Z",
+      "completedAt": "2026-10-12T19:14:33.531Z",
+      "notes": "",
+      "warrantyUntil": "2027-02-27T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2004",
+      "customerId": "CUST-104",
+      "title": "Phone Data Recovery",
+      "deviceType": "Phone",
+      "issue": "Paper jam and roller wear",
+      "status": "invoiced",
+      "priority": "low",
+      "technicianId": "TECH-104",
+      "serviceType": "Data Recovery",
+      "estimatedCost": 268,
+      "actualCost": 318,
+      "partsCost": 82,
+      "laborHours": 3,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-13T19:14:33.531Z",
+      "createdAt": "2026-08-20T19:14:33.531Z",
+      "completedAt": "2026-10-11T19:14:33.531Z",
+      "notes": "Customer approved additional diagnostics.",
+      "warrantyUntil": "2027-03-04T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2005",
+      "customerId": "CUST-105",
+      "title": "Tablet Repair",
+      "deviceType": "Tablet",
+      "issue": "Battery drains within an hour",
+      "status": "cancelled",
+      "priority": "medium",
+      "technicianId": "TECH-105",
+      "serviceType": "Repair",
+      "estimatedCost": 305,
+      "actualCost": null,
+      "partsCost": 95,
+      "laborHours": 3.5,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-14T19:14:33.531Z",
+      "createdAt": "2026-08-21T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "",
+      "warrantyUntil": "2027-03-09T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2006",
+      "customerId": "CUST-106",
+      "title": "Appliance Diagnostic",
+      "deviceType": "Appliance",
+      "issue": "No network connectivity",
+      "status": "open",
+      "priority": "high",
+      "technicianId": "TECH-100",
+      "serviceType": "Diagnostic",
+      "estimatedCost": 342,
+      "actualCost": null,
+      "partsCost": 108,
+      "laborHours": 4,
+      "partsUsed": [
+        {
+          "name": "SSD 1TB NVMe",
+          "qty": 1,
+          "unitCost": 89
+        },
+        {
+          "name": "Thermal Paste",
+          "qty": 1,
+          "unitCost": 12
+        }
+      ],
+      "scheduledDate": "2026-10-15T19:14:33.531Z",
+      "createdAt": "2026-08-22T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "",
+      "warrantyUntil": "2027-03-14T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2007",
+      "customerId": "CUST-107",
+      "title": "Network Device Maintenance",
+      "deviceType": "Network Device",
+      "issue": "Water damage on keyboard",
+      "status": "in_progress",
+      "priority": "urgent",
+      "technicianId": "TECH-101",
+      "serviceType": "Maintenance",
+      "estimatedCost": 379,
+      "actualCost": null,
+      "partsCost": 121,
+      "laborHours": 1,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-16T19:14:33.531Z",
+      "createdAt": "2026-08-23T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "",
+      "warrantyUntil": "2027-03-19T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2008",
+      "customerId": "CUST-108",
+      "title": "Laptop Installation",
+      "deviceType": "Laptop",
+      "issue": "Blue screen on boot",
+      "status": "waiting_parts",
+      "priority": "low",
+      "technicianId": "TECH-102",
+      "serviceType": "Installation",
+      "estimatedCost": 416,
+      "actualCost": null,
+      "partsCost": 134,
+      "laborHours": 1.5,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-17T19:14:33.531Z",
+      "createdAt": "2026-08-24T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "Customer approved additional diagnostics.",
+      "warrantyUntil": "2027-03-24T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2009",
+      "customerId": "CUST-109",
+      "title": "Desktop Data Recovery",
+      "deviceType": "Desktop",
+      "issue": "Failing hard drive / data recovery",
+      "status": "completed",
+      "priority": "medium",
+      "technicianId": "TECH-103",
+      "serviceType": "Data Recovery",
+      "estimatedCost": 453,
+      "actualCost": 503,
+      "partsCost": 147,
+      "laborHours": 2,
+      "partsUsed": [
+        {
+          "name": "SSD 1TB NVMe",
+          "qty": 1,
+          "unitCost": 89
+        },
+        {
+          "name": "Thermal Paste",
+          "qty": 1,
+          "unitCost": 12
+        }
+      ],
+      "scheduledDate": "2026-10-18T19:14:33.531Z",
+      "createdAt": "2026-08-25T19:14:33.531Z",
+      "completedAt": "2026-10-06T19:14:33.531Z",
+      "notes": "",
+      "warrantyUntil": "2027-03-29T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2010",
+      "customerId": "CUST-110",
+      "title": "Printer Repair",
+      "deviceType": "Printer",
+      "issue": "Wi-Fi dropping intermittently",
+      "status": "invoiced",
+      "priority": "high",
+      "technicianId": "TECH-104",
+      "serviceType": "Repair",
+      "estimatedCost": 490,
+      "actualCost": 440,
+      "partsCost": 160,
+      "laborHours": 2.5,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-19T19:14:33.531Z",
+      "createdAt": "2026-08-26T19:14:33.531Z",
+      "completedAt": "2026-10-05T19:14:33.531Z",
+      "notes": "",
+      "warrantyUntil": "2027-04-03T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2011",
+      "customerId": "CUST-111",
+      "title": "Server Diagnostic",
+      "deviceType": "Server",
+      "issue": "Compressor not cooling",
+      "status": "cancelled",
+      "priority": "urgent",
+      "technicianId": "TECH-105",
+      "serviceType": "Diagnostic",
+      "estimatedCost": 527,
+      "actualCost": null,
+      "partsCost": 173,
+      "laborHours": 3,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-20T19:14:33.531Z",
+      "createdAt": "2026-08-27T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "",
+      "warrantyUntil": "2027-04-08T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2012",
+      "customerId": "CUST-100",
+      "title": "Phone Maintenance",
+      "deviceType": "Phone",
+      "issue": "Won't power on after surge",
+      "status": "open",
+      "priority": "low",
+      "technicianId": "TECH-100",
+      "serviceType": "Maintenance",
+      "estimatedCost": 564,
+      "actualCost": null,
+      "partsCost": 186,
+      "laborHours": 3.5,
+      "partsUsed": [
+        {
+          "name": "SSD 1TB NVMe",
+          "qty": 1,
+          "unitCost": 89
+        },
+        {
+          "name": "Thermal Paste",
+          "qty": 1,
+          "unitCost": 12
+        }
+      ],
+      "scheduledDate": "2026-10-21T19:14:33.531Z",
+      "createdAt": "2026-08-28T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "Customer approved additional diagnostics.",
+      "warrantyUntil": "2027-04-13T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2013",
+      "customerId": "CUST-101",
+      "title": "Tablet Installation",
+      "deviceType": "Tablet",
+      "issue": "Overheating and fan noise",
+      "status": "in_progress",
+      "priority": "medium",
+      "technicianId": "TECH-101",
+      "serviceType": "Installation",
+      "estimatedCost": 601,
+      "actualCost": null,
+      "partsCost": 199,
+      "laborHours": 4,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-22T19:14:33.531Z",
+      "createdAt": "2026-08-29T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "",
+      "warrantyUntil": "2027-04-18T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2014",
+      "customerId": "CUST-102",
+      "title": "Appliance Data Recovery",
+      "deviceType": "Appliance",
+      "issue": "Cracked screen, touch unresponsive",
+      "status": "waiting_parts",
+      "priority": "high",
+      "technicianId": "TECH-102",
+      "serviceType": "Data Recovery",
+      "estimatedCost": 638,
+      "actualCost": null,
+      "partsCost": 212,
+      "laborHours": 1,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-09T19:14:33.531Z",
+      "createdAt": "2026-08-30T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "",
+      "warrantyUntil": "2027-04-23T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2015",
+      "customerId": "CUST-103",
+      "title": "Network Device Repair",
+      "deviceType": "Network Device",
+      "issue": "Slow performance, suspected malware",
+      "status": "completed",
+      "priority": "urgent",
+      "technicianId": "TECH-103",
+      "serviceType": "Repair",
+      "estimatedCost": 675,
+      "actualCost": 625,
+      "partsCost": 225,
+      "laborHours": 1.5,
+      "partsUsed": [
+        {
+          "name": "SSD 1TB NVMe",
+          "qty": 1,
+          "unitCost": 89
+        },
+        {
+          "name": "Thermal Paste",
+          "qty": 1,
+          "unitCost": 12
+        }
+      ],
+      "scheduledDate": "2026-10-10T19:14:33.531Z",
+      "createdAt": "2026-08-31T19:14:33.531Z",
+      "completedAt": "2026-09-30T19:14:33.531Z",
+      "notes": "",
+      "warrantyUntil": "2027-04-28T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2016",
+      "customerId": "CUST-104",
+      "title": "Laptop Diagnostic",
+      "deviceType": "Laptop",
+      "issue": "Paper jam and roller wear",
+      "status": "invoiced",
+      "priority": "low",
+      "technicianId": "TECH-104",
+      "serviceType": "Diagnostic",
+      "estimatedCost": 712,
+      "actualCost": 687,
+      "partsCost": 238,
+      "laborHours": 2,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-11T19:14:33.531Z",
+      "createdAt": "2026-09-01T19:14:33.531Z",
+      "completedAt": "2026-09-29T19:14:33.531Z",
+      "notes": "Customer approved additional diagnostics.",
+      "warrantyUntil": "2027-05-03T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2017",
+      "customerId": "CUST-105",
+      "title": "Desktop Maintenance",
+      "deviceType": "Desktop",
+      "issue": "Battery drains within an hour",
+      "status": "cancelled",
+      "priority": "medium",
+      "technicianId": "TECH-105",
+      "serviceType": "Maintenance",
+      "estimatedCost": 749,
+      "actualCost": null,
+      "partsCost": 251,
+      "laborHours": 2.5,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-12T19:14:33.531Z",
+      "createdAt": "2026-09-02T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "",
+      "warrantyUntil": "2027-05-08T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2018",
+      "customerId": "CUST-106",
+      "title": "Printer Installation",
+      "deviceType": "Printer",
+      "issue": "No network connectivity",
+      "status": "open",
+      "priority": "high",
+      "technicianId": "TECH-100",
+      "serviceType": "Installation",
+      "estimatedCost": 786,
+      "actualCost": null,
+      "partsCost": 264,
+      "laborHours": 3,
+      "partsUsed": [
+        {
+          "name": "SSD 1TB NVMe",
+          "qty": 1,
+          "unitCost": 89
+        },
+        {
+          "name": "Thermal Paste",
+          "qty": 1,
+          "unitCost": 12
+        }
+      ],
+      "scheduledDate": "2026-10-13T19:14:33.531Z",
+      "createdAt": "2026-09-03T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "",
+      "warrantyUntil": "2027-05-13T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2019",
+      "customerId": "CUST-107",
+      "title": "Server Data Recovery",
+      "deviceType": "Server",
+      "issue": "Water damage on keyboard",
+      "status": "in_progress",
+      "priority": "urgent",
+      "technicianId": "TECH-101",
+      "serviceType": "Data Recovery",
+      "estimatedCost": 823,
+      "actualCost": null,
+      "partsCost": 277,
+      "laborHours": 3.5,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-14T19:14:33.531Z",
+      "createdAt": "2026-09-04T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "",
+      "warrantyUntil": "2027-05-18T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2020",
+      "customerId": "CUST-108",
+      "title": "Phone Repair",
+      "deviceType": "Phone",
+      "issue": "Blue screen on boot",
+      "status": "waiting_parts",
+      "priority": "low",
+      "technicianId": "TECH-102",
+      "serviceType": "Repair",
+      "estimatedCost": 860,
+      "actualCost": null,
+      "partsCost": 30,
+      "laborHours": 4,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-15T19:14:33.531Z",
+      "createdAt": "2026-09-05T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "Customer approved additional diagnostics.",
+      "warrantyUntil": "2027-05-23T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2021",
+      "customerId": "CUST-109",
+      "title": "Tablet Diagnostic",
+      "deviceType": "Tablet",
+      "issue": "Failing hard drive / data recovery",
+      "status": "completed",
+      "priority": "medium",
+      "technicianId": "TECH-103",
+      "serviceType": "Diagnostic",
+      "estimatedCost": 897,
+      "actualCost": 872,
+      "partsCost": 43,
+      "laborHours": 1,
+      "partsUsed": [
+        {
+          "name": "SSD 1TB NVMe",
+          "qty": 1,
+          "unitCost": 89
+        },
+        {
+          "name": "Thermal Paste",
+          "qty": 1,
+          "unitCost": 12
+        }
+      ],
+      "scheduledDate": "2026-10-16T19:14:33.531Z",
+      "createdAt": "2026-09-06T19:14:33.531Z",
+      "completedAt": "2026-10-14T19:14:33.531Z",
+      "notes": "",
+      "warrantyUntil": "2027-05-28T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2022",
+      "customerId": "CUST-110",
+      "title": "Appliance Maintenance",
+      "deviceType": "Appliance",
+      "issue": "Wi-Fi dropping intermittently",
+      "status": "invoiced",
+      "priority": "high",
+      "technicianId": "TECH-104",
+      "serviceType": "Maintenance",
+      "estimatedCost": 154,
+      "actualCost": 154,
+      "partsCost": 56,
+      "laborHours": 1.5,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-17T19:14:33.531Z",
+      "createdAt": "2026-09-07T19:14:33.531Z",
+      "completedAt": "2026-10-13T19:14:33.531Z",
+      "notes": "",
+      "warrantyUntil": "2027-06-02T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2023",
+      "customerId": "CUST-111",
+      "title": "Network Device Installation",
+      "deviceType": "Network Device",
+      "issue": "Compressor not cooling",
+      "status": "cancelled",
+      "priority": "urgent",
+      "technicianId": "TECH-105",
+      "serviceType": "Installation",
+      "estimatedCost": 191,
+      "actualCost": null,
+      "partsCost": 69,
+      "laborHours": 2,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-18T19:14:33.531Z",
+      "createdAt": "2026-09-08T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "",
+      "warrantyUntil": "2027-06-07T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2024",
+      "customerId": "CUST-100",
+      "title": "Laptop Data Recovery",
+      "deviceType": "Laptop",
+      "issue": "Won't power on after surge",
+      "status": "open",
+      "priority": "low",
+      "technicianId": "TECH-100",
+      "serviceType": "Data Recovery",
+      "estimatedCost": 228,
+      "actualCost": null,
+      "partsCost": 82,
+      "laborHours": 2.5,
+      "partsUsed": [
+        {
+          "name": "SSD 1TB NVMe",
+          "qty": 1,
+          "unitCost": 89
+        },
+        {
+          "name": "Thermal Paste",
+          "qty": 1,
+          "unitCost": 12
+        }
+      ],
+      "scheduledDate": "2026-10-19T19:14:33.531Z",
+      "createdAt": "2026-09-09T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "Customer approved additional diagnostics.",
+      "warrantyUntil": "2027-06-12T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2025",
+      "customerId": "CUST-101",
+      "title": "Desktop Repair",
+      "deviceType": "Desktop",
+      "issue": "Overheating and fan noise",
+      "status": "in_progress",
+      "priority": "medium",
+      "technicianId": "TECH-101",
+      "serviceType": "Repair",
+      "estimatedCost": 265,
+      "actualCost": null,
+      "partsCost": 95,
+      "laborHours": 3,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-20T19:14:33.531Z",
+      "createdAt": "2026-09-10T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "",
+      "warrantyUntil": "2027-06-17T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2026",
+      "customerId": "CUST-102",
+      "title": "Printer Diagnostic",
+      "deviceType": "Printer",
+      "issue": "Cracked screen, touch unresponsive",
+      "status": "waiting_parts",
+      "priority": "high",
+      "technicianId": "TECH-102",
+      "serviceType": "Diagnostic",
+      "estimatedCost": 302,
+      "actualCost": null,
+      "partsCost": 108,
+      "laborHours": 3.5,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-21T19:14:33.531Z",
+      "createdAt": "2026-09-11T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "",
+      "warrantyUntil": "2027-06-22T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2027",
+      "customerId": "CUST-103",
+      "title": "Server Maintenance",
+      "deviceType": "Server",
+      "issue": "Slow performance, suspected malware",
+      "status": "completed",
+      "priority": "urgent",
+      "technicianId": "TECH-103",
+      "serviceType": "Maintenance",
+      "estimatedCost": 339,
+      "actualCost": 339,
+      "partsCost": 121,
+      "laborHours": 4,
+      "partsUsed": [
+        {
+          "name": "SSD 1TB NVMe",
+          "qty": 1,
+          "unitCost": 89
+        },
+        {
+          "name": "Thermal Paste",
+          "qty": 1,
+          "unitCost": 12
+        }
+      ],
+      "scheduledDate": "2026-10-22T19:14:33.531Z",
+      "createdAt": "2026-09-12T19:14:33.531Z",
+      "completedAt": "2026-10-08T19:14:33.531Z",
+      "notes": "",
+      "warrantyUntil": "2027-06-27T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2028",
+      "customerId": "CUST-104",
+      "title": "Phone Installation",
+      "deviceType": "Phone",
+      "issue": "Paper jam and roller wear",
+      "status": "invoiced",
+      "priority": "low",
+      "technicianId": "TECH-104",
+      "serviceType": "Installation",
+      "estimatedCost": 376,
+      "actualCost": 401,
+      "partsCost": 134,
+      "laborHours": 1,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-09T19:14:33.531Z",
+      "createdAt": "2026-09-13T19:14:33.531Z",
+      "completedAt": "2026-10-07T19:14:33.531Z",
+      "notes": "Customer approved additional diagnostics.",
+      "warrantyUntil": "2027-07-02T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2029",
+      "customerId": "CUST-105",
+      "title": "Tablet Data Recovery",
+      "deviceType": "Tablet",
+      "issue": "Battery drains within an hour",
+      "status": "cancelled",
+      "priority": "medium",
+      "technicianId": "TECH-105",
+      "serviceType": "Data Recovery",
+      "estimatedCost": 413,
+      "actualCost": null,
+      "partsCost": 147,
+      "laborHours": 1.5,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-10T19:14:33.531Z",
+      "createdAt": "2026-09-14T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "",
+      "warrantyUntil": "2027-07-07T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2030",
+      "customerId": "CUST-106",
+      "title": "Appliance Repair",
+      "deviceType": "Appliance",
+      "issue": "No network connectivity",
+      "status": "open",
+      "priority": "high",
+      "technicianId": "TECH-100",
+      "serviceType": "Repair",
+      "estimatedCost": 450,
+      "actualCost": null,
+      "partsCost": 160,
+      "laborHours": 2,
+      "partsUsed": [
+        {
+          "name": "SSD 1TB NVMe",
+          "qty": 1,
+          "unitCost": 89
+        },
+        {
+          "name": "Thermal Paste",
+          "qty": 1,
+          "unitCost": 12
+        }
+      ],
+      "scheduledDate": "2026-10-11T19:14:33.531Z",
+      "createdAt": "2026-09-15T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "",
+      "warrantyUntil": "2027-07-12T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2031",
+      "customerId": "CUST-107",
+      "title": "Network Device Diagnostic",
+      "deviceType": "Network Device",
+      "issue": "Water damage on keyboard",
+      "status": "in_progress",
+      "priority": "urgent",
+      "technicianId": "TECH-101",
+      "serviceType": "Diagnostic",
+      "estimatedCost": 487,
+      "actualCost": null,
+      "partsCost": 173,
+      "laborHours": 2.5,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-12T19:14:33.531Z",
+      "createdAt": "2026-09-16T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "",
+      "warrantyUntil": "2027-07-17T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2032",
+      "customerId": "CUST-108",
+      "title": "Laptop Maintenance",
+      "deviceType": "Laptop",
+      "issue": "Blue screen on boot",
+      "status": "waiting_parts",
+      "priority": "low",
+      "technicianId": "TECH-102",
+      "serviceType": "Maintenance",
+      "estimatedCost": 524,
+      "actualCost": null,
+      "partsCost": 186,
+      "laborHours": 3,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-13T19:14:33.531Z",
+      "createdAt": "2026-09-17T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "Customer approved additional diagnostics.",
+      "warrantyUntil": "2027-07-22T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2033",
+      "customerId": "CUST-109",
+      "title": "Desktop Installation",
+      "deviceType": "Desktop",
+      "issue": "Failing hard drive / data recovery",
+      "status": "completed",
+      "priority": "medium",
+      "technicianId": "TECH-103",
+      "serviceType": "Installation",
+      "estimatedCost": 561,
+      "actualCost": 586,
+      "partsCost": 199,
+      "laborHours": 3.5,
+      "partsUsed": [
+        {
+          "name": "SSD 1TB NVMe",
+          "qty": 1,
+          "unitCost": 89
+        },
+        {
+          "name": "Thermal Paste",
+          "qty": 1,
+          "unitCost": 12
+        }
+      ],
+      "scheduledDate": "2026-10-14T19:14:33.531Z",
+      "createdAt": "2026-09-18T19:14:33.531Z",
+      "completedAt": "2026-10-02T19:14:33.531Z",
+      "notes": "",
+      "warrantyUntil": "2027-07-27T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2034",
+      "customerId": "CUST-110",
+      "title": "Printer Data Recovery",
+      "deviceType": "Printer",
+      "issue": "Wi-Fi dropping intermittently",
+      "status": "invoiced",
+      "priority": "high",
+      "technicianId": "TECH-104",
+      "serviceType": "Data Recovery",
+      "estimatedCost": 598,
+      "actualCost": 648,
+      "partsCost": 212,
+      "laborHours": 4,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-15T19:14:33.531Z",
+      "createdAt": "2026-09-19T19:14:33.531Z",
+      "completedAt": "2026-10-01T19:14:33.531Z",
+      "notes": "",
+      "warrantyUntil": "2027-08-01T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2035",
+      "customerId": "CUST-111",
+      "title": "Server Repair",
+      "deviceType": "Server",
+      "issue": "Compressor not cooling",
+      "status": "cancelled",
+      "priority": "urgent",
+      "technicianId": "TECH-105",
+      "serviceType": "Repair",
+      "estimatedCost": 635,
+      "actualCost": null,
+      "partsCost": 225,
+      "laborHours": 1,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-16T19:14:33.531Z",
+      "createdAt": "2026-09-20T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "",
+      "warrantyUntil": "2027-08-06T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2036",
+      "customerId": "CUST-100",
+      "title": "Phone Diagnostic",
+      "deviceType": "Phone",
+      "issue": "Won't power on after surge",
+      "status": "open",
+      "priority": "low",
+      "technicianId": "TECH-100",
+      "serviceType": "Diagnostic",
+      "estimatedCost": 672,
+      "actualCost": null,
+      "partsCost": 238,
+      "laborHours": 1.5,
+      "partsUsed": [
+        {
+          "name": "SSD 1TB NVMe",
+          "qty": 1,
+          "unitCost": 89
+        },
+        {
+          "name": "Thermal Paste",
+          "qty": 1,
+          "unitCost": 12
+        }
+      ],
+      "scheduledDate": "2026-10-17T19:14:33.531Z",
+      "createdAt": "2026-09-21T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "Customer approved additional diagnostics.",
+      "warrantyUntil": "2027-08-11T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2037",
+      "customerId": "CUST-101",
+      "title": "Tablet Maintenance",
+      "deviceType": "Tablet",
+      "issue": "Overheating and fan noise",
+      "status": "in_progress",
+      "priority": "medium",
+      "technicianId": "TECH-101",
+      "serviceType": "Maintenance",
+      "estimatedCost": 709,
+      "actualCost": null,
+      "partsCost": 251,
+      "laborHours": 2,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-18T19:14:33.531Z",
+      "createdAt": "2026-09-22T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "",
+      "warrantyUntil": "2027-08-16T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2038",
+      "customerId": "CUST-102",
+      "title": "Appliance Installation",
+      "deviceType": "Appliance",
+      "issue": "Cracked screen, touch unresponsive",
+      "status": "waiting_parts",
+      "priority": "high",
+      "technicianId": "TECH-102",
+      "serviceType": "Installation",
+      "estimatedCost": 746,
+      "actualCost": null,
+      "partsCost": 264,
+      "laborHours": 2.5,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-19T19:14:33.531Z",
+      "createdAt": "2026-09-23T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "",
+      "warrantyUntil": "2027-08-21T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2039",
+      "customerId": "CUST-103",
+      "title": "Network Device Data Recovery",
+      "deviceType": "Network Device",
+      "issue": "Slow performance, suspected malware",
+      "status": "completed",
+      "priority": "urgent",
+      "technicianId": "TECH-103",
+      "serviceType": "Data Recovery",
+      "estimatedCost": 783,
+      "actualCost": 833,
+      "partsCost": 277,
+      "laborHours": 3,
+      "partsUsed": [
+        {
+          "name": "SSD 1TB NVMe",
+          "qty": 1,
+          "unitCost": 89
+        },
+        {
+          "name": "Thermal Paste",
+          "qty": 1,
+          "unitCost": 12
+        }
+      ],
+      "scheduledDate": "2026-10-20T19:14:33.531Z",
+      "createdAt": "2026-09-24T19:14:33.531Z",
+      "completedAt": "2026-09-26T19:14:33.531Z",
+      "notes": "",
+      "warrantyUntil": "2027-08-26T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2040",
+      "customerId": "CUST-104",
+      "title": "Laptop Repair",
+      "deviceType": "Laptop",
+      "issue": "Paper jam and roller wear",
+      "status": "invoiced",
+      "priority": "low",
+      "technicianId": "TECH-104",
+      "serviceType": "Repair",
+      "estimatedCost": 820,
+      "actualCost": 770,
+      "partsCost": 30,
+      "laborHours": 3.5,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-21T19:14:33.531Z",
+      "createdAt": "2026-09-25T19:14:33.531Z",
+      "completedAt": "2026-10-15T19:14:33.531Z",
+      "notes": "Customer approved additional diagnostics.",
+      "warrantyUntil": "2027-08-31T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2041",
+      "customerId": "CUST-105",
+      "title": "Desktop Diagnostic",
+      "deviceType": "Desktop",
+      "issue": "Battery drains within an hour",
+      "status": "cancelled",
+      "priority": "medium",
+      "technicianId": "TECH-105",
+      "serviceType": "Diagnostic",
+      "estimatedCost": 857,
+      "actualCost": null,
+      "partsCost": 43,
+      "laborHours": 4,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-22T19:14:33.531Z",
+      "createdAt": "2026-09-26T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "",
+      "warrantyUntil": "2027-09-05T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2042",
+      "customerId": "CUST-106",
+      "title": "Printer Maintenance",
+      "deviceType": "Printer",
+      "issue": "No network connectivity",
+      "status": "open",
+      "priority": "high",
+      "technicianId": "TECH-100",
+      "serviceType": "Maintenance",
+      "estimatedCost": 894,
+      "actualCost": null,
+      "partsCost": 56,
+      "laborHours": 1,
+      "partsUsed": [
+        {
+          "name": "SSD 1TB NVMe",
+          "qty": 1,
+          "unitCost": 89
+        },
+        {
+          "name": "Thermal Paste",
+          "qty": 1,
+          "unitCost": 12
+        }
+      ],
+      "scheduledDate": "2026-10-09T19:14:33.531Z",
+      "createdAt": "2026-09-27T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "",
+      "warrantyUntil": "2027-09-10T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2043",
+      "customerId": "CUST-107",
+      "title": "Server Installation",
+      "deviceType": "Server",
+      "issue": "Water damage on keyboard",
+      "status": "in_progress",
+      "priority": "urgent",
+      "technicianId": "TECH-101",
+      "serviceType": "Installation",
+      "estimatedCost": 151,
+      "actualCost": null,
+      "partsCost": 69,
+      "laborHours": 1.5,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-10T19:14:33.531Z",
+      "createdAt": "2026-09-28T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "",
+      "warrantyUntil": "2027-09-15T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2044",
+      "customerId": "CUST-108",
+      "title": "Phone Data Recovery",
+      "deviceType": "Phone",
+      "issue": "Blue screen on boot",
+      "status": "waiting_parts",
+      "priority": "low",
+      "technicianId": "TECH-102",
+      "serviceType": "Data Recovery",
+      "estimatedCost": 188,
+      "actualCost": null,
+      "partsCost": 82,
+      "laborHours": 2,
+      "partsUsed": [],
+      "scheduledDate": "2026-10-11T19:14:33.531Z",
+      "createdAt": "2026-09-29T19:14:33.531Z",
+      "completedAt": null,
+      "notes": "Customer approved additional diagnostics.",
+      "warrantyUntil": "2027-09-20T19:14:33.531Z"
+    },
+    {
+      "id": "JOB-2045",
+      "customerId": "CUST-109",
+      "title": "Tablet Repair",
+      "deviceType": "Tablet",
+      "issue": "Failing hard drive / data recovery",
+      "status": "completed",
+      "priority": "medium",
+      "technicianId": "TECH-103",
+      "serviceType": "Repair",
+      "estimatedCost": 225,
+      "actualCost": 175,
+      "partsCost": 95,
+      "laborHours": 2.5,
+      "partsUsed": [
+        {
+          "name": "SSD 1TB NVMe",
+          "qty": 1,
+          "unitCost": 89
+        },
+        {
+          "name": "Thermal Paste",
+          "qty": 1,
+          "unitCost": 12
+        }
+      ],
+      "scheduledDate": "2026-10-12T19:14:33.531Z",
+      "createdAt": "2026-09-30T19:14:33.531Z",
+      "completedAt": "2026-10-10T19:14:33.531Z",
+      "notes": "",
+      "warrantyUntil": "2027-09-25T19:14:33.531Z"
+    }
+  ],
+  "invoices": [
+    {
+      "id": "INV-3000",
+      "number": "INV-3000",
+      "jobId": "JOB-2000",
+      "customerId": "CUST-100",
+      "lineItems": [
+        {
+          "description": "Laptop Repair — labor (1h)",
+          "qty": 1,
+          "unitPrice": 85,
+          "total": 85
+        },
+        {
+          "description": "Parts & materials",
+          "qty": 1,
+          "unitPrice": 30,
+          "total": 30
+        }
+      ],
+      "subtotal": 120,
+      "taxAmount": 9.6,
+      "total": 129.6,
+      "status": "draft",
+      "issuedAt": "2026-09-05T19:14:33.531Z",
+      "dueAt": "2026-10-03T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": null
+    },
+    {
+      "id": "INV-3001",
+      "number": "INV-3001",
+      "jobId": "JOB-2001",
+      "customerId": "CUST-101",
+      "lineItems": [
+        {
+          "description": "Desktop Diagnostic — labor (1.5h)",
+          "qty": 1.5,
+          "unitPrice": 85,
+          "total": 127.5
+        }
+      ],
+      "subtotal": 157,
+      "taxAmount": 12.56,
+      "total": 169.56,
+      "status": "sent",
+      "issuedAt": "2026-09-06T19:14:33.531Z",
+      "dueAt": "2026-10-04T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": "2026-09-11T19:14:33.531Z"
+    },
+    {
+      "id": "INV-3002",
+      "number": "INV-3002",
+      "jobId": "JOB-2002",
+      "customerId": "CUST-102",
+      "lineItems": [
+        {
+          "description": "Printer Maintenance — labor (2h)",
+          "qty": 2,
+          "unitPrice": 85,
+          "total": 170
+        }
+      ],
+      "subtotal": 194,
+      "taxAmount": 15.52,
+      "total": 209.52,
+      "status": "paid",
+      "issuedAt": "2026-09-07T19:14:33.531Z",
+      "dueAt": "2026-10-05T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": "2026-09-12T19:14:33.531Z"
+    },
+    {
+      "id": "INV-3003",
+      "number": "INV-3003",
+      "jobId": "JOB-2003",
+      "customerId": "CUST-103",
+      "lineItems": [
+        {
+          "description": "Server Installation — labor (2.5h)",
+          "qty": 2.5,
+          "unitPrice": 85,
+          "total": 212.5
+        },
+        {
+          "description": "Parts & materials",
+          "qty": 1,
+          "unitPrice": 69,
+          "total": 69
+        }
+      ],
+      "subtotal": 231,
+      "taxAmount": 18.48,
+      "total": 249.48,
+      "status": "overdue",
+      "issuedAt": "2026-09-08T19:14:33.531Z",
+      "dueAt": "2026-10-06T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": "2026-09-13T19:14:33.531Z"
+    },
+    {
+      "id": "INV-3004",
+      "number": "INV-3004",
+      "jobId": "JOB-2004",
+      "customerId": "CUST-104",
+      "lineItems": [
+        {
+          "description": "Phone Data Recovery — labor (3h)",
+          "qty": 3,
+          "unitPrice": 85,
+          "total": 255
+        }
+      ],
+      "subtotal": 268,
+      "taxAmount": 21.44,
+      "total": 289.44,
+      "status": "cancelled",
+      "issuedAt": "2026-09-09T19:14:33.531Z",
+      "dueAt": "2026-10-07T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": "2026-09-14T19:14:33.531Z"
+    },
+    {
+      "id": "INV-3005",
+      "number": "INV-3005",
+      "jobId": "JOB-2005",
+      "customerId": "CUST-105",
+      "lineItems": [
+        {
+          "description": "Tablet Repair — labor (3.5h)",
+          "qty": 3.5,
+          "unitPrice": 85,
+          "total": 297.5
+        }
+      ],
+      "subtotal": 305,
+      "taxAmount": 24.4,
+      "total": 329.4,
+      "status": "draft",
+      "issuedAt": "2026-09-10T19:14:33.531Z",
+      "dueAt": "2026-10-08T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": null
+    },
+    {
+      "id": "INV-3006",
+      "number": "INV-3006",
+      "jobId": "JOB-2006",
+      "customerId": "CUST-106",
+      "lineItems": [
+        {
+          "description": "Appliance Diagnostic — labor (4h)",
+          "qty": 4,
+          "unitPrice": 85,
+          "total": 340
+        },
+        {
+          "description": "Parts & materials",
+          "qty": 1,
+          "unitPrice": 108,
+          "total": 108
+        }
+      ],
+      "subtotal": 342,
+      "taxAmount": 27.36,
+      "total": 369.36,
+      "status": "sent",
+      "issuedAt": "2026-09-11T19:14:33.531Z",
+      "dueAt": "2026-10-09T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": "2026-09-16T19:14:33.531Z"
+    },
+    {
+      "id": "INV-3007",
+      "number": "INV-3007",
+      "jobId": "JOB-2007",
+      "customerId": "CUST-107",
+      "lineItems": [
+        {
+          "description": "Network Device Maintenance — labor (1h)",
+          "qty": 1,
+          "unitPrice": 85,
+          "total": 85
+        }
+      ],
+      "subtotal": 379,
+      "taxAmount": 30.32,
+      "total": 409.32,
+      "status": "paid",
+      "issuedAt": "2026-09-12T19:14:33.531Z",
+      "dueAt": "2026-10-10T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": "2026-09-17T19:14:33.531Z"
+    },
+    {
+      "id": "INV-3008",
+      "number": "INV-3008",
+      "jobId": "JOB-2008",
+      "customerId": "CUST-108",
+      "lineItems": [
+        {
+          "description": "Laptop Installation — labor (1.5h)",
+          "qty": 1.5,
+          "unitPrice": 85,
+          "total": 127.5
+        }
+      ],
+      "subtotal": 416,
+      "taxAmount": 33.28,
+      "total": 449.28,
+      "status": "overdue",
+      "issuedAt": "2026-09-13T19:14:33.531Z",
+      "dueAt": "2026-10-11T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": "2026-09-18T19:14:33.531Z"
+    },
+    {
+      "id": "INV-3009",
+      "number": "INV-3009",
+      "jobId": "JOB-2009",
+      "customerId": "CUST-109",
+      "lineItems": [
+        {
+          "description": "Desktop Data Recovery — labor (2h)",
+          "qty": 2,
+          "unitPrice": 85,
+          "total": 170
+        },
+        {
+          "description": "Parts & materials",
+          "qty": 1,
+          "unitPrice": 147,
+          "total": 147
+        }
+      ],
+      "subtotal": 453,
+      "taxAmount": 36.24,
+      "total": 489.24,
+      "status": "cancelled",
+      "issuedAt": "2026-09-14T19:14:33.531Z",
+      "dueAt": "2026-10-12T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": "2026-09-19T19:14:33.531Z"
+    },
+    {
+      "id": "INV-3010",
+      "number": "INV-3010",
+      "jobId": "JOB-2010",
+      "customerId": "CUST-110",
+      "lineItems": [
+        {
+          "description": "Printer Repair — labor (2.5h)",
+          "qty": 2.5,
+          "unitPrice": 85,
+          "total": 212.5
+        }
+      ],
+      "subtotal": 490,
+      "taxAmount": 39.2,
+      "total": 529.2,
+      "status": "draft",
+      "issuedAt": "2026-09-15T19:14:33.531Z",
+      "dueAt": "2026-10-13T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": null
+    },
+    {
+      "id": "INV-3011",
+      "number": "INV-3011",
+      "jobId": "JOB-2011",
+      "customerId": "CUST-111",
+      "lineItems": [
+        {
+          "description": "Server Diagnostic — labor (3h)",
+          "qty": 3,
+          "unitPrice": 85,
+          "total": 255
+        }
+      ],
+      "subtotal": 527,
+      "taxAmount": 42.16,
+      "total": 569.16,
+      "status": "sent",
+      "issuedAt": "2026-09-16T19:14:33.531Z",
+      "dueAt": "2026-10-14T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": "2026-09-21T19:14:33.531Z"
+    },
+    {
+      "id": "INV-3012",
+      "number": "INV-3012",
+      "jobId": "JOB-2012",
+      "customerId": "CUST-100",
+      "lineItems": [
+        {
+          "description": "Phone Maintenance — labor (3.5h)",
+          "qty": 3.5,
+          "unitPrice": 85,
+          "total": 297.5
+        },
+        {
+          "description": "Parts & materials",
+          "qty": 1,
+          "unitPrice": 186,
+          "total": 186
+        }
+      ],
+      "subtotal": 564,
+      "taxAmount": 45.12,
+      "total": 609.12,
+      "status": "paid",
+      "issuedAt": "2026-09-17T19:14:33.531Z",
+      "dueAt": "2026-10-15T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": "2026-09-22T19:14:33.531Z"
+    },
+    {
+      "id": "INV-3013",
+      "number": "INV-3013",
+      "jobId": "JOB-2013",
+      "customerId": "CUST-101",
+      "lineItems": [
+        {
+          "description": "Tablet Installation — labor (4h)",
+          "qty": 4,
+          "unitPrice": 85,
+          "total": 340
+        }
+      ],
+      "subtotal": 601,
+      "taxAmount": 48.08,
+      "total": 649.08,
+      "status": "overdue",
+      "issuedAt": "2026-09-18T19:14:33.531Z",
+      "dueAt": "2026-10-16T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": "2026-09-23T19:14:33.531Z"
+    },
+    {
+      "id": "INV-3014",
+      "number": "INV-3014",
+      "jobId": "JOB-2014",
+      "customerId": "CUST-102",
+      "lineItems": [
+        {
+          "description": "Appliance Data Recovery — labor (1h)",
+          "qty": 1,
+          "unitPrice": 85,
+          "total": 85
+        }
+      ],
+      "subtotal": 638,
+      "taxAmount": 51.04,
+      "total": 689.04,
+      "status": "cancelled",
+      "issuedAt": "2026-09-19T19:14:33.531Z",
+      "dueAt": "2026-10-17T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": "2026-09-24T19:14:33.531Z"
+    },
+    {
+      "id": "INV-3015",
+      "number": "INV-3015",
+      "jobId": "JOB-2015",
+      "customerId": "CUST-103",
+      "lineItems": [
+        {
+          "description": "Network Device Repair — labor (1.5h)",
+          "qty": 1.5,
+          "unitPrice": 85,
+          "total": 127.5
+        },
+        {
+          "description": "Parts & materials",
+          "qty": 1,
+          "unitPrice": 225,
+          "total": 225
+        }
+      ],
+      "subtotal": 675,
+      "taxAmount": 54,
+      "total": 729,
+      "status": "draft",
+      "issuedAt": "2026-09-20T19:14:33.531Z",
+      "dueAt": "2026-10-18T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": null
+    },
+    {
+      "id": "INV-3016",
+      "number": "INV-3016",
+      "jobId": "JOB-2016",
+      "customerId": "CUST-104",
+      "lineItems": [
+        {
+          "description": "Laptop Diagnostic — labor (2h)",
+          "qty": 2,
+          "unitPrice": 85,
+          "total": 170
+        }
+      ],
+      "subtotal": 712,
+      "taxAmount": 56.96,
+      "total": 768.96,
+      "status": "sent",
+      "issuedAt": "2026-09-21T19:14:33.531Z",
+      "dueAt": "2026-10-19T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": "2026-09-26T19:14:33.531Z"
+    },
+    {
+      "id": "INV-3017",
+      "number": "INV-3017",
+      "jobId": "JOB-2017",
+      "customerId": "CUST-105",
+      "lineItems": [
+        {
+          "description": "Desktop Maintenance — labor (2.5h)",
+          "qty": 2.5,
+          "unitPrice": 85,
+          "total": 212.5
+        }
+      ],
+      "subtotal": 749,
+      "taxAmount": 59.92,
+      "total": 808.92,
+      "status": "paid",
+      "issuedAt": "2026-09-22T19:14:33.531Z",
+      "dueAt": "2026-10-20T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": "2026-09-27T19:14:33.531Z"
+    },
+    {
+      "id": "INV-3018",
+      "number": "INV-3018",
+      "jobId": "JOB-2018",
+      "customerId": "CUST-106",
+      "lineItems": [
+        {
+          "description": "Printer Installation — labor (3h)",
+          "qty": 3,
+          "unitPrice": 85,
+          "total": 255
+        },
+        {
+          "description": "Parts & materials",
+          "qty": 1,
+          "unitPrice": 264,
+          "total": 264
+        }
+      ],
+      "subtotal": 786,
+      "taxAmount": 62.88,
+      "total": 848.88,
+      "status": "overdue",
+      "issuedAt": "2026-09-23T19:14:33.531Z",
+      "dueAt": "2026-10-21T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": "2026-09-28T19:14:33.531Z"
+    },
+    {
+      "id": "INV-3019",
+      "number": "INV-3019",
+      "jobId": "JOB-2019",
+      "customerId": "CUST-107",
+      "lineItems": [
+        {
+          "description": "Server Data Recovery — labor (3.5h)",
+          "qty": 3.5,
+          "unitPrice": 85,
+          "total": 297.5
+        }
+      ],
+      "subtotal": 823,
+      "taxAmount": 65.84,
+      "total": 888.84,
+      "status": "cancelled",
+      "issuedAt": "2026-09-24T19:14:33.531Z",
+      "dueAt": "2026-10-22T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": "2026-09-29T19:14:33.531Z"
+    },
+    {
+      "id": "INV-3020",
+      "number": "INV-3020",
+      "jobId": "JOB-2020",
+      "customerId": "CUST-108",
+      "lineItems": [
+        {
+          "description": "Phone Repair — labor (4h)",
+          "qty": 4,
+          "unitPrice": 85,
+          "total": 340
+        }
+      ],
+      "subtotal": 860,
+      "taxAmount": 68.8,
+      "total": 928.8,
+      "status": "draft",
+      "issuedAt": "2026-09-25T19:14:33.531Z",
+      "dueAt": "2026-10-03T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": null
+    },
+    {
+      "id": "INV-3021",
+      "number": "INV-3021",
+      "jobId": "JOB-2021",
+      "customerId": "CUST-109",
+      "lineItems": [
+        {
+          "description": "Tablet Diagnostic — labor (1h)",
+          "qty": 1,
+          "unitPrice": 85,
+          "total": 85
+        },
+        {
+          "description": "Parts & materials",
+          "qty": 1,
+          "unitPrice": 43,
+          "total": 43
+        }
+      ],
+      "subtotal": 897,
+      "taxAmount": 71.76,
+      "total": 968.76,
+      "status": "sent",
+      "issuedAt": "2026-09-26T19:14:33.531Z",
+      "dueAt": "2026-10-04T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": "2026-10-01T19:14:33.531Z"
+    },
+    {
+      "id": "INV-3022",
+      "number": "INV-3022",
+      "jobId": "JOB-2022",
+      "customerId": "CUST-110",
+      "lineItems": [
+        {
+          "description": "Appliance Maintenance — labor (1.5h)",
+          "qty": 1.5,
+          "unitPrice": 85,
+          "total": 127.5
+        }
+      ],
+      "subtotal": 154,
+      "taxAmount": 12.32,
+      "total": 166.32,
+      "status": "paid",
+      "issuedAt": "2026-09-27T19:14:33.531Z",
+      "dueAt": "2026-10-05T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": "2026-10-02T19:14:33.531Z"
+    },
+    {
+      "id": "INV-3023",
+      "number": "INV-3023",
+      "jobId": "JOB-2023",
+      "customerId": "CUST-111",
+      "lineItems": [
+        {
+          "description": "Network Device Installation — labor (2h)",
+          "qty": 2,
+          "unitPrice": 85,
+          "total": 170
+        }
+      ],
+      "subtotal": 191,
+      "taxAmount": 15.28,
+      "total": 206.28,
+      "status": "overdue",
+      "issuedAt": "2026-09-28T19:14:33.531Z",
+      "dueAt": "2026-10-06T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": "2026-10-03T19:14:33.531Z"
+    },
+    {
+      "id": "INV-3024",
+      "number": "INV-3024",
+      "jobId": "JOB-2024",
+      "customerId": "CUST-100",
+      "lineItems": [
+        {
+          "description": "Laptop Data Recovery — labor (2.5h)",
+          "qty": 2.5,
+          "unitPrice": 85,
+          "total": 212.5
+        },
+        {
+          "description": "Parts & materials",
+          "qty": 1,
+          "unitPrice": 82,
+          "total": 82
+        }
+      ],
+      "subtotal": 228,
+      "taxAmount": 18.24,
+      "total": 246.24,
+      "status": "cancelled",
+      "issuedAt": "2026-09-29T19:14:33.531Z",
+      "dueAt": "2026-10-07T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": "2026-10-04T19:14:33.531Z"
+    },
+    {
+      "id": "INV-3025",
+      "number": "INV-3025",
+      "jobId": "JOB-2025",
+      "customerId": "CUST-101",
+      "lineItems": [
+        {
+          "description": "Desktop Repair — labor (3h)",
+          "qty": 3,
+          "unitPrice": 85,
+          "total": 255
+        }
+      ],
+      "subtotal": 265,
+      "taxAmount": 21.2,
+      "total": 286.2,
+      "status": "draft",
+      "issuedAt": "2026-09-30T19:14:33.531Z",
+      "dueAt": "2026-10-08T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": null
+    },
+    {
+      "id": "INV-3026",
+      "number": "INV-3026",
+      "jobId": "JOB-2026",
+      "customerId": "CUST-102",
+      "lineItems": [
+        {
+          "description": "Printer Diagnostic — labor (3.5h)",
+          "qty": 3.5,
+          "unitPrice": 85,
+          "total": 297.5
+        }
+      ],
+      "subtotal": 302,
+      "taxAmount": 24.16,
+      "total": 326.16,
+      "status": "sent",
+      "issuedAt": "2026-10-01T19:14:33.531Z",
+      "dueAt": "2026-10-09T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": "2026-10-06T19:14:33.531Z"
+    },
+    {
+      "id": "INV-3027",
+      "number": "INV-3027",
+      "jobId": "JOB-2027",
+      "customerId": "CUST-103",
+      "lineItems": [
+        {
+          "description": "Server Maintenance — labor (4h)",
+          "qty": 4,
+          "unitPrice": 85,
+          "total": 340
+        },
+        {
+          "description": "Parts & materials",
+          "qty": 1,
+          "unitPrice": 121,
+          "total": 121
+        }
+      ],
+      "subtotal": 339,
+      "taxAmount": 27.12,
+      "total": 366.12,
+      "status": "paid",
+      "issuedAt": "2026-10-02T19:14:33.531Z",
+      "dueAt": "2026-10-10T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": "2026-10-07T19:14:33.531Z"
+    },
+    {
+      "id": "INV-3028",
+      "number": "INV-3028",
+      "jobId": "JOB-2028",
+      "customerId": "CUST-104",
+      "lineItems": [
+        {
+          "description": "Phone Installation — labor (1h)",
+          "qty": 1,
+          "unitPrice": 85,
+          "total": 85
+        }
+      ],
+      "subtotal": 376,
+      "taxAmount": 30.08,
+      "total": 406.08,
+      "status": "overdue",
+      "issuedAt": "2026-10-03T19:14:33.531Z",
+      "dueAt": "2026-10-11T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": "2026-10-08T19:14:33.531Z"
+    },
+    {
+      "id": "INV-3029",
+      "number": "INV-3029",
+      "jobId": "JOB-2029",
+      "customerId": "CUST-105",
+      "lineItems": [
+        {
+          "description": "Tablet Data Recovery — labor (1.5h)",
+          "qty": 1.5,
+          "unitPrice": 85,
+          "total": 127.5
+        }
+      ],
+      "subtotal": 413,
+      "taxAmount": 33.04,
+      "total": 446.04,
+      "status": "cancelled",
+      "issuedAt": "2026-10-04T19:14:33.531Z",
+      "dueAt": "2026-10-12T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": "2026-10-09T19:14:33.531Z"
+    },
+    {
+      "id": "INV-3030",
+      "number": "INV-3030",
+      "jobId": "JOB-2030",
+      "customerId": "CUST-106",
+      "lineItems": [
+        {
+          "description": "Appliance Repair — labor (2h)",
+          "qty": 2,
+          "unitPrice": 85,
+          "total": 170
+        },
+        {
+          "description": "Parts & materials",
+          "qty": 1,
+          "unitPrice": 160,
+          "total": 160
+        }
+      ],
+      "subtotal": 450,
+      "taxAmount": 36,
+      "total": 486,
+      "status": "draft",
+      "issuedAt": "2026-10-05T19:14:33.531Z",
+      "dueAt": "2026-10-13T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": null
+    },
+    {
+      "id": "INV-3031",
+      "number": "INV-3031",
+      "jobId": "JOB-2031",
+      "customerId": "CUST-107",
+      "lineItems": [
+        {
+          "description": "Network Device Diagnostic — labor (2.5h)",
+          "qty": 2.5,
+          "unitPrice": 85,
+          "total": 212.5
+        }
+      ],
+      "subtotal": 487,
+      "taxAmount": 38.96,
+      "total": 525.96,
+      "status": "sent",
+      "issuedAt": "2026-10-06T19:14:33.531Z",
+      "dueAt": "2026-10-14T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": "2026-09-11T19:14:33.531Z"
+    },
+    {
+      "id": "INV-3032",
+      "number": "INV-3032",
+      "jobId": "JOB-2032",
+      "customerId": "CUST-108",
+      "lineItems": [
+        {
+          "description": "Laptop Maintenance — labor (3h)",
+          "qty": 3,
+          "unitPrice": 85,
+          "total": 255
+        }
+      ],
+      "subtotal": 524,
+      "taxAmount": 41.92,
+      "total": 565.92,
+      "status": "paid",
+      "issuedAt": "2026-10-07T19:14:33.531Z",
+      "dueAt": "2026-10-15T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": "2026-09-12T19:14:33.531Z"
+    },
+    {
+      "id": "INV-3033",
+      "number": "INV-3033",
+      "jobId": "JOB-2033",
+      "customerId": "CUST-109",
+      "lineItems": [
+        {
+          "description": "Desktop Installation — labor (3.5h)",
+          "qty": 3.5,
+          "unitPrice": 85,
+          "total": 297.5
+        },
+        {
+          "description": "Parts & materials",
+          "qty": 1,
+          "unitPrice": 199,
+          "total": 199
+        }
+      ],
+      "subtotal": 561,
+      "taxAmount": 44.88,
+      "total": 605.88,
+      "status": "overdue",
+      "issuedAt": "2026-10-08T19:14:33.531Z",
+      "dueAt": "2026-10-16T19:14:33.531Z",
+      "notes": "Payment due within 15 days. Thank you for your business.",
+      "sentAt": "2026-09-13T19:14:33.531Z"
+    }
+  ],
+  "payments": [
+    {
+      "id": "PAY-4000",
+      "invoiceId": "INV-3002",
+      "customerId": "CUST-102",
+      "amount": 209.52,
+      "method": "card",
+      "reference": "REF-80000",
+      "recordedAt": "2026-10-15T19:14:33.531Z",
+      "recordedBy": "Admin User"
+    },
+    {
+      "id": "PAY-4001",
+      "invoiceId": "INV-3007",
+      "customerId": "CUST-107",
+      "amount": 409.32,
+      "method": "bank_transfer",
+      "reference": "REF-80001",
+      "recordedAt": "2026-10-14T19:14:33.531Z",
+      "recordedBy": "Admin User"
+    },
+    {
+      "id": "PAY-4002",
+      "invoiceId": "INV-3012",
+      "customerId": "CUST-100",
+      "amount": 609.12,
+      "method": "cash",
+      "reference": "REF-80002",
+      "recordedAt": "2026-10-13T19:14:33.531Z",
+      "recordedBy": "Admin User"
+    },
+    {
+      "id": "PAY-4003",
+      "invoiceId": "INV-3017",
+      "customerId": "CUST-105",
+      "amount": 808.92,
+      "method": "check",
+      "reference": "REF-80003",
+      "recordedAt": "2026-10-12T19:14:33.531Z",
+      "recordedBy": "Admin User"
+    },
+    {
+      "id": "PAY-4004",
+      "invoiceId": "INV-3022",
+      "customerId": "CUST-110",
+      "amount": 166.32,
+      "method": "card",
+      "reference": "REF-80004",
+      "recordedAt": "2026-10-11T19:14:33.531Z",
+      "recordedBy": "Admin User"
+    },
+    {
+      "id": "PAY-4005",
+      "invoiceId": "INV-3027",
+      "customerId": "CUST-103",
+      "amount": 366.12,
+      "method": "bank_transfer",
+      "reference": "REF-80005",
+      "recordedAt": "2026-10-10T19:14:33.531Z",
+      "recordedBy": "Admin User"
+    },
+    {
+      "id": "PAY-4006",
+      "invoiceId": "INV-3032",
+      "customerId": "CUST-108",
+      "amount": 565.92,
+      "method": "cash",
+      "reference": "REF-80006",
+      "recordedAt": "2026-10-09T19:14:33.531Z",
+      "recordedBy": "Admin User"
+    }
+  ],
+  "suppliers": [
+    {
+      "id": "SUP-100",
+      "name": "TechParts Direct",
+      "contactName": "Karen Lee",
+      "email": "sales@techpartsdirect.com",
+      "phone": "+1 (555) 700-1122",
+      "address": "88 Industrial Way, Austin, TX",
+      "paymentTerms": "Net 30",
+      "rating": 4.7,
+      "category": "Components"
+    },
+    {
+      "id": "SUP-101",
+      "name": "CompSource Global",
+      "contactName": "Peter Kim",
+      "email": "orders@compsource.io",
+      "phone": "+1 (555) 700-3344",
+      "address": "12 Commerce Dr, Denver, CO",
+      "paymentTerms": "Net 45",
+      "rating": 4.3,
+      "category": "Bulk supply"
+    },
+    {
+      "id": "SUP-102",
+      "name": "PartsHub",
+      "contactName": "Rita Moreno",
+      "email": "hello@partshub.com",
+      "phone": "+1 (555) 700-5566",
+      "address": "500 Bay Rd, Seattle, WA",
+      "paymentTerms": "Net 15",
+      "rating": 4.8,
+      "category": "Specialty"
+    },
+    {
+      "id": "SUP-103",
+      "name": "Delta Components",
+      "contactName": "Owen Wright",
+      "email": "b2b@deltacomp.co",
+      "phone": "+1 (555) 700-7788",
+      "address": "9 Logistical Ave, Chicago, IL",
+      "paymentTerms": "Net 30",
+      "rating": 4.1,
+      "category": "Components"
+    }
+  ],
+  "parts": [
+    {
+      "id": "PART-500",
+      "sku": "STO-1TB-NVMe",
+      "name": "SSD 1TB NVMe",
+      "quantity": 24,
+      "reorderLevel": 6,
+      "unitCost": 89,
+      "supplierId": "SUP-100",
+      "location": "Bin A1",
+      "lastRestocked": "2026-09-25T19:14:33.531Z"
+    },
+    {
+      "id": "PART-501",
+      "sku": "RAM-16-DDR5",
+      "name": "DDR5 16GB Module",
+      "quantity": 18,
+      "reorderLevel": 5,
+      "unitCost": 54,
+      "supplierId": "SUP-101",
+      "location": "Bin B2",
+      "lastRestocked": "2026-09-22T19:14:33.531Z"
+    },
+    {
+      "id": "PART-502",
+      "sku": "PWR-650-GOLD",
+      "name": "PSU 650W Gold",
+      "quantity": 4,
+      "reorderLevel": 8,
+      "unitCost": 79,
+      "supplierId": "SUP-102",
+      "location": "Bin C3",
+      "lastRestocked": "2026-09-19T19:14:33.531Z"
+    },
+    {
+      "id": "PART-503",
+      "sku": "THM-PASTE-01",
+      "name": "Thermal Paste",
+      "quantity": 40,
+      "reorderLevel": 10,
+      "unitCost": 12,
+      "supplierId": "SUP-103",
+      "location": "Bin D4",
+      "lastRestocked": "2026-09-16T19:14:33.531Z"
+    },
+    {
+      "id": "PART-504",
+      "sku": "BAT-60-WH",
+      "name": "Laptop Battery 60Wh",
+      "quantity": 3,
+      "reorderLevel": 6,
+      "unitCost": 49,
+      "supplierId": "SUP-100",
+      "location": "Bin E5",
+      "lastRestocked": "2026-09-13T19:14:33.531Z"
+    },
+    {
+      "id": "PART-505",
+      "sku": "DOCK-USBC-7",
+      "name": "USB-C Dock",
+      "quantity": 12,
+      "reorderLevel": 4,
+      "unitCost": 65,
+      "supplierId": "SUP-101",
+      "location": "Bin F6",
+      "lastRestocked": "2026-09-10T19:14:33.531Z"
+    },
+    {
+      "id": "PART-506",
+      "sku": "PRN-FUSER-4",
+      "name": "Fuser Assembly",
+      "quantity": 2,
+      "reorderLevel": 3,
+      "unitCost": 145,
+      "supplierId": "SUP-102",
+      "location": "Bin A7",
+      "lastRestocked": "2026-09-07T19:14:33.531Z"
+    },
+    {
+      "id": "PART-507",
+      "sku": "NET-WIFI6",
+      "name": "Wi-Fi 6 Card",
+      "quantity": 9,
+      "reorderLevel": 4,
+      "unitCost": 38,
+      "supplierId": "SUP-103",
+      "location": "Bin B8",
+      "lastRestocked": "2026-09-04T19:14:33.531Z"
+    },
+    {
+      "id": "PART-508",
+      "sku": "SCR-14-FHD",
+      "name": "Screen 14\" FHD",
+      "quantity": 5,
+      "reorderLevel": 3,
+      "unitCost": 119,
+      "supplierId": "SUP-100",
+      "location": "Bin C9",
+      "lastRestocked": "2026-09-01T19:14:33.531Z"
+    },
+    {
+      "id": "PART-509",
+      "sku": "FAN-92-PWM",
+      "name": "Cooling Fan 92mm",
+      "quantity": 21,
+      "reorderLevel": 8,
+      "unitCost": 17,
+      "supplierId": "SUP-101",
+      "location": "Bin D10",
+      "lastRestocked": "2026-08-29T19:14:33.531Z"
+    }
+  ],
+  "contracts": [
+    {
+      "id": "CON-600",
+      "number": "MC-600",
+      "customerId": "CUST-100",
+      "plan": "Annual Maintenance",
+      "coverage": "On-site diagnostics, preventive maintenance, priority scheduling and parts coverage.",
+      "billingCycle": "monthly",
+      "amount": 240,
+      "startDate": "2026-03-29T19:14:33.531Z",
+      "endDate": "2026-12-14T19:14:33.531Z",
+      "status": "expired",
+      "autoRenew": true
+    },
+    {
+      "id": "CON-601",
+      "number": "MC-601",
+      "customerId": "CUST-101",
+      "plan": "Quarterly Service",
+      "coverage": "On-site diagnostics, preventive maintenance, priority scheduling and parts coverage.",
+      "billingCycle": "quarterly",
+      "amount": 300,
+      "startDate": "2026-04-08T19:14:33.531Z",
+      "endDate": "2027-01-03T19:14:33.531Z",
+      "status": "active",
+      "autoRenew": false
+    },
+    {
+      "id": "CON-602",
+      "number": "MC-602",
+      "customerId": "CUST-102",
+      "plan": "Monthly Support",
+      "coverage": "On-site diagnostics, preventive maintenance, priority scheduling and parts coverage.",
+      "billingCycle": "annual",
+      "amount": 360,
+      "startDate": "2026-04-18T19:14:33.531Z",
+      "endDate": "2027-01-23T19:14:33.531Z",
+      "status": "active",
+      "autoRenew": true
+    },
+    {
+      "id": "CON-603",
+      "number": "MC-603",
+      "customerId": "CUST-103",
+      "plan": "Extended Warranty",
+      "coverage": "On-site diagnostics, preventive maintenance, priority scheduling and parts coverage.",
+      "billingCycle": "monthly",
+      "amount": 420,
+      "startDate": "2026-04-28T19:14:33.531Z",
+      "endDate": "2027-02-12T19:14:33.531Z",
+      "status": "active",
+      "autoRenew": false
+    },
+    {
+      "id": "CON-604",
+      "number": "MC-604",
+      "customerId": "CUST-104",
+      "plan": "Annual Maintenance",
+      "coverage": "On-site diagnostics, preventive maintenance, priority scheduling and parts coverage.",
+      "billingCycle": "quarterly",
+      "amount": 480,
+      "startDate": "2026-05-08T19:14:33.531Z",
+      "endDate": "2027-03-04T19:14:33.531Z",
+      "status": "active",
+      "autoRenew": true
+    },
+    {
+      "id": "CON-605",
+      "number": "MC-605",
+      "customerId": "CUST-105",
+      "plan": "Quarterly Service",
+      "coverage": "On-site diagnostics, preventive maintenance, priority scheduling and parts coverage.",
+      "billingCycle": "annual",
+      "amount": 540,
+      "startDate": "2026-05-18T19:14:33.531Z",
+      "endDate": "2027-03-24T19:14:33.531Z",
+      "status": "active",
+      "autoRenew": false
+    },
+    {
+      "id": "CON-606",
+      "number": "MC-606",
+      "customerId": "CUST-106",
+      "plan": "Monthly Support",
+      "coverage": "On-site diagnostics, preventive maintenance, priority scheduling and parts coverage.",
+      "billingCycle": "monthly",
+      "amount": 600,
+      "startDate": "2026-05-28T19:14:33.531Z",
+      "endDate": "2027-04-13T19:14:33.531Z",
+      "status": "active",
+      "autoRenew": true
+    },
+    {
+      "id": "CON-607",
+      "number": "MC-607",
+      "customerId": "CUST-107",
+      "plan": "Extended Warranty",
+      "coverage": "On-site diagnostics, preventive maintenance, priority scheduling and parts coverage.",
+      "billingCycle": "quarterly",
+      "amount": 660,
+      "startDate": "2026-06-07T19:14:33.531Z",
+      "endDate": "2027-05-03T19:14:33.531Z",
+      "status": "expired",
+      "autoRenew": false
+    },
+    {
+      "id": "CON-608",
+      "number": "MC-608",
+      "customerId": "CUST-108",
+      "plan": "Annual Maintenance",
+      "coverage": "On-site diagnostics, preventive maintenance, priority scheduling and parts coverage.",
+      "billingCycle": "annual",
+      "amount": 720,
+      "startDate": "2026-06-17T19:14:33.531Z",
+      "endDate": "2027-05-23T19:14:33.531Z",
+      "status": "active",
+      "autoRenew": true
+    }
+  ],
+  "workOrders": [
+    {
+      "id": "WO-700",
+      "title": "Bench transfer — Laptop",
+      "description": "Internal work request generated by dispatch.",
+      "fromTechnicianId": "TECH-100",
+      "toTechnicianId": "TECH-101",
+      "status": "open",
+      "priority": "low",
+      "relatedJobId": "JOB-2000",
+      "createdAt": "2026-10-15T19:14:33.531Z"
+    },
+    {
+      "id": "WO-701",
+      "title": "Warranty claim — Desktop",
+      "description": "Internal work request generated by dispatch.",
+      "fromTechnicianId": "TECH-101",
+      "toTechnicianId": "TECH-102",
+      "status": "in_progress",
+      "priority": "medium",
+      "relatedJobId": "JOB-2001",
+      "createdAt": "2026-10-14T19:14:33.531Z"
+    },
+    {
+      "id": "WO-702",
+      "title": "Supplier return — Printer",
+      "description": "Internal work request generated by dispatch.",
+      "fromTechnicianId": "TECH-102",
+      "toTechnicianId": "TECH-103",
+      "status": "done",
+      "priority": "high",
+      "relatedJobId": "JOB-2002",
+      "createdAt": "2026-10-13T19:14:33.531Z"
+    },
+    {
+      "id": "WO-703",
+      "title": "Re-diagnosis — Server",
+      "description": "Internal work request generated by dispatch.",
+      "fromTechnicianId": "TECH-103",
+      "toTechnicianId": "TECH-104",
+      "status": "open",
+      "priority": "urgent",
+      "relatedJobId": "JOB-2003",
+      "createdAt": "2026-10-12T19:14:33.531Z"
+    },
+    {
+      "id": "WO-704",
+      "title": "Bench transfer — Phone",
+      "description": "Internal work request generated by dispatch.",
+      "fromTechnicianId": "TECH-104",
+      "toTechnicianId": "TECH-105",
+      "status": "in_progress",
+      "priority": "low",
+      "relatedJobId": "JOB-2004",
+      "createdAt": "2026-10-11T19:14:33.531Z"
+    },
+    {
+      "id": "WO-705",
+      "title": "Warranty claim — Tablet",
+      "description": "Internal work request generated by dispatch.",
+      "fromTechnicianId": "TECH-105",
+      "toTechnicianId": "TECH-100",
+      "status": "done",
+      "priority": "medium",
+      "relatedJobId": "JOB-2005",
+      "createdAt": "2026-10-10T19:14:33.531Z"
+    },
+    {
+      "id": "WO-706",
+      "title": "Supplier return — Appliance",
+      "description": "Internal work request generated by dispatch.",
+      "fromTechnicianId": "TECH-100",
+      "toTechnicianId": "TECH-101",
+      "status": "open",
+      "priority": "high",
+      "relatedJobId": "JOB-2006",
+      "createdAt": "2026-10-09T19:14:33.531Z"
+    },
+    {
+      "id": "WO-707",
+      "title": "Re-diagnosis — Network Device",
+      "description": "Internal work request generated by dispatch.",
+      "fromTechnicianId": "TECH-101",
+      "toTechnicianId": "TECH-102",
+      "status": "in_progress",
+      "priority": "urgent",
+      "relatedJobId": "JOB-2007",
+      "createdAt": "2026-10-08T19:14:33.531Z"
+    },
+    {
+      "id": "WO-708",
+      "title": "Bench transfer — Laptop",
+      "description": "Internal work request generated by dispatch.",
+      "fromTechnicianId": "TECH-102",
+      "toTechnicianId": "TECH-103",
+      "status": "done",
+      "priority": "low",
+      "relatedJobId": "JOB-2008",
+      "createdAt": "2026-10-07T19:14:33.531Z"
+    },
+    {
+      "id": "WO-709",
+      "title": "Warranty claim — Desktop",
+      "description": "Internal work request generated by dispatch.",
+      "fromTechnicianId": "TECH-103",
+      "toTechnicianId": "TECH-104",
+      "status": "open",
+      "priority": "medium",
+      "relatedJobId": "JOB-2009",
+      "createdAt": "2026-10-06T19:14:33.531Z"
+    },
+    {
+      "id": "WO-710",
+      "title": "Supplier return — Printer",
+      "description": "Internal work request generated by dispatch.",
+      "fromTechnicianId": "TECH-104",
+      "toTechnicianId": "TECH-105",
+      "status": "in_progress",
+      "priority": "high",
+      "relatedJobId": "JOB-2010",
+      "createdAt": "2026-10-05T19:14:33.531Z"
+    },
+    {
+      "id": "WO-711",
+      "title": "Re-diagnosis — Server",
+      "description": "Internal work request generated by dispatch.",
+      "fromTechnicianId": "TECH-105",
+      "toTechnicianId": "TECH-100",
+      "status": "done",
+      "priority": "urgent",
+      "relatedJobId": "JOB-2011",
+      "createdAt": "2026-10-04T19:14:33.531Z"
+    },
+    {
+      "id": "WO-712",
+      "title": "Bench transfer — Phone",
+      "description": "Internal work request generated by dispatch.",
+      "fromTechnicianId": "TECH-100",
+      "toTechnicianId": "TECH-101",
+      "status": "open",
+      "priority": "low",
+      "relatedJobId": "JOB-2012",
+      "createdAt": "2026-10-03T19:14:33.531Z"
+    },
+    {
+      "id": "WO-713",
+      "title": "Warranty claim — Tablet",
+      "description": "Internal work request generated by dispatch.",
+      "fromTechnicianId": "TECH-101",
+      "toTechnicianId": "TECH-102",
+      "status": "in_progress",
+      "priority": "medium",
+      "relatedJobId": "JOB-2013",
+      "createdAt": "2026-10-02T19:14:33.531Z"
+    }
+  ],
+  "templates": [
+    {
+      "id": "TPL-1",
+      "title": "Laptop Screen Replacement",
+      "category": "Laptop",
+      "laborRate": 95,
+      "estimatedHours": 1.5,
+      "description": "Replace cracked or faulty display assembly.",
+      "defaultParts": [
+        {
+          "name": "Screen 14\" FHD",
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "TPL-2",
+      "title": "Data Recovery — HDD/SSD",
+      "category": "Data Recovery",
+      "laborRate": 120,
+      "estimatedHours": 3,
+      "description": "Recover data from failing or corrupted drive.",
+      "defaultParts": [
+        {
+          "name": "SSD 1TB NVMe",
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "TPL-3",
+      "title": "Virus & Malware Removal",
+      "category": "Software",
+      "laborRate": 80,
+      "estimatedHours": 1,
+      "description": "Full scan, removal and OS hardening.",
+      "defaultParts": []
+    },
+    {
+      "id": "TPL-4",
+      "title": "Printer Maintenance Service",
+      "category": "Printer",
+      "laborRate": 70,
+      "estimatedHours": 1.5,
+      "description": "Clean rollers, replace fuser if worn.",
+      "defaultParts": [
+        {
+          "name": "Fuser Assembly",
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "TPL-5",
+      "title": "Network Setup & Config",
+      "category": "Network",
+      "laborRate": 90,
+      "estimatedHours": 2,
+      "description": "Router/switch configuration and Wi-Fi optimization.",
+      "defaultParts": [
+        {
+          "name": "Wi-Fi 6 Card",
+          "qty": 1
+        }
+      ]
+    }
+  ],
+  "recurringJobs": [
+    {
+      "id": "REC-1",
+      "title": "Quarterly server maintenance — Harbor Logistics",
+      "customerId": "CUST-104",
+      "frequency": "quarterly",
+      "nextRun": "2026-10-27T19:14:33.531Z",
+      "lastRun": "2026-07-29T19:14:33.531Z",
+      "active": true,
+      "templateId": "TPL-5"
+    },
+    {
+      "id": "REC-2",
+      "title": "Monthly printer service — Vertex Legal",
+      "customerId": "CUST-106",
+      "frequency": "monthly",
+      "nextRun": "2026-10-20T19:14:33.531Z",
+      "lastRun": "2026-09-20T19:14:33.531Z",
+      "active": true,
+      "templateId": "TPL-4"
+    },
+    {
+      "id": "REC-3",
+      "title": "Annual HVAC check — Cedar Ridge Hotel",
+      "customerId": "CUST-103",
+      "frequency": "annual",
+      "nextRun": "2026-11-24T19:14:33.531Z",
+      "lastRun": "2025-11-24T19:14:33.531Z",
+      "active": true,
+      "templateId": "TPL-4"
+    },
+    {
+      "id": "REC-4",
+      "title": "Bi-weekly POS review — Sunrise Café",
+      "customerId": "CUST-105",
+      "frequency": "weekly",
+      "nextRun": "2026-10-17T19:14:33.531Z",
+      "lastRun": "2026-10-03T19:14:33.531Z",
+      "active": false,
+      "templateId": "TPL-5"
+    }
+  ],
+  "assets": [
+    {
+      "id": "AST-800",
+      "name": "Laptop — Dell",
+      "serial": "SN-90000",
+      "customerId": "CUST-100",
+      "purchaseDate": "2025-09-10T19:14:33.531Z",
+      "warrantyUntil": "2026-09-25T19:14:33.531Z",
+      "status": "out_of_warranty",
+      "healthScore": 55,
+      "lastService": "2026-09-15T19:14:33.531Z"
+    },
+    {
+      "id": "AST-801",
+      "name": "Desktop — HP",
+      "serial": "SN-90037",
+      "customerId": "CUST-101",
+      "purchaseDate": "2025-08-21T19:14:33.531Z",
+      "warrantyUntil": "2026-10-30T19:14:33.531Z",
+      "status": "covered",
+      "healthScore": 62,
+      "lastService": "2026-09-11T19:14:33.531Z"
+    },
+    {
+      "id": "AST-802",
+      "name": "Printer — Lenovo",
+      "serial": "SN-90074",
+      "customerId": "CUST-102",
+      "purchaseDate": "2025-08-01T19:14:33.531Z",
+      "warrantyUntil": "2027-01-13T19:14:33.531Z",
+      "status": "covered",
+      "healthScore": 69,
+      "lastService": "2026-09-07T19:14:33.531Z"
+    },
+    {
+      "id": "AST-803",
+      "name": "Server — Apple",
+      "serial": "SN-90111",
+      "customerId": "CUST-103",
+      "purchaseDate": "2025-07-12T19:14:33.531Z",
+      "warrantyUntil": "2027-08-11T19:14:33.531Z",
+      "status": "covered",
+      "healthScore": 76,
+      "lastService": "2026-09-03T19:14:33.531Z"
+    },
+    {
+      "id": "AST-804",
+      "name": "Phone — Asus",
+      "serial": "SN-90148",
+      "customerId": "CUST-104",
+      "purchaseDate": "2025-06-22T19:14:33.531Z",
+      "warrantyUntil": "2028-02-27T19:14:33.531Z",
+      "status": "covered",
+      "healthScore": 83,
+      "lastService": "2026-08-30T19:14:33.531Z"
+    },
+    {
+      "id": "AST-805",
+      "name": "Tablet — Dell",
+      "serial": "SN-90185",
+      "customerId": "CUST-105",
+      "purchaseDate": "2025-06-02T19:14:33.531Z",
+      "warrantyUntil": "2026-09-25T19:14:33.531Z",
+      "status": "out_of_warranty",
+      "healthScore": 90,
+      "lastService": "2026-08-26T19:14:33.531Z"
+    },
+    {
+      "id": "AST-806",
+      "name": "Appliance — HP",
+      "serial": "SN-90222",
+      "customerId": "CUST-106",
+      "purchaseDate": "2025-05-13T19:14:33.531Z",
+      "warrantyUntil": "2026-10-30T19:14:33.531Z",
+      "status": "covered",
+      "healthScore": 97,
+      "lastService": "2026-08-22T19:14:33.531Z"
+    },
+    {
+      "id": "AST-807",
+      "name": "Network Device — Lenovo",
+      "serial": "SN-90259",
+      "customerId": "CUST-107",
+      "purchaseDate": "2025-04-23T19:14:33.531Z",
+      "warrantyUntil": "2027-01-13T19:14:33.531Z",
+      "status": "covered",
+      "healthScore": 59,
+      "lastService": "2026-08-18T19:14:33.531Z"
+    },
+    {
+      "id": "AST-808",
+      "name": "Laptop — Apple",
+      "serial": "SN-90296",
+      "customerId": "CUST-108",
+      "purchaseDate": "2025-04-03T19:14:33.531Z",
+      "warrantyUntil": "2027-08-11T19:14:33.531Z",
+      "status": "covered",
+      "healthScore": 66,
+      "lastService": "2026-08-14T19:14:33.531Z"
+    },
+    {
+      "id": "AST-809",
+      "name": "Desktop — Asus",
+      "serial": "SN-90333",
+      "customerId": "CUST-109",
+      "purchaseDate": "2025-03-14T19:14:33.531Z",
+      "warrantyUntil": "2028-02-27T19:14:33.531Z",
+      "status": "covered",
+      "healthScore": 73,
+      "lastService": "2026-08-10T19:14:33.531Z"
+    },
+    {
+      "id": "AST-810",
+      "name": "Printer — Dell",
+      "serial": "SN-90370",
+      "customerId": "CUST-110",
+      "purchaseDate": "2025-02-22T19:14:33.531Z",
+      "warrantyUntil": "2026-09-25T19:14:33.531Z",
+      "status": "out_of_warranty",
+      "healthScore": 80,
+      "lastService": "2026-08-06T19:14:33.531Z"
+    },
+    {
+      "id": "AST-811",
+      "name": "Server — HP",
+      "serial": "SN-90407",
+      "customerId": "CUST-111",
+      "purchaseDate": "2025-02-02T19:14:33.531Z",
+      "warrantyUntil": "2026-10-30T19:14:33.531Z",
+      "status": "covered",
+      "healthScore": 87,
+      "lastService": "2026-08-02T19:14:33.531Z"
+    },
+    {
+      "id": "AST-812",
+      "name": "Phone — Lenovo",
+      "serial": "SN-90444",
+      "customerId": "CUST-100",
+      "purchaseDate": "2025-01-13T19:14:33.531Z",
+      "warrantyUntil": "2027-01-13T19:14:33.531Z",
+      "status": "covered",
+      "healthScore": 94,
+      "lastService": "2026-07-29T19:14:33.531Z"
+    },
+    {
+      "id": "AST-813",
+      "name": "Tablet — Apple",
+      "serial": "SN-90481",
+      "customerId": "CUST-101",
+      "purchaseDate": "2024-12-24T19:14:33.531Z",
+      "warrantyUntil": "2027-08-11T19:14:33.531Z",
+      "status": "covered",
+      "healthScore": 56,
+      "lastService": "2026-07-25T19:14:33.531Z"
+    },
+    {
+      "id": "AST-814",
+      "name": "Appliance — Asus",
+      "serial": "SN-90518",
+      "customerId": "CUST-102",
+      "purchaseDate": "2024-12-04T19:14:33.531Z",
+      "warrantyUntil": "2028-02-27T19:14:33.531Z",
+      "status": "covered",
+      "healthScore": 63,
+      "lastService": "2026-07-21T19:14:33.531Z"
+    }
+  ],
+  "conversations": [
+    {
+      "id": "MSG-900",
+      "customerId": "CUST-100",
+      "subject": "Repair status update",
+      "messages": [
+        {
+          "from": "customer",
+          "name": "Jordan Fisher",
+          "body": "Hi, any update on my repair? Thanks!",
+          "at": "2026-10-13T19:14:33.531Z"
+        },
+        {
+          "from": "tech",
+          "name": "Marcus Reyes",
+          "body": "We've completed the diagnosis and ordered the part — should be done in 2 days.",
+          "at": "2026-10-14T19:14:33.531Z"
+        },
+        {
+          "from": "customer",
+          "name": "Jordan Fisher",
+          "body": "Great, appreciate the quick turnaround.",
+          "at": "2026-10-15T19:14:33.531Z"
+        }
+      ]
+    },
+    {
+      "id": "MSG-901",
+      "customerId": "CUST-101",
+      "subject": "Invoice question",
+      "messages": [
+        {
+          "from": "customer",
+          "name": "Rebecca Wells",
+          "body": "Hi, any update on my repair? Thanks!",
+          "at": "2026-10-13T19:14:33.531Z"
+        },
+        {
+          "from": "tech",
+          "name": "Priya Nair",
+          "body": "We've completed the diagnosis and ordered the part — should be done in 2 days.",
+          "at": "2026-10-14T19:14:33.531Z"
+        },
+        {
+          "from": "customer",
+          "name": "Rebecca Wells",
+          "body": "Great, appreciate the quick turnaround.",
+          "at": "2026-10-15T19:14:33.531Z"
+        }
+      ]
+    },
+    {
+      "id": "MSG-902",
+      "customerId": "CUST-102",
+      "subject": "Schedule change request",
+      "messages": [
+        {
+          "from": "customer",
+          "name": "Dr. Alan Meyer",
+          "body": "Hi, any update on my repair? Thanks!",
+          "at": "2026-10-13T19:14:33.531Z"
+        },
+        {
+          "from": "tech",
+          "name": "Diego Alvarez",
+          "body": "We've completed the diagnosis and ordered the part — should be done in 2 days.",
+          "at": "2026-10-14T19:14:33.531Z"
+        },
+        {
+          "from": "customer",
+          "name": "Dr. Alan Meyer",
+          "body": "Great, appreciate the quick turnaround.",
+          "at": "2026-10-15T19:14:33.531Z"
+        }
+      ]
+    },
+    {
+      "id": "MSG-903",
+      "customerId": "CUST-103",
+      "subject": "Parts availability",
+      "messages": [
+        {
+          "from": "customer",
+          "name": "Monica Hall",
+          "body": "Hi, any update on my repair? Thanks!",
+          "at": "2026-10-13T19:14:33.531Z"
+        },
+        {
+          "from": "tech",
+          "name": "Hannah Okafor",
+          "body": "We've completed the diagnosis and ordered the part — should be done in 2 days.",
+          "at": "2026-10-14T19:14:33.531Z"
+        },
+        {
+          "from": "customer",
+          "name": "Monica Hall",
+          "body": "Great, appreciate the quick turnaround.",
+          "at": "2026-10-15T19:14:33.531Z"
+        }
+      ]
+    },
+    {
+      "id": "MSG-904",
+      "customerId": "CUST-104",
+      "subject": "Follow-up on diagnosis",
+      "messages": [
+        {
+          "from": "customer",
+          "name": "Victor Nguyen",
+          "body": "Hi, any update on my repair? Thanks!",
+          "at": "2026-10-13T19:14:33.531Z"
+        },
+        {
+          "from": "tech",
+          "name": "Tom Bennett",
+          "body": "We've completed the diagnosis and ordered the part — should be done in 2 days.",
+          "at": "2026-10-14T19:14:33.531Z"
+        },
+        {
+          "from": "customer",
+          "name": "Victor Nguyen",
+          "body": "Great, appreciate the quick turnaround.",
+          "at": "2026-10-15T19:14:33.531Z"
+        }
+      ]
+    }
+  ],
+  "auditLogs": [
+    {
+      "id": "LOG-1000",
+      "user": "Admin User",
+      "action": "created",
+      "entityType": "Job",
+      "entityId": "JOB-2000",
+      "detail": "Field changes recorded in audit trail.",
+      "ip": "10.0.0.20",
+      "at": "2026-10-15T19:14:33.531Z"
+    },
+    {
+      "id": "LOG-1001",
+      "user": "Marcus Reyes",
+      "action": "updated",
+      "entityType": "Customer",
+      "entityId": "CUST-101",
+      "detail": "Field changes recorded in audit trail.",
+      "ip": "10.0.1.21",
+      "at": "2026-10-15T02:26:33.531Z"
+    },
+    {
+      "id": "LOG-1002",
+      "user": "Priya Nair",
+      "action": "deleted",
+      "entityType": "Invoice",
+      "entityId": "INV-3002",
+      "detail": "Field changes recorded in audit trail.",
+      "ip": "10.0.2.22",
+      "at": "2026-10-14T09:38:33.531Z"
+    },
+    {
+      "id": "LOG-1003",
+      "user": "Sofia Costa",
+      "action": "viewed",
+      "entityType": "Part",
+      "entityId": "PART-503",
+      "detail": "Field changes recorded in audit trail.",
+      "ip": "10.0.3.23",
+      "at": "2026-10-13T16:50:33.531Z"
+    },
+    {
+      "id": "LOG-1004",
+      "user": "Admin User",
+      "action": "exported",
+      "entityType": "Contract",
+      "entityId": "CON-604",
+      "detail": "Field changes recorded in audit trail.",
+      "ip": "10.0.4.24",
+      "at": "2026-10-13T00:02:33.531Z"
+    },
+    {
+      "id": "LOG-1005",
+      "user": "Marcus Reyes",
+      "action": "created",
+      "entityType": "Job",
+      "entityId": "JOB-2005",
+      "detail": "Field changes recorded in audit trail.",
+      "ip": "10.0.5.25",
+      "at": "2026-10-12T07:14:33.531Z"
+    },
+    {
+      "id": "LOG-1006",
+      "user": "Priya Nair",
+      "action": "updated",
+      "entityType": "Customer",
+      "entityId": "CUST-106",
+      "detail": "Field changes recorded in audit trail.",
+      "ip": "10.0.6.26",
+      "at": "2026-10-11T14:26:33.531Z"
+    },
+    {
+      "id": "LOG-1007",
+      "user": "Sofia Costa",
+      "action": "deleted",
+      "entityType": "Invoice",
+      "entityId": "INV-3007",
+      "detail": "Field changes recorded in audit trail.",
+      "ip": "10.0.7.27",
+      "at": "2026-10-10T21:38:33.531Z"
+    },
+    {
+      "id": "LOG-1008",
+      "user": "Admin User",
+      "action": "viewed",
+      "entityType": "Part",
+      "entityId": "PART-508",
+      "detail": "Field changes recorded in audit trail.",
+      "ip": "10.0.0.28",
+      "at": "2026-10-10T04:50:33.531Z"
+    },
+    {
+      "id": "LOG-1009",
+      "user": "Marcus Reyes",
+      "action": "exported",
+      "entityType": "Contract",
+      "entityId": "CON-600",
+      "detail": "Field changes recorded in audit trail.",
+      "ip": "10.0.1.29",
+      "at": "2026-10-09T12:02:33.531Z"
+    },
+    {
+      "id": "LOG-1010",
+      "user": "Priya Nair",
+      "action": "created",
+      "entityType": "Job",
+      "entityId": "JOB-2010",
+      "detail": "Field changes recorded in audit trail.",
+      "ip": "10.0.2.30",
+      "at": "2026-10-08T19:14:33.531Z"
+    },
+    {
+      "id": "LOG-1011",
+      "user": "Sofia Costa",
+      "action": "updated",
+      "entityType": "Customer",
+      "entityId": "CUST-111",
+      "detail": "Field changes recorded in audit trail.",
+      "ip": "10.0.3.31",
+      "at": "2026-10-08T02:26:33.531Z"
+    },
+    {
+      "id": "LOG-1012",
+      "user": "Admin User",
+      "action": "deleted",
+      "entityType": "Invoice",
+      "entityId": "INV-3012",
+      "detail": "Field changes recorded in audit trail.",
+      "ip": "10.0.4.32",
+      "at": "2026-10-07T09:38:33.531Z"
+    },
+    {
+      "id": "LOG-1013",
+      "user": "Marcus Reyes",
+      "action": "viewed",
+      "entityType": "Part",
+      "entityId": "PART-503",
+      "detail": "Field changes recorded in audit trail.",
+      "ip": "10.0.5.33",
+      "at": "2026-10-06T16:50:33.531Z"
+    },
+    {
+      "id": "LOG-1014",
+      "user": "Priya Nair",
+      "action": "exported",
+      "entityType": "Contract",
+      "entityId": "CON-605",
+      "detail": "Field changes recorded in audit trail.",
+      "ip": "10.0.6.34",
+      "at": "2026-10-06T00:02:33.531Z"
+    },
+    {
+      "id": "LOG-1015",
+      "user": "Sofia Costa",
+      "action": "created",
+      "entityType": "Job",
+      "entityId": "JOB-2015",
+      "detail": "Field changes recorded in audit trail.",
+      "ip": "10.0.7.35",
+      "at": "2026-10-05T07:14:33.531Z"
+    },
+    {
+      "id": "LOG-1016",
+      "user": "Admin User",
+      "action": "updated",
+      "entityType": "Customer",
+      "entityId": "CUST-104",
+      "detail": "Field changes recorded in audit trail.",
+      "ip": "10.0.0.36",
+      "at": "2026-10-04T14:26:33.531Z"
+    },
+    {
+      "id": "LOG-1017",
+      "user": "Marcus Reyes",
+      "action": "deleted",
+      "entityType": "Invoice",
+      "entityId": "INV-3017",
+      "detail": "Field changes recorded in audit trail.",
+      "ip": "10.0.1.37",
+      "at": "2026-10-03T21:38:33.531Z"
+    },
+    {
+      "id": "LOG-1018",
+      "user": "Priya Nair",
+      "action": "viewed",
+      "entityType": "Part",
+      "entityId": "PART-508",
+      "detail": "Field changes recorded in audit trail.",
+      "ip": "10.0.2.38",
+      "at": "2026-10-03T04:50:33.531Z"
+    },
+    {
+      "id": "LOG-1019",
+      "user": "Sofia Costa",
+      "action": "exported",
+      "entityType": "Contract",
+      "entityId": "CON-601",
+      "detail": "Field changes recorded in audit trail.",
+      "ip": "10.0.3.39",
+      "at": "2026-10-02T12:02:33.531Z"
+    },
+    {
+      "id": "LOG-1020",
+      "user": "Admin User",
+      "action": "created",
+      "entityType": "Job",
+      "entityId": "JOB-2020",
+      "detail": "Field changes recorded in audit trail.",
+      "ip": "10.0.4.40",
+      "at": "2026-10-01T19:14:33.531Z"
+    },
+    {
+      "id": "LOG-1021",
+      "user": "Marcus Reyes",
+      "action": "updated",
+      "entityType": "Customer",
+      "entityId": "CUST-109",
+      "detail": "Field changes recorded in audit trail.",
+      "ip": "10.0.5.41",
+      "at": "2026-10-01T02:26:33.531Z"
+    }
+  ],
+  "gdprRequests": [
+    {
+      "id": "GDPR-1",
+      "customerId": "CUST-100",
+      "type": "export",
+      "status": "done",
+      "requestedAt": "2026-09-25T19:14:33.531Z",
+      "completedAt": "2026-09-26T19:14:33.531Z"
+    },
+    {
+      "id": "GDPR-2",
+      "customerId": "CUST-102",
+      "type": "delete",
+      "status": "processing",
+      "requestedAt": "2026-10-12T19:14:33.531Z",
+      "completedAt": null
+    },
+    {
+      "id": "GDPR-3",
+      "customerId": "CUST-105",
+      "type": "export",
+      "status": "pending",
+      "requestedAt": "2026-10-14T19:14:33.531Z",
+      "completedAt": null
+    }
+  ],
+  "notifications": [
+    {
+      "id": "N1",
+      "type": "warning",
+      "title": "Low stock: PSU 650W Gold",
+      "body": "Quantity 4 is below reorder level 8.",
+      "at": "2026-10-15T19:14:33.531Z",
+      "read": false
+    },
+    {
+      "id": "N2",
+      "type": "danger",
+      "title": "Invoice INV-3003 overdue",
+      "body": "14 days past due — Bright Dental Group.",
+      "at": "2026-10-15T19:14:33.531Z",
+      "read": false
+    },
+    {
+      "id": "N3",
+      "type": "info",
+      "title": "New service request",
+      "body": "Submitted via Customer Portal.",
+      "at": "2026-10-14T19:14:33.531Z",
+      "read": true
+    },
+    {
+      "id": "N4",
+      "type": "success",
+      "title": "Job JOB-2004 completed",
+      "body": "Marked complete by Marcus Reyes.",
+      "at": "2026-10-14T19:14:33.531Z",
+      "read": true
+    }
+  ],
+  "serviceRequests": [],
+  "settings": {
+    "companyName": "FixFlow Repairs",
+    "email": "support@fixflow.io",
+    "phone": "+1 (555) 010-2030",
+    "address": "1 Riverside Plaza, Portland, OR 97201",
+    "taxRate": 8,
+    "invoiceTerms": "Payment due within 15 days.",
+    "currency": "USD",
+    "dateFormat": "MM/DD/YYYY",
+    "language": "en",
+    "theme": "light",
+    "density": "comfortable",
+    "invoicePrefix": "INV-",
+    "jobPrefix": "JOB-",
+    "notifications": {
+      "email": true,
+      "inApp": true,
+      "sms": false,
+      "lowStock": true,
+      "overdue": true
+    },
+    "roles": [
+      {
+        "name": "Admin User",
+        "email": "admin@fixflow.io",
+        "role": "admin"
+      },
+      {
+        "name": "Dana Manager",
+        "email": "dana@fixflow.io",
+        "role": "manager"
+      },
+      {
+        "name": "Marcus Reyes",
+        "email": "marcus@fixflow.io",
+        "role": "technician"
+      }
+    ]
+  },
+  "session": {
+    "user": "Admin User",
+    "email": "admin@fixflow.io",
+    "role": "admin",
+    "initials": "AU"
+  }
+}

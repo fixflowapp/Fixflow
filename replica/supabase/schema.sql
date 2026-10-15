@@ -1,9 +1,9 @@
 -- FixFlow replica — Supabase schema
 -- Run this in Supabase → SQL Editor → New query → Run.
 --
--- Design: one table per collection, each row = { id, data jsonb, updated_at }.
--- The app's object shape is stored verbatim in `data`, so there is no column drift
--- and new fields can be added without migrations. Query a field with data->>'field'.
+-- Design: a single `ff_records` table keyed by (collection, id). The app's object
+-- shape is stored verbatim in `data` jsonb, so there is no column drift and new
+-- fields can be added without migrations. Query a field with data->>'field'.
 --
 -- SECURITY NOTE: the RLS policies below grant the anon key full read/write so the
 -- static replica can sync without a backend. This is fine for a private demo project

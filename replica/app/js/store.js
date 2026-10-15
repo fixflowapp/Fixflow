@@ -429,6 +429,7 @@ export function mutate(fn) {
 }
 
 export const id = uid;
+export const seedData = seed;
 
 export function logAudit(action, entityType, entityId, detail) {
   mutate((s) => {
