@@ -325,10 +325,13 @@ let state = null;
 const listeners = new Set();
 
 // ---- Supabase sync state -------------------------------------------------
-let sb = null;               // lazily-imported ./supabase.js module (only if configured)
-let sbOn = false;            // true once connected & first pull/push done
-const lastPushed = {};       // collection -> JSON snapshot last written to Supabase
+let sb = null;                 // lazily-imported ./supabase.js module (only if configured)
+let sbOn = false;              // true once a signed-in session has been pulled
+let authed = false;            // true when a Supabase Auth session exists
+const lastPushed = {};         // collection -> JSON snapshot confirmed written to Supabase
+const inFlight = new Set();    // collections with a push currently in flight
 let syncTimer = null;
+let retryDelay = 400;
 
 async function getSupabase() {
   const cfg = (typeof window !== "undefined" && window.FIXFLOW_SUPABASE) || {};
@@ -348,25 +351,36 @@ function load() {
   return s;
 }
 
-// Pull from Supabase on boot. Falls back to local data if unavailable.
+// Pull from Supabase on boot. Requires a signed-in session: the anon key has no
+// table access, so an unauthenticated client has nothing to read and stays local.
 export async function initStore() {
   if (!state) state = load();
   sb = await getSupabase();
   if (!sb) { snapshotAll(); return { source: "local" }; }
+
+  const session = await sb.getSession();
+  authed = Boolean(session);
+  if (!authed) {
+    state.session = null;                            // a forged local session is not honoured
+    persistCache();
+    snapshotAll();
+    return { source: "local", authed: false };
+  }
+  state.session = sb.sessionToDisplay(session) || state.session;
+
   const res = await sb.pullAll();
-  if (!res.ok) { snapshotAll(); return { source: "local", error: res.error }; }
+  if (!res.ok) { snapshotAll(); return { source: "local", authed: true, error: res.error }; }
 
   sbOn = true;
   const remoteHasData = (res.count || 0) > 0;
   if (remoteHasData) {
-    const base = seed();
-    const merged = { ...base };
-    for (const c of COLLECTIONS) if (res.collections[c] && res.collections[c].length) merged[c] = res.collections[c];
+    const merged = { ...state };
+    for (const c of COLLECTIONS) merged[c] = Array.isArray(res.collections[c]) ? res.collections[c] : [];
     if (res.settings && Object.keys(res.settings).length) merged.settings = res.settings;
-    merged.session = state.session;                 // keep current session
+    merged.session = state.session;
     state = merged;
   } else {
-    await sb.seedIfEmpty(state);                    // first run → seed the cloud
+    await sb.seedIfEmpty(state);                     // first run → seed the cloud
   }
   persistCache();
   snapshotAll();
@@ -376,31 +390,47 @@ export async function initStore() {
 function snapshotAll() {
   for (const c of COLLECTIONS) lastPushed[c] = JSON.stringify(state[c] || []);
   lastPushed.settings = JSON.stringify(state.settings || {});
-  lastPushed.session = JSON.stringify(state.session || {});
 }
 
-function scheduleSync() {
+function scheduleSync(delay = 400) {
   if (!sbOn || !sb) return;
   clearTimeout(syncTimer);
-  syncTimer = setTimeout(syncNow, 400);
+  syncTimer = setTimeout(syncNow, delay);
 }
 
+// lastPushed advances only after a confirmed write, so a failed push is retried
+// (with backoff) instead of being silently dropped.
 export function syncNow() {
   if (!sbOn || !sb) return;
+  const settle = (key, json, res) => {
+    if (res && res.ok) { lastPushed[key] = json; retryDelay = 400; }
+    else scheduleSync((retryDelay = Math.min(retryDelay * 2, 30000)));
+  };
   for (const c of COLLECTIONS) {
     const json = JSON.stringify(state[c] || []);
-    if (lastPushed[c] !== json) { lastPushed[c] = json; sb.pushCollection(c, state[c] || []); }
+    if (lastPushed[c] === json || inFlight.has(c)) continue;
+    inFlight.add(c);
+    sb.pushCollection(c, state[c] || []).then((res) => { inFlight.delete(c); settle(c, json, res); });
   }
   const sj = JSON.stringify(state.settings || {});
-  if (lastPushed.settings !== sj) { lastPushed.settings = sj; sb.pushSettings(state.settings || {}); }
+  if (lastPushed.settings !== sj && !inFlight.has("settings")) {
+    inFlight.add("settings");
+    sb.pushSettings(state.settings || {}).then((res) => { inFlight.delete("settings"); settle("settings", sj, res); });
+  }
 }
 
 export const store = new Proxy({}, {
   get(_t, prop) {
     if (!state) state = load();
-    if (prop === "reset") return async () => { state = seed(); persist(); if (sbOn) await sb.seedIfEmpty(state); return state; };
+    if (prop === "reset") return async () => {
+      state = seed();
+      persistCache();
+      if (sbOn && sb) { for (const c of COLLECTIONS) lastPushed[c] = null; lastPushed.settings = null; syncNow(); }
+      return state;
+    };
     if (prop === "subscribe") return (fn) => { listeners.add(fn); return () => listeners.delete(fn); };
     if (prop === "source") return sbOn ? "supabase" : "local";
+    if (prop === "authed") return authed;
     return state[prop];
   },
   set(_t, prop, value) {

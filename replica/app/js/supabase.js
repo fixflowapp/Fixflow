@@ -1,8 +1,12 @@
-// FixFlow replica — Supabase persistence layer.
+// FixFlow replica — Supabase persistence + auth layer.
 //
 // Loads @supabase/supabase-js from a CDN so the app stays build-free.
 // Data model: one row per entity in `ff_records` (collection, id, data jsonb),
 // plus a singleton row in `ff_settings`. See replica/supabase/schema.sql.
+//
+// Security: the anon key is shipped in the browser and therefore public. The
+// schema denies the anon role all access; every read/write requires a signed-in
+// session. Never move privileged work (seeding, admin) into this module.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -12,7 +16,7 @@ export const SUPABASE_ANON_KEY = cfg.anonKey || "";
 export const supabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 
 export const supabase = supabaseConfigured
-  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false } })
+  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: true, autoRefreshToken: true } })
   : null;
 
 const RECORDS = "ff_records";
@@ -24,11 +28,59 @@ export const COLLECTIONS = [
   "auditLogs", "gdprRequests", "notifications", "serviceRequests",
 ];
 
-// Pull every collection + settings. Returns { ok, collections, settings, error }.
+// ---------------------------------------------------------------------------
+// Auth — the only source of truth for "who is signed in".
+// ---------------------------------------------------------------------------
+export async function getSession() {
+  if (!supabaseConfigured) return null;
+  try { const { data } = await supabase.auth.getSession(); return data?.session || null; }
+  catch { return null; }
+}
+
+export function sessionToDisplay(session) {
+  const u = session?.user;
+  if (!u) return null;
+  const meta = u.user_metadata || {};
+  const name = meta.name || (u.email ? u.email.split("@")[0] : "User");
+  const initials = name.split(/[\s._-]+/).filter(Boolean).slice(0, 2).map((s) => s[0].toUpperCase()).join("") || "U";
+  return { user: name, email: u.email, role: meta.role || "member", initials };
+}
+
+export async function signIn(email, password) {
+  if (!supabaseConfigured) return { ok: false, error: "Supabase is not configured." };
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return { ok: false, error: error.message };
+    return { ok: true, session: data.session, display: sessionToDisplay(data.session) };
+  } catch (e) {
+    return { ok: false, error: e.message || String(e) };
+  }
+}
+
+export async function signUp(email, password, name) {
+  if (!supabaseConfigured) return { ok: false, error: "Supabase is not configured." };
+  try {
+    const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { name } } });
+    if (error) return { ok: false, error: error.message };
+    if (!data.session) return { ok: false, error: "Check your email to confirm the account, then sign in." };
+    return { ok: true, session: data.session, display: sessionToDisplay(data.session) };
+  } catch (e) {
+    return { ok: false, error: e.message || String(e) };
+  }
+}
+
+export async function signOut() {
+  if (!supabaseConfigured) return;
+  try { await supabase.auth.signOut(); } catch { /* best effort */ }
+}
+
+// ---------------------------------------------------------------------------
+// Reads
+// ---------------------------------------------------------------------------
 export async function pullAll() {
   if (!supabaseConfigured) return { ok: false, error: "Supabase not configured" };
   try {
-    const { data: rows, error } = await supabase.from(RECORDS).select("collection,id,data");
+    const { data: rows, error } = await supabase.from(RECORDS).select("collection,id,data").order("id", { ascending: true });
     if (error) throw error;
     const collections = Object.fromEntries(COLLECTIONS.map((c) => [c, []]));
     for (const r of rows || []) {
@@ -43,31 +95,57 @@ export async function pullAll() {
   }
 }
 
-// Replace a whole collection atomically-ish (delete then insert). Simple + correct
-// for demo-sized data; handles removals as well as additions/edits.
-export async function pushCollection(name, rows) {
-  if (!supabaseConfigured) return;
-  try {
-    const { error: derr } = await supabase.from(RECORDS).delete().eq("collection", name);
-    if (derr) throw derr;
-    if (rows && rows.length) {
-      const payload = rows.map((r) => ({ collection: name, id: String(r.id ?? crypto.randomUUID()), data: r }));
-      const { error: ierr } = await supabase.from(RECORDS).insert(payload);
-      if (ierr) throw ierr;
-    }
-  } catch (e) {
-    console.warn(`[fixflow] Supabase push failed for ${name}:`, e.message || e);
+// ---------------------------------------------------------------------------
+// Writes — non-destructive: upsert every row, then prune only the ids that
+// were removed locally. No whole-collection DELETE, so an interrupted write
+// can never leave the collection empty.
+// ---------------------------------------------------------------------------
+const ATTEMPTS = 3;
+const quoteId = (id) => `"${String(id).replace(/"/g, "")}"`;
+
+async function withRetry(fn) {
+  let last = { ok: false, error: "unknown" };
+  for (let i = 0; i < ATTEMPTS; i++) {
+    last = await fn();
+    if (last.ok) return last;
+    if (i < ATTEMPTS - 1) await new Promise((r) => setTimeout(r, 300 * (i + 1)));
   }
+  return last;
 }
 
-export async function pushSettings(settings) {
-  if (!supabaseConfigured) return;
-  try {
-    const { error } = await supabase.from(SETTINGS).upsert({ id: "default", data: settings });
-    if (error) throw error;
-  } catch (e) {
-    console.warn("[fixflow] Supabase settings push failed:", e.message || e);
-  }
+export function pushCollection(name, rows) {
+  return withRetry(async () => {
+    if (!supabaseConfigured) return { ok: false, error: "Supabase not configured" };
+    try {
+      const list = rows || [];
+      const payload = list.map((r) => ({ collection: name, id: String(r.id ?? crypto.randomUUID()), data: r }));
+      if (payload.length) {
+        const { error } = await supabase.from(RECORDS).upsert(payload, { onConflict: "collection,id" });
+        if (error) throw error;
+      }
+      const ids = payload.map((p) => p.id);
+      let q = supabase.from(RECORDS).delete().eq("collection", name);
+      if (ids.length) q = q.not("id", "in", `(${ids.map(quoteId).join(",")})`);
+      const { error: derr } = await q;
+      if (derr) throw derr;
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: e.message || String(e) };
+    }
+  });
+}
+
+export function pushSettings(settings) {
+  return withRetry(async () => {
+    if (!supabaseConfigured) return { ok: false, error: "Supabase not configured" };
+    try {
+      const { error } = await supabase.from(SETTINGS).upsert({ id: "default", data: settings });
+      if (error) throw error;
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: e.message || String(e) };
+    }
+  });
 }
 
 // Seed an empty/partial database from a local object. Only inserts collections

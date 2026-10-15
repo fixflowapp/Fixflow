@@ -159,7 +159,7 @@ export const jobDetails = {
           <div class="field" style="margin-top:12px"><label>Assign technician</label>
             <select class="select" id="tech-select">
               <option value="">Unassigned</option>
-              ${store.technicians.map((t) => `<option value="${t.id}" ${t.id === job.technicianId ? "selected" : ""}>${esc(t.name)}</option>`).join("")}
+              ${store.technicians.map((t) => `<option value="${esc(t.id)}" ${t.id === job.technicianId ? "selected" : ""}>${esc(t.name)}</option>`).join("")}
             </select></div>`, { tight: true })}
         ${card("Costs", `
           <dl class="kv">

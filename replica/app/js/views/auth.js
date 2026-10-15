@@ -1,7 +1,13 @@
 import { store } from "../store.js";
-import { esc, toast } from "../util.js";
+import { esc } from "../util.js";
+
+function configured() {
+  const c = (typeof window !== "undefined" && window.FIXFLOW_SUPABASE) || {};
+  return Boolean(c.url && c.anonKey);
+}
 
 export function loginView() {
+  const online = configured();
   const html = `
   <div style="min-height:100vh;display:grid;grid-template-columns:1.1fr 1fr">
     <div style="background:linear-gradient(160deg,#1b2a4a,#2f5bea);color:#fff;padding:48px;display:flex;flex-direction:column;justify-content:space-between">
@@ -33,21 +39,21 @@ export function loginView() {
     <div style="display:grid;place-items:center;padding:40px;background:var(--bg)">
       <div style="width:100%;max-width:360px">
         <h2 style="font-size:22px;font-weight:700">Sign in</h2>
-        <p class="muted" style="margin-top:4px;margin-bottom:24px;font-size:13.5px">Use the demo account to explore FixFlow.</p>
+        <p class="muted" style="margin-top:4px;margin-bottom:18px;font-size:13.5px">
+          ${online ? "Sign in with your FixFlow account." : "Offline demo — data stays in this browser only."}
+        </p>
+        <div id="login-error" class="field" style="display:none;margin-bottom:12px">
+          <div class="hint" style="color:var(--danger)"></div>
+        </div>
         <div class="field" style="margin-bottom:14px">
           <label>Email</label>
-          <input class="input" id="login-email" value="admin@fixflow.io" />
+          <input class="input" id="login-email" type="email" autocomplete="username" value="${esc(online ? "admin@fixflow.io" : "")}" />
         </div>
-        <div class="field" style="margin-bottom:8px">
+        <div class="field" style="margin-bottom:18px">
           <label>Password</label>
-          <input class="input" type="password" id="login-pass" value="fixflow" />
-        </div>
-        <div class="row" style="justify-content:space-between;margin-bottom:20px">
-          <label class="checkline"><input type="checkbox" checked /> Remember me</label>
-          <span class="link small">Forgot password?</span>
+          <input class="input" type="password" id="login-pass" autocomplete="current-password" />
         </div>
         <button class="btn btn-primary btn-block" id="login-btn">Sign in</button>
-        <button class="btn btn-secondary btn-block" id="login-demo" style="margin-top:10px">Continue as demo admin</button>
         <p class="muted small" style="text-align:center;margin-top:20px">
           New here? <span class="link" data-nav="request-service">Request a service</span>
         </p>
@@ -57,14 +63,36 @@ export function loginView() {
   return {
     html,
     mount(root) {
-      const doLogin = () => {
-        store.session = { user: "Admin User", email: "admin@fixflow.io", role: "admin", initials: "AU" };
-        toast("Welcome back", "Signed in as Admin User", "success");
-        window.location.hash = "#/dashboard";
-        window.location.reload();
+      const btn = root.querySelector("#login-btn");
+      const errBox = root.querySelector("#login-error");
+      const errText = errBox.querySelector(".hint");
+      const showError = (m) => { errText.textContent = m; errBox.style.display = "block"; };
+
+      const submit = async () => {
+        const email = root.querySelector("#login-email").value.trim();
+        const password = root.querySelector("#login-pass").value;
+        errBox.style.display = "none";
+        if (!email || !password) return showError("Enter your email and password.");
+
+        const label = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = "Signing in…";
+        try {
+          const mod = await import("../supabase.js");
+          const res = await mod.signIn(email, password);
+          if (!res.ok) { btn.disabled = false; btn.textContent = label; return showError(res.error || "Sign in failed."); }
+          store.session = res.display;
+          window.location.hash = "#/dashboard";
+          window.location.reload();
+        } catch (e) {
+          btn.disabled = false;
+          btn.textContent = label;
+          showError(e.message || "Sign in failed.");
+        }
       };
-      root.querySelector("#login-btn").addEventListener("click", doLogin);
-      root.querySelector("#login-demo").addEventListener("click", doLogin);
+
+      btn.addEventListener("click", submit);
+      root.querySelectorAll("#login-email,#login-pass").forEach((i) => i.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); }));
     },
   };
 }

@@ -213,8 +213,8 @@ export const newInvoice = {
       root.querySelector("#line-items").innerHTML = buildTable({
         columns: [
           { key: "description", label: "Description", render: (r) => `<input class="input" data-li="${r._i}" data-f="description" value="${esc(r.description)}" />` },
-          { key: "qty", label: "Qty", render: (r) => `<input class="input" style="width:80px" type="number" data-li="${r._i}" data-f="qty" value="${r.qty}" />` },
-          { key: "unitPrice", label: "Unit Price", render: (r) => `<input class="input" style="width:110px" type="number" data-li="${r._i}" data-f="unitPrice" value="${r.unitPrice}" />` },
+          { key: "qty", label: "Qty", render: (r) => `<input class="input" style="width:80px" type="number" data-li="${esc(r._i)}" data-f="qty" value="${esc(r.qty)}" />` },
+          { key: "unitPrice", label: "Unit Price", render: (r) => `<input class="input" style="width:110px" type="number" data-li="${esc(r._i)}" data-f="unitPrice" value="${esc(r.unitPrice)}" />` },
           { key: "total", label: "Total", cls: "num", render: (r) => money(r.qty * r.unitPrice) },
           { key: "_del", label: "", render: (r) => `<button class="btn btn-ghost btn-sm" data-del-line="${r._i}">${iconSvg("trash", 14)}</button>` },
         ], rows: lines.map((l, i) => ({ ...l, _i: i })),

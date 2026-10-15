@@ -5,9 +5,11 @@
 -- shape is stored verbatim in `data` jsonb, so there is no column drift and new
 -- fields can be added without migrations. Query a field with data->>'field'.
 --
--- SECURITY NOTE: the RLS policies below grant the anon key full read/write so the
--- static replica can sync without a backend. This is fine for a private demo project
--- with non-sensitive data. For production, replace them with auth-scoped policies.
+-- SECURITY: the anon key ships in the browser, so it is treated as public. The
+-- policies below grant the anon role NOTHING. Every read/write requires a
+-- signed-in user (Supabase Auth). service_role bypasses RLS for tooling/seeding.
+-- For a multi-tenant deployment, tighten the policies from "authenticated" to
+-- an owner check, e.g. using (owner_id = auth.uid()).
 
 -- ---------------------------------------------------------------------------
 -- Tables (create-if-not-exists so this script is idempotent)
@@ -49,23 +51,37 @@ values ('default', '{}'::jsonb)
 on conflict (id) do nothing;
 
 -- ---------------------------------------------------------------------------
--- Row Level Security — permissive demo policies (see security note above)
+-- Row Level Security — authenticated only. The anon key is public, so it gets
+-- no table privileges at all; a signed-in session is required to touch data.
 -- ---------------------------------------------------------------------------
 alter table public.ff_records  enable row level security;
 alter table public.ff_settings enable row level security;
 
-drop policy if exists ff_records_demo_all on public.ff_records;
-create policy ff_records_demo_all on public.ff_records
-  for all to anon, authenticated using (true) with check (true);
+-- Drop the wide-open policies shipped in the first release.
+drop policy if exists ff_records_demo_all    on public.ff_records;
+drop policy if exists ff_settings_demo_all   on public.ff_settings;
+drop policy if exists ff_records_authed_all  on public.ff_records;
+drop policy if exists ff_settings_authed_all on public.ff_settings;
 
-drop policy if exists ff_settings_demo_all on public.ff_settings;
-create policy ff_settings_demo_all on public.ff_settings
-  for all to anon, authenticated using (true) with check (true);
+-- Strip every privilege the anon role may still hold (tables + views).
+revoke all on public.ff_records  from anon;
+revoke all on public.ff_settings from anon;
+
+grant select, insert, update, delete on public.ff_records  to authenticated, service_role;
+grant select, insert, update, delete on public.ff_settings to authenticated, service_role;
+
+create policy ff_records_authed_all on public.ff_records
+  for all to authenticated using (true) with check (true);
+
+create policy ff_settings_authed_all on public.ff_settings
+  for all to authenticated using (true) with check (true);
 
 -- ---------------------------------------------------------------------------
--- Convenience views (optional, read-only) so the jsonb data is easy to browse
+-- Convenience views (optional, read-only) so the jsonb data is easy to browse.
+-- security_invoker makes the caller's own RLS apply — anon cannot read through
+-- a view that its base table would deny.
 -- ---------------------------------------------------------------------------
-create or replace view public.v_jobs as
+create or replace view public.v_jobs with (security_invoker = true) as
   select r.id,
          r.data->>'customerId'  as customer_id,
          r.data->>'title'       as title,
@@ -76,7 +92,7 @@ create or replace view public.v_jobs as
          r.data->>'createdAt'   as created_at
   from public.ff_records r where r.collection = 'jobs';
 
-create or replace view public.v_customers as
+create or replace view public.v_customers with (security_invoker = true) as
   select r.id,
          r.data->>'company' as company,
          r.data->>'name'    as contact,
@@ -85,7 +101,7 @@ create or replace view public.v_customers as
          r.data->>'city'    as city
   from public.ff_records r where r.collection = 'customers';
 
-create or replace view public.v_invoices as
+create or replace view public.v_invoices with (security_invoker = true) as
   select r.id,
          r.data->>'number'     as number,
          r.data->>'customerId' as customer_id,
@@ -94,6 +110,11 @@ create or replace view public.v_invoices as
          r.data->>'issuedAt'   as issued_at,
          r.data->>'dueAt'      as due_at
   from public.ff_records r where r.collection = 'invoices';
+
+revoke all on public.v_jobs      from anon;
+revoke all on public.v_customers from anon;
+revoke all on public.v_invoices  from anon;
+grant select on public.v_jobs, public.v_customers, public.v_invoices to authenticated, service_role;
 
 -- ---------------------------------------------------------------------------
 -- Collections the app syncs

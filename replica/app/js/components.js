@@ -151,7 +151,7 @@ export function statCard({ label, value, iconName, delta, foot, tone }) {
   const dcls = delta > 0 ? "up" : "down";
   return `<div class="card stat">
     <div class="stat-label">${iconName ? iconSvg(iconName, 15) : ""}${esc(label)}</div>
-    <div class="stat-value" ${tone ? `style="color:${tone}"` : ""}>${value}</div>
+    <div class="stat-value" ${tone ? `style="color:${tone}"` : ""}>${esc(value)}</div>
     ${(delta != null || foot) ? `<div class="stat-foot">
       ${delta != null ? `<span class="delta ${dcls}">${iconSvg(delta > 0 ? "arrowUp" : "arrowDown", 13)}${Math.abs(delta)}%</span>` : ""}
       ${foot ? `<span>${esc(foot)}</span>` : ""}
@@ -231,7 +231,7 @@ export function buildForm(fields, values = {}) {
     } else if (f.type === "textarea") {
       control = `<textarea class="textarea" name="${f.key}" placeholder="${esc(f.placeholder || "")}">${esc(v)}</textarea>`;
     } else {
-      control = `<input class="input" type="${f.type || "text"}" name="${f.key}" value="${esc(v)}" placeholder="${esc(f.placeholder || "")}" ${f.attrs || ""} />`;
+      control = `<input class="input" type="${esc(f.type || "text")}" name="${esc(f.key)}" value="${esc(v)}" placeholder="${esc(f.placeholder || "")}" />`;
     }
     return `<div class="field ${f.full ? "full" : ""}">
       <label>${esc(f.label)}${f.required ? '<span class="req">*</span>' : ""}</label>

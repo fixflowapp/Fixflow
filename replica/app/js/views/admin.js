@@ -82,7 +82,7 @@ export const settings = {
           <div class="field"><label>Data retention period</label><select class="select"><option>1 year</option><option>3 years</option><option>7 years</option></select></div>
           <div class="divider"></div>
           <button class="btn btn-danger btn-sm" id="reset-data">${iconSvg("trash", 14)} Reset all demo data</button>`, { tight: true });
-        panel.querySelector("#reset-data")?.addEventListener("click", () => confirmDialog("Reset all data?", "This restores the demo dataset and removes your changes.", () => { store.reset(); window.location.reload(); }));
+        panel.querySelector("#reset-data")?.addEventListener("click", () => confirmDialog("Reset all data?", "This restores the demo dataset and removes your changes.", async () => { await store.reset(); window.location.reload(); }));
       }
       panel.querySelector("#save-settings")?.addEventListener("click", () => {
         const form = panel.querySelector(".card-body");

@@ -48,7 +48,10 @@ document.addEventListener("click", (e) => {
   }
   if (id === "__logout") {
     store.session = null;
-    route();
+    import("./supabase.js").then((m) => m.signOut?.()).catch(() => {}).finally(() => {
+      window.location.hash = "#/login";
+      window.location.reload();
+    });
     return;
   }
   const detailId = nav.dataset.id ? "/" + nav.dataset.id : "";
