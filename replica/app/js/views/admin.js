@@ -40,11 +40,11 @@ export const settings = {
           { key: "invoicePrefix", label: "Invoice prefix" },
           { key: "taxRate", label: "Tax rate (%)", type: "number" },
         ], s), { foot: html`<button class="btn btn-primary" id="save-settings">Save changes</button>` })}
-          ${card("Automation", html`<label class="checkline" style="padding:8px 0"><input type="checkbox" checked id="automation" /> Auto-create draft invoices when jobs are completed</label>`, { tight: true })}`);
+          ${card("Automation", html`<label class="checkline" style="padding:8px 0"><input type="checkbox" checked id="automation" /> Auto-create draft invoices when jobs are completed</label>`)}`);
       } else if (tab === "Notifications") {
         panel.innerHTML = String(card("Notification preferences", html`
           ${[["email", "Email notifications"], ["inApp", "In-app notifications"], ["sms", "SMS notifications"], ["lowStock", "Low stock alerts"], ["overdue", "Overdue invoice reminders"]].map(([k, l]) => html`
-            <label class="checkline" style="padding:10px 0;border-bottom:1px solid var(--border)"><input type="checkbox" ${s.notifications[k] ? "checked" : ""} data-notif="${k}" /> ${l}</label>`)}`, { tight: true }));
+            <label class="checkline" style="padding:10px 0;border-bottom:1px solid var(--border)"><input type="checkbox" ${s.notifications[k] ? "checked" : ""} data-notif="${k}" /> ${l}</label>`)}`));
         panel.querySelectorAll("[data-notif]").forEach((c) => c.addEventListener("change", () => {
           mutate((st) => { st.settings.notifications[c.dataset.notif] = c.checked; });
           toast("Preference saved", "", "success");
@@ -64,7 +64,7 @@ export const settings = {
             <div class="row"><button class="chip ${document.documentElement.getAttribute("data-theme") !== "dark" ? "active" : ""}" id="theme-light">Light</button>
             <button class="chip ${document.documentElement.getAttribute("data-theme") === "dark" ? "active" : ""}" id="theme-dark">Dark</button></div></div>
           <div class="field" style="margin-top:16px"><label>Interface density</label>
-            <div class="row"><button class="chip active">Comfortable</button><button class="chip" disabled>Compact</button></div></div>`, { tight: true }));
+            <div class="row"><button class="chip active">Comfortable</button><button class="chip" disabled>Compact</button></div></div>`));
         panel.querySelector("#theme-light")?.addEventListener("click", () => { document.documentElement.setAttribute("data-theme", "light"); toast("Theme", "Light mode", "success"); });
         panel.querySelector("#theme-dark")?.addEventListener("click", () => { document.documentElement.setAttribute("data-theme", "dark"); toast("Theme", "Dark mode", "success"); });
       } else {
@@ -76,14 +76,14 @@ export const settings = {
             <span class="badge ${src === "supabase" ? "badge-active" : "badge-neutral"}">${src === "supabase" ? "Supabase" : "Local only"}</span>
           </div>
           ${src !== "supabase" ? html`<div class="code-box" style="margin-top:12px">Fill app/js/supabase-config.js with your project url + anon key, and run supabase/schema.sql.</div>` : ""}
-        `, { tight: true })}${card("Advanced", html`
+        `)}${card("Advanced", html`
           <label class="checkline" style="padding:8px 0"><input type="checkbox" /> Enable API access</label>
           <label class="checkline" style="padding:8px 0"><input type="checkbox" /> Automatic backup</label>
           <label class="checkline" style="padding:8px 0"><input type="checkbox" /> Debug mode</label>
           <div class="divider"></div>
           <div class="field"><label>Data retention period</label><select class="select"><option>1 year</option><option>3 years</option><option>7 years</option></select></div>
           <div class="divider"></div>
-          <button class="btn btn-danger btn-sm" id="reset-data">${iconSvg("trash", 14)} Reset all demo data</button>`, { tight: true })}`);
+          <button class="btn btn-danger btn-sm" id="reset-data">${iconSvg("trash", 14)} Reset all demo data</button>`)}`);
         panel.querySelector("#reset-data")?.addEventListener("click", () => confirmDialog("Reset all data?", "This restores the demo dataset and removes your changes.", async () => { await store.reset(); refresh(); }));
       }
       panel.querySelector("#save-settings")?.addEventListener("click", () => {
@@ -112,7 +112,7 @@ export const dataImport = {
   render() {
     return html`
     ${pageHead("Data Import", "Bulk import customers, jobs or invoices from CSV/Excel")}
-    <div class="grid" style="grid-template-columns:2fr 1fr">
+    <div class="grid split">
       <div class="grid" style="gap:16px">
         ${card("Upload file", html`
           <div class="field"><label>Import type</label>
@@ -123,7 +123,7 @@ export const dataImport = {
             <div class="small">or drag and drop your file here</div>
           </div>
           <input type="file" id="file-input" style="display:none" />
-          <div class="row" style="margin-top:14px"><button class="btn btn-secondary btn-sm" id="download-template">${iconSvg("download", 14)} Download template</button></div>`, { tight: true })}
+          <div class="row" style="margin-top:14px"><button class="btn btn-secondary btn-sm" id="download-template">${iconSvg("download", 14)} Download template</button></div>`)}
         <div id="preview"></div>
       </div>
       <div class="grid" style="gap:16px">
@@ -137,7 +137,7 @@ export const dataImport = {
           </ol>`)}
         ${card("Recent imports", html`
           ${[["customers-batch-01.csv", "Customers", 12], ["inventory-q3.csv", "Parts", 40]].map(([f, t, n]) => html`
-            <div class="list-item" style="padding:10px 0">${iconSvg("file", 15)}<div style="flex:1"><div style="font-weight:600;font-size:13px">${f}</div><div class="cell-sub">${t} · ${n} rows</div></div><span class="badge badge-active">Done</span></div>`)}`, { tight: true })}
+            <div class="list-item">${iconSvg("file", 15)}<div style="flex:1"><div style="font-weight:600;font-size:13px">${f}</div><div class="cell-sub">${t} · ${n} rows</div></div><span class="badge badge-active">Done</span></div>`)}`, { tight: true })}
       </div>
     </div>`;
   },

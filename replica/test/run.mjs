@@ -32,6 +32,7 @@ const domain = await import("../app/js/domain.js");
 const session = await import("../app/js/session.js");
 const router = await import("../app/js/router.js");
 const storeMod = await import("../app/js/store.js");
+const photos = await import("../app/js/photos.js");
 const { store } = storeMod;
 
 // ---------------------------------------------------------------------------
@@ -197,6 +198,56 @@ group("store wiring (C1)");
   eq(store.customers.length, before + 1, "mutate updates in-memory state");
   ok(JSON.parse(mem["fixflow.replica.v1"]).customers.some((c) => c.id === "CUST-TEST"), "mutate persists to the local adapter");
   eq(session.isRealSession(), false, "offline store reports no real session");
+}
+
+// ---------------------------------------------------------------------------
+group("repair photos (C8)");
+{
+  const jpeg = (b64) => `data:image/jpeg;base64,${b64}`;
+  eq(photos.bytesOf(""), 0, "bytesOf tolerates an empty string");
+  eq(photos.bytesOf(undefined), 0, "bytesOf tolerates a non-string");
+  eq(photos.bytesOf("not-a-data-url"), 0, "bytesOf needs a comma");
+  eq(photos.bytesOf("data:image/jpeg;base64,AAAA"), 3, "bytesOf decodes base64 length");
+  eq(photos.bytesOf("data:image/jpeg;base64,AAA="), 2, "bytesOf accounts for one pad char");
+  eq(photos.bytesOf("data:image/jpeg;base64,AA=="), 1, "bytesOf accounts for two pad chars");
+
+  const before = { id: "P1", stage: "before", dataUrl: jpeg("AAAA"), bytes: 3 };
+  const after = { id: "P2", stage: "after", dataUrl: jpeg("AAAAAAAA"), bytes: 6 };
+  const job = { id: "JOB-1", photos: [before, after] };
+
+  eq(photos.photosOf(job).length, 2, "photosOf returns every photo");
+  eq(photos.photosOf(job, "before").map((p) => p.id), ["P1"], "photosOf filters by stage");
+  eq(photos.photosOf({}, "before").length, 0, "photosOf tolerates a job without photos");
+  eq(photos.photosOf({ photos: [null, { stage: "before" }] }, "before").length, 0, "photosOf skips malformed entries");
+  eq(photos.photosOf(job, "before"), photos.photosOf({ ...job, photos: [before] }, "before"), "photosOf is stable for one stage");
+
+  eq(photos.photoStats(job), { count: 2, before: 1, after: 1, bytes: 9 }, "photoStats counts stages and bytes");
+  eq(photos.photoStats({}).count, 0, "photoStats tolerates a job without photos");
+
+  const heavy = { photos: [{ stage: "before", dataUrl: jpeg("AAAA") }, { stage: "before", dataUrl: jpeg("AAAA") }] };
+  eq(photos.totalPhotoBytes([job, heavy]), 15, "totalPhotoBytes sums across jobs");
+  eq(photos.totalPhotoBytes(), 0, "totalPhotoBytes tolerates no argument");
+
+  ok(photos.hasPair(job), "hasPair is true with one photo per stage");
+  ok(!photos.hasPair({ photos: [before] }), "hasPair is false without an after photo");
+  ok(!photos.hasPair({}), "hasPair is false for a job without photos");
+
+  const roomy = { photos: [{ stage: "before", dataUrl: jpeg("AAAA") }] };
+  ok(photos.canAdd(roomy, "before").ok, "canAdd allows before a stage is full");
+  ok(photos.canAdd(roomy, "after").ok, "canAdd counts stages independently");
+  const fullStage = { photos: Array.from({ length: photos.MAX_PER_STAGE }, () => ({ stage: "after", dataUrl: jpeg("AAAA") })) };
+  eq(photos.canAdd(fullStage, "after").ok, false, "canAdd blocks a full stage");
+  ok(photos.canAdd(fullStage, "before").ok, "canAdd leaves the other stage open");
+  ok(photos.canAdd(fullStage, "after").reason.includes("limit"), "canAdd explains the limit");
+
+  eq(photos.formatBytes(0), "0 KB", "formatBytes reads 0 KB for nothing stored");
+  eq(photos.formatBytes(512), "512 B", "formatBytes keeps small sizes in bytes");
+  eq(photos.formatBytes(2048), "2 KB", "formatBytes rounds kilobytes");
+  eq(photos.formatBytes(3 * 1024 * 1024), "3.0 MB", "formatBytes switches to megabytes");
+
+  eq(photos.STAGES, ["before", "after"], "STAGES is the before/after pair");
+  ok(photos.MAX_PHOTO_BYTES > 0 && photos.MAX_PHOTO_BYTES * photos.MAX_PER_STAGE * photos.STAGES.length <= photos.BUDGET_BYTES * 2,
+    "per-photo and per-stage caps stay proportionate to the budget");
 }
 
 // ---------------------------------------------------------------------------

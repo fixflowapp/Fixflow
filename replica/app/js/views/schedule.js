@@ -6,6 +6,7 @@ import { pageHead, statCard, card, buildTable, emptyState, toolbar, barChart, li
 import { customerName, techName, techById, jobById, customerById, monthlySeries } from "../lookups.js";
 import { isActiveJob } from "../domain.js";
 import { openForm } from "../form.js";
+import { photoBody, bindPhotos, jobTarget } from "../photos.js";
 
 // ---------- Schedule (calendar) ----------
 export const schedule = {
@@ -43,7 +44,7 @@ export const schedule = {
     ${pageHead("Schedule", "Calendar view of technician availability and job assignments", html`
       <button class="btn btn-secondary" id="export-cal">${iconSvg("download", 15)} Export .ICS</button>
       <button class="btn btn-primary" id="new-schedule">${iconSvg("plus", 15)} Schedule job</button>`)}
-    <div class="grid" style="grid-template-columns:3fr 1fr">
+    <div class="grid split split-wide">
       ${card("", html`<div class="cal-head">
         <button class="icon-btn" disabled>${iconSvg("chevronLeft", 16)}</button>
         <span class="cal-title">${monthLabel}</span>
@@ -56,7 +57,7 @@ export const schedule = {
       </div>
       <div class="cal-grid">${calCells}</div>`, { tight: true })}
       ${card("Today's assignments", todayJobs.length ? todayJobs.map((j) => html`
-        <div class="list-item" style="padding:10px 0" data-job="${j.id}">
+        <div class="list-item" data-job="${j.id}">
           ${avatar(techName(j.technicianId))}
           <div style="flex:1"><div style="font-weight:600;font-size:13px">${j.title}</div><div class="cell-sub">${techName(j.technicianId)} · ${customerName(j.customerId)}</div></div>
           ${statusBadge(j.status)}
@@ -186,7 +187,7 @@ export const technicianDashboard = {
       ${statCard({ label: "Completed", value: done.length, iconName: "check", tone: "var(--success)" })}
       ${statCard({ label: "Hours Logged", value: mine.reduce((s, j) => s + j.laborHours, 0).toFixed(1) + "h", iconName: "clock" })}
     </div>
-    <div class="grid" style="grid-template-columns:2fr 1fr">
+    <div class="grid split">
       ${card("Today's jobs", today.length ? today.map((j) => html`
         <div class="card" style="margin-bottom:12px;box-shadow:none;border-color:var(--border)"><div class="card-body">
           <div class="row" style="justify-content:space-between">
@@ -200,14 +201,14 @@ export const technicianDashboard = {
             <button class="btn btn-secondary btn-sm" data-done="${j.id}">${iconSvg("check", 14)} Complete</button>
             <button class="btn btn-ghost btn-sm" data-detail="${j.id}">Open</button>
           </div>
-        </div></div>`) : emptyState("All jobs are scheduled!", "No pending jobs in your queue.", "", "check"), { tight: true })}
+        </div></div>`) : emptyState("All jobs are scheduled!", "No pending jobs in your queue.", "", "check"))}
       ${card("Time log", html`
         <div class="timeline">
           ${mine.slice(0, 6).map((j) => html`<div class="tl-item ${j.status === "completed" ? "done" : "current"}">
             <span class="tl-dot">${j.status === "completed" ? iconSvg("check", 11) : ""}</span>
             <div class="tl-title">${j.id} — ${j.deviceType}</div>
             <div class="tl-time">${j.laborHours}h · ${fmtDate(j.createdAt)}</div></div>`)}
-        </div>`, { tight: true })}
+        </div>`)}
     </div>`;
   },
   mount(root) {
@@ -291,9 +292,9 @@ export const technicianView = {
     ${pageHead(job.id + " — " + job.title, customerName(job.customerId) + " · " + job.deviceType, html`
       <button class="btn btn-secondary" data-nav="job-details" data-id="${job.id}">Full details</button>
       <button class="btn btn-primary" id="mark-complete">${iconSvg("check", 14)} Mark complete</button>`)}
-    <div class="grid" style="grid-template-columns:2fr 1fr">
+    <div class="grid split">
       ${card("Repair checklist", checklist.map(([label, done], i) => html`
-        <label class="checkline" style="padding:10px 0;border-bottom:1px solid var(--border)">
+        <label class="checkline" style="padding:10px 16px;border-bottom:1px solid var(--border)">
           <input type="checkbox" ${done ? "checked" : ""} data-check="${i}" />
           <span style="${done ? "text-decoration:line-through;color:var(--text-muted)" : ""}">${label}</span>
         </label>`), { tight: true })}
@@ -304,8 +305,11 @@ export const technicianView = {
           <dt>Service</dt><dd>${job.serviceType}</dd>
           <dt>Est. labor</dt><dd>${job.laborHours}h</dd>
           <dt>Est. cost</dt><dd>${money(job.estimatedCost)}</dd>
-        </dl>`, { tight: true })}
-        ${card("Parts needed", job.partsUsed.length ? job.partsUsed.map((p) => html`<div class="list-item" style="padding:8px 0">${iconSvg("box", 15)}<span style="flex:1">${p.name}</span><b>×${p.qty}</b></div>`) : html`<p class="muted small">No parts required.</p>`, { tight: true })}
+        </dl>`)}
+        ${card("Parts needed", job.partsUsed.length ? job.partsUsed.map((p) => html`<div class="list-item">${iconSvg("box", 15)}<span style="flex:1">${p.name}</span><b>×${p.qty}</b></div>`) : html`<p class="muted small">No parts required.</p>`, { tight: true })}
+        ${card("Repair photos", photoBody(jobTarget(job.id), { compact: true }), {
+          sub: "Capture before and after",
+        })}
         ${card("Time entry", html`
           <div class="field"><label>Hours worked</label><input class="input" type="number" value="${job.laborHours}" id="hours" /></div>
           <div class="field" style="margin-top:10px"><label>Note</label><textarea class="textarea" placeholder="Describe work performed"></textarea></div>
@@ -315,6 +319,7 @@ export const technicianView = {
   },
   mount(root, params) {
     const job = jobById(params.id) || store.jobs[0];
+    bindPhotos(root, { target: jobTarget(job.id), compact: true });
     root.querySelector("#mark-complete")?.addEventListener("click", () => {
       mutate((s) => { const j = s.jobs.find((x) => x.id === job.id); j.status = "completed"; j.completedAt = new Date().toISOString(); });
       logAudit("updated", "Job", job.id, "Completed via technician view");
@@ -340,7 +345,7 @@ export const technicianPerformance = {
     const donut = perf.map((p, i) => ({ label: p.name, value: p.completed, color: SERIES[i % SERIES.length] }));
     return html`
     ${pageHead("Technician Performance", "Metrics and KPIs for your team", html`<button class="btn btn-secondary" id="export-perf">${iconSvg("download", 15)} Export</button>`)}
-    <div class="grid" style="grid-template-columns:2fr 1fr;margin-bottom:16px">
+    <div class="grid split" style="margin-bottom:16px">
       ${card("Revenue per technician", barChart(perf.map((p) => ({ label: p.firstName, value: p.revenue, display: money(p.revenue) })), { color: "var(--success)", height: 220 }))}
       ${card("Jobs completed", html`<div style="display:flex;justify-content:center">${donutChart(donut)}</div>
         <div class="legend">${donut.map((d) => html`<span class="legend-item"><span class="legend-swatch" style="background:${d.color}"></span>${d.label}</span>`)}</div>`)}

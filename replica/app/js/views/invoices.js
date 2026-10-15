@@ -75,7 +75,7 @@ export const invoiceDetails = {
         <button class="btn btn-secondary" id="send-inv">${iconSvg("mail", 14)} Send</button>
         ${inv.status !== "paid" ? html`<button class="btn btn-primary" id="record-pay">${iconSvg("dollar", 14)} Record payment</button>` : ""}
       </div>`)}
-    <div class="grid" style="grid-template-columns:2fr 1fr">
+    <div class="grid split">
       ${card("", html`
         <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px;margin-bottom:24px">
           <div>
@@ -114,7 +114,7 @@ export const invoiceDetails = {
           </div>
         </div>
         <div class="divider"></div>
-        <div class="small muted">${inv.notes || ""}</div>`, { tight: true })}
+        <div class="small muted">${inv.notes || ""}</div>`)}
       <div class="grid" style="gap:16px">
         ${card("Payment status", html`
           <div style="text-align:center;padding:10px 0">
@@ -122,16 +122,16 @@ export const invoiceDetails = {
             <div style="font-size:28px;font-weight:700;margin-top:12px">${money(inv.total)}</div>
             <div class="small muted">${inv.status === "paid" ? "Paid in full" : "Due " + fmtDate(inv.dueAt)}</div>
           </div>
-          ${inv.status !== "paid" && inv.status !== "cancelled" ? html`<button class="btn btn-primary btn-block" id="record-pay-2">${iconSvg("dollar", 14)} Record payment</button>` : ""}`, { tight: true })}
+          ${inv.status !== "paid" && inv.status !== "cancelled" ? html`<button class="btn btn-primary btn-block" id="record-pay-2">${iconSvg("dollar", 14)} Record payment</button>` : ""}`)}
         ${card("Linked records", html`
           <dl class="kv">
             <dt>Job</dt><dd><span class="link" data-nav="job-details" data-id="${job?.id || ""}">${job?.id || "—"}</span></dd>
             <dt>Customer</dt><dd><span class="link" data-nav="customer-details" data-id="${cust?.id || ""}">${cust?.company || "—"}</span></dd>
             <dt>Issued</dt><dd>${fmtDate(inv.issuedAt)}</dd>
             <dt>Due</dt><dd>${fmtDate(inv.dueAt)}</dd>
-          </dl>`, { tight: true })}
+          </dl>`)}
         ${payments.length ? card("Payments received", payments.map((p) => html`
-          <div class="list-item" style="padding:10px 0"><div style="flex:1"><div style="font-weight:600">${money(p.amount)}</div>
+          <div class="list-item"><div style="flex:1"><div style="font-weight:600">${money(p.amount)}</div>
             <div class="cell-sub">${p.method.replace("_", " ")} · ${p.reference}</div></div><span class="small muted">${fmtDate(p.recordedAt)}</span></div>`), { tight: true }) : ""}
       </div>
     </div>`;
@@ -187,7 +187,7 @@ export const newInvoice = {
     return html`${pageHead("New Invoice", "Generate an invoice from a completed job", html`<button class="btn btn-secondary" data-nav="invoices">Cancel</button>`)}
       ${card("Select job", buildForm([
         { key: "jobId", label: "Completed job", type: "select", required: true, full: true, options: jobs.length ? jobs.map((j) => ({ value: j.id, label: `${j.id} — ${customerName(j.customerId)} — ${j.title}` })) : [{ value: "", label: "No completed jobs without invoices" }] },
-      ], { jobId: preselect }), { tight: true })}
+      ], { jobId: preselect }))}
       ${card("Line items", html`
         <div id="line-items"></div>
         <button class="btn btn-secondary btn-sm" style="margin-top:12px" id="add-line">${iconSvg("plus", 14)} Add line item</button>
@@ -319,10 +319,10 @@ export const invoiceAutomation = {
     const invoiceable = store.jobs.filter((j) => j.status === "completed" && !store.invoices.some((i) => i.jobId === j.id));
     return html`
     ${pageHead("Invoice Automation", "Automatically generate invoices and send reminders", html`<button class="btn btn-primary" id="new-rule">${iconSvg("plus", 15)} New rule</button>`)}
-    <div class="grid" style="grid-template-columns:2fr 1fr">
+    <div class="grid split">
       <div class="grid" style="gap:16px">
         ${card("Automation rules", rules.map((r) => html`
-          <div class="list-item" style="padding:14px 0">
+          <div class="list-item">
             <div class="e-ico" style="width:36px;height:36px;border-radius:9px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;margin:0">${iconSvg("sparkles", 16)}</div>
             <div style="flex:1"><div style="font-weight:600;font-size:13.5px">${r.trigger}</div><div class="cell-sub">→ ${r.action} · run ${r.runs} times</div></div>
             <label class="checkline"><input type="checkbox" ${r.active ? "checked" : ""} data-rule="${r.id}" /> Active</label>
@@ -331,7 +331,7 @@ export const invoiceAutomation = {
       ${card("Ready to invoice", html`
         <p class="muted small" style="margin-bottom:12px">${invoiceable.length} completed job${invoiceable.length === 1 ? "" : "s"} without an invoice.</p>
         ${invoiceable.length ? invoiceable.slice(0, 6).map((j) => html`
-          <div class="list-item" style="padding:10px 0">
+          <div class="list-item">
             <div style="flex:1"><div style="font-weight:600;font-size:13px">${j.id}</div><div class="cell-sub">${customerName(j.customerId)} · ${money(j.estimatedCost)}</div></div>
             <button class="btn btn-secondary btn-sm" data-gen="${j.id}">Generate</button>
           </div>`) : emptyState("All invoiced", "No completed jobs are waiting.", "", "check")}`, { tight: true })}

@@ -5,6 +5,7 @@ import { pageHead, statCard, card, buildTable, emptyState, toolbar, buildForm, p
 import { customerById, customerName, jobById, techById } from "../lookups.js";
 import { isActiveJob } from "../domain.js";
 import { openForm, bindForm } from "../form.js";
+import { photoBody, bindPhotos, jobTarget } from "../photos.js";
 import { exportCsv } from "./jobs.js";
 
 // ---------- Customers list ----------
@@ -84,7 +85,7 @@ export const customerDetails = {
       ${statCard({ label: "Lifetime Spend", value: money(spend), iconName: "dollar", tone: "var(--success)" })}
       ${statCard({ label: "Contracts", value: contracts.length, iconName: "shield" })}
     </div>
-    <div class="grid" style="grid-template-columns:1fr 2fr">
+    <div class="grid split split-rev">
       <div class="grid" style="gap:16px">
         ${card("Profile", html`
           <div class="row" style="gap:14px;margin-bottom:16px">${avatar(c.company, 52)}
@@ -97,7 +98,7 @@ export const customerDetails = {
             <dt>City</dt><dd>${c.city}</dd>
             <dt>Preferred</dt><dd>${c.preferredContact}</dd>
           </dl>
-          ${c.notes ? html`<div class="divider"></div><div class="small muted">${c.notes}</div>` : ""}`, { tight: true })}
+          ${c.notes ? html`<div class="divider"></div><div class="small muted">${c.notes}</div>` : ""}`)}
         ${card("Notes", html`<div class="field"><textarea class="textarea" id="cust-note" placeholder="Add a note about this customer...">${c.notes || ""}</textarea></div>
           <button class="btn btn-primary btn-sm" style="margin-top:10px" id="save-note">Save note</button>`)}
       </div>
@@ -281,16 +282,18 @@ export const customerPortal = {
         ], rows: jobs,
       })}
       <div class="card" style="margin-top:16px;box-shadow:none"><div class="card-body">
-        <h3 style="font-size:14px;margin-bottom:10px">Upload photos of your device</h3>
-        <div style="border:2px dashed var(--border-input);border-radius:12px;padding:28px;text-align:center;color:var(--text-muted)">
-          ${iconSvg("upload", 22)}<div style="margin-top:8px" class="small">Drag and drop or click to upload</div>
-        </div>
-        <button class="btn btn-primary btn-sm" style="margin-top:12px" id="upload-btn">${iconSvg("upload", 14)} Choose files</button>
+        <h3 style="font-size:14px;margin-bottom:6px">Photos of your device</h3>
+        <p class="small muted" style="margin-bottom:12px">Send us pictures of the device as it looks now — it helps our technicians prepare for the repair.</p>
+        ${active.length
+          ? photoBody(jobTarget(active[0].id), { stages: ["before"] })
+          : html`<p class="small muted">Photos can be added once you have an active repair.</p>`}
       </div></div>
     `, { tight: true })}`;
   },
   mount(root) {
-    root.querySelector("#upload-btn")?.addEventListener("click", () => toast("Photo uploaded", "Your photo was attached to the repair.", "success"));
+    const cust = store.customers[0];
+    const active = store.jobs.filter((j) => j.customerId === cust.id).find(isActiveJob);
+    if (active) bindPhotos(root, { target: jobTarget(active.id), stages: ["before"], actor: cust.name });
   },
 };
 
@@ -314,7 +317,7 @@ export const requestService = {
   render() {
     return html`
     ${pageHead("Request Service", "Customer-facing intake form")}
-    <div class="grid" style="grid-template-columns:2fr 1fr">
+    <div class="grid split">
       ${card("Tell us about your device", buildForm(requestFields()), { foot: html`<button class="btn btn-primary" id="submit-req">Submit request</button>` })}
       ${card("How it works", html`
         <div class="timeline">
@@ -349,7 +352,7 @@ export const messages = {
     const active = convos[0];
     return html`
     ${pageHead("Messages", "Communicate with customers directly", html`<button class="btn btn-primary" id="new-msg">${iconSvg("plus", 15)} New message</button>`)}
-    <div class="grid" style="grid-template-columns:340px 1fr">
+    <div class="grid split split-msg">
       ${card("", convos.map((c) => html`
         <div class="list-item" data-conv="${c.id}" style="cursor:pointer;${c.id === active.id ? "background:var(--accent-soft)" : ""}">
           ${avatar(customerName(c.customerId), 36)}

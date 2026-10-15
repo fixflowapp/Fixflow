@@ -115,6 +115,7 @@ function seed() {
       completedAt: status === "completed" || status === "invoiced" ? daysAgo(i % 20) : null,
       notes: i % 4 === 0 ? "Customer approved additional diagnostics." : "",
       warrantyUntil: daysAhead(120 + i * 5),
+      photos: [],
     });
   }
 
@@ -390,8 +391,19 @@ export const store = new Proxy({}, {
   },
 });
 
+let quotaWarned = false;
+
 function persist() {
-  local.save(state);
+  const res = local.save(state);
+  if (res && res.ok === false && res.error === "quota") {
+    // Only large payloads (repair photos) realistically fill the origin quota.
+    if (!quotaWarned && typeof window !== "undefined" && window.dispatchEvent) {
+      quotaWarned = true;
+      window.dispatchEvent(new CustomEvent("fixflow:storage-error", { detail: { reason: "quota" } }));
+    }
+  } else {
+    quotaWarned = false;
+  }
   if (remote) remote.save(state);
 }
 

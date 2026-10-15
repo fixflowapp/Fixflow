@@ -48,6 +48,11 @@ function syncThemeIcon() {
 try { const t = localStorage.getItem("fixflow.theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch {}
 syncThemeIcon();
 
+// The store only tells us that a write to the device failed; the wording lives here.
+window.addEventListener("fixflow:storage-error", () => {
+  toast("Device storage is full", "Photos could not be saved locally — remove a few to free space.", "error");
+});
+
 // global navigation via data-nav
 document.addEventListener("click", (e) => {
   const nav = e.target.closest("[data-nav]");

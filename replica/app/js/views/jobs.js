@@ -5,10 +5,15 @@ import { money, fmtDate, fmtDateTime, timeAgo, statusBadge, priorityBadge, invoi
 import { pageHead, statCard, card, buildTable, emptyState, toolbar, buildForm, barChart, progressBar } from "../components.js";
 import { customerById, customerName, techById, techName, jobById, invoiceById } from "../lookups.js";
 import { openForm, bindForm } from "../form.js";
+import { photoBody, bindPhotos, jobTarget, draftTarget } from "../photos.js";
 
 const NAV_ACTIONS = html`
   <button class="btn btn-secondary" data-nav="job-templates">Templates</button>
   <button class="btn btn-primary" data-nav="new-job">${iconSvg("plus", 15)} New Job</button>`;
+
+// Photos captured on the New Job form, held until the job exists. Re-created on
+// every render so leaving the form discards the draft.
+let intake = draftTarget();
 
 // ---------- Jobs list ----------
 export const jobs = {
@@ -116,7 +121,7 @@ export const jobDetails = {
     <div class="card" style="margin-bottom:16px">
       <div class="card-body"><div class="stepper">${stepper}</div></div>
     </div>
-    <div class="grid" style="grid-template-columns:2fr 1fr">
+    <div class="grid split">
       <div class="grid" style="gap:16px">
         ${card("Issue & Diagnosis", html`
           <dl class="kv">
@@ -151,7 +156,7 @@ export const jobDetails = {
             <dt>Phone</dt><dd>${cust.phone}</dd>
             <dt>City</dt><dd>${cust.city}</dd>
           </dl>
-          <button class="btn btn-secondary btn-sm btn-block" style="margin-top:12px" data-nav="customer-details" data-id="${cust.id}">View customer</button>` : emptyState("No customer", ""), { tight: true })}
+          <button class="btn btn-secondary btn-sm btn-block" style="margin-top:12px" data-nav="customer-details" data-id="${cust.id}">View customer</button>` : emptyState("No customer", ""))}
         ${card("Assignment", html`
           <div class="row" style="gap:12px;margin-bottom:12px">${avatar(tech?.name || "?", 40)}
             <div><div style="font-weight:600">${tech?.name || "Unassigned"}</div><div class="cell-sub">${tech?.specialty || ""}</div></div></div>
@@ -163,7 +168,7 @@ export const jobDetails = {
             <select class="select" id="tech-select">
               <option value="">Unassigned</option>
               ${store.technicians.map((t) => html`<option value="${t.id}" ${t.id === job.technicianId ? "selected" : ""}>${t.name}</option>`)}
-            </select></div>`, { tight: true })}
+            </select></div>`)}
         ${card("Costs", html`
           <dl class="kv">
             <dt>Estimated</dt><dd>${money(job.estimatedCost)}</dd>
@@ -175,12 +180,16 @@ export const jobDetails = {
           ${inv ? html`<div class="row" style="justify-content:space-between"><span class="muted small">Invoice</span>${invoiceBadge(inv.status)}</div>
             <button class="btn btn-secondary btn-sm btn-block" style="margin-top:10px" data-nav="invoice-details" data-id="${inv.id}">View ${inv.number}</button>`
             : html`<button class="btn btn-primary btn-sm btn-block" id="gen-invoice">${iconSvg("file", 14)} Generate invoice</button>`}
-        `, { tight: true })}
+        `)}
       </div>
-    </div>`;
+    </div>
+    ${card("Repair photos", photoBody(jobTarget(job.id)), {
+      sub: "Before and after evidence — drag, upload or use the camera",
+    })}`;
   },
   mount(root, params) {
     const job = jobById(params.id) || store.jobs[0];
+    bindPhotos(root, { target: jobTarget(job.id) });
     root.querySelector("#edit-job")?.addEventListener("click", () => { window.location.hash = "#/job-edit/" + job.id; });
     root.querySelector("#delete-job")?.addEventListener("click", () => confirmDialog("Delete job?", `Delete ${job.id}? This cannot be undone.`, () => {
       mutate((s) => { s.jobs = s.jobs.filter((j) => j.id !== job.id); });
@@ -252,13 +261,18 @@ export const newJob = {
   crumb: () => ["Jobs", "New Job"],
   render() {
     const { fields, values } = jobForm(null);
+    intake = draftTarget();
     const customerId = new URLSearchParams(location.hash.split("?")[1] || "").get("customer") || "";
     return html`${pageHead("New Job", "Create a new repair job record", html`<button class="btn btn-secondary" data-nav="jobs">Cancel</button>`)}
       ${card("Job details", buildForm(fields, { ...values, customerId }), {
         foot: html`<button class="btn btn-secondary" data-nav="jobs">Cancel</button><button class="btn btn-primary" id="save-job">Create job</button>`,
+      })}
+      ${card("Device intake photos", photoBody(intake, { stages: ["before"] }), {
+        sub: "Photograph the device as it arrived — before photos are your record of its condition",
       })}`;
   },
   mount(root) {
+    bindPhotos(root, { target: intake, stages: ["before"] });
     bindForm(root, {
       fields: jobForm(null).fields,
       submit: "#save-job",
@@ -267,8 +281,9 @@ export const newJob = {
         mutate((s) => s.jobs.unshift({
           id: newId, ...data, status: "open", partsUsed: [], partsCost: 0,
           actualCost: null, completedAt: null, createdAt: new Date().toISOString(),
+          photos: intake.photos,
         }));
-        logAudit("created", "Job", newId, "Job created");
+        logAudit("created", "Job", newId, "Job created" + (intake.photos.length ? ` with ${intake.photos.length} intake photo(s)` : ""));
         toast("Job created", newId, "success");
         window.location.hash = "#/job-details/" + newId;
       },

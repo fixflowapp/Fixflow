@@ -24,7 +24,7 @@ export const partsInventory = {
       ${statCard({ label: "Suppliers", value: store.suppliers.length, iconName: "truck" })}
     </div>
     ${low.length ? html`${card("⚠ Low stock alerts", low.map((p) => html`
-      <div class="list-item" style="padding:10px 0">
+      <div class="list-item">
         <span style="color:var(--danger)">${iconSvg("bell", 16)}</span>
         <div style="flex:1"><div style="font-weight:600;font-size:13px">${p.name}</div><div class="cell-sub">${p.sku} · ${supplierById(p.supplierId)?.name || ""}</div></div>
         <span class="badge badge-danger">${p.quantity} / ${p.reorderLevel}</span>

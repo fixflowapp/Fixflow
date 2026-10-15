@@ -43,7 +43,17 @@ export class LocalStoragePersistence {
   }
 
   save(state) {
-    try { localStorage.setItem(this.key, JSON.stringify(state)); } catch (e) { /* quota/unavailable */ }
+    try {
+      localStorage.setItem(this.key, JSON.stringify(state));
+      this.lastError = null;
+      return { ok: true };
+    } catch (e) {
+      // Quota is the one failure the user can act on (photos are the only large
+      // payload), so distinguish it from storage being unavailable entirely.
+      const quota = e && (e.name === "QuotaExceededError" || e.name === "NS_ERROR_DOM_QUOTA_REACHED" || e.code === 22 || e.code === 1014);
+      this.lastError = quota ? "quota" : "unavailable";
+      return { ok: false, error: this.lastError };
+    }
   }
 
   async reset() {

@@ -48,7 +48,7 @@ export const dashboard = {
       ${statCard({ label: "Active Technicians", value: k.activeTechs + " / " + store.technicians.length, iconName: "wrench", foot: "on shift today" })}
     </div>
 
-    <div class="grid" style="grid-template-columns:2fr 1fr;margin-bottom:16px">
+    <div class="grid split" style="margin-bottom:16px">
       ${card("Revenue & Job Volume", lineChart([
         { data: series.map((s) => ({ label: s.label, value: s.revenue })), color: "var(--accent)", fill: true },
       ]), {
@@ -59,7 +59,7 @@ export const dashboard = {
         <div class="legend">${statusSegments.map((s) => html`<span class="legend-item"><span class="legend-swatch" style="background:${s.color}"></span>${s.label} (${s.value})</span>`)}</div>`)}
     </div>
 
-    <div class="grid" style="grid-template-columns:2fr 1fr">
+    <div class="grid split">
       ${card("Recent Jobs", buildTable({
         columns: [
           { key: "id", label: "Job", render: (r) => html`<div class="cell-main">${r.id}</div><div class="cell-sub">${r.deviceType}</div>` },
@@ -73,18 +73,18 @@ export const dashboard = {
       }), { tight: true, actions: html`<span class="link small" data-nav="jobs">View all</span>` })}
       <div class="grid" style="gap:16px">
         ${card("Low Stock Alerts", lowStock.length ? lowStock.slice(0, 4).map((p) => html`
-          <div class="list-item" style="padding:10px 0">
+          <div class="list-item">
             <div style="flex:1"><div style="font-weight:600;font-size:13px">${p.name}</div><div class="cell-sub">${p.sku}</div></div>
             <span class="badge badge-danger">${p.quantity} left</span>
           </div>`) : emptyState("All stocked", "No parts below reorder level.", "", "check"), { tight: true })}
         ${card("Upcoming Schedule", upcoming.length ? upcoming.map((j) => html`
-          <div class="list-item" style="padding:10px 0">
+          <div class="list-item">
             <div style="flex:1"><div style="font-weight:600;font-size:13px">${j.title}</div>
             <div class="cell-sub">${customerName(j.customerId)}</div></div>
             <span class="small muted">${fmtDate(j.scheduledDate)}</span>
           </div>`) : emptyState("Nothing scheduled", "No jobs on the calendar.", "", "calendar"), { tight: true })}
         ${overdue.length ? card("Overdue Invoices", overdue.slice(0, 3).map((i) => html`
-          <div class="list-item" style="padding:10px 0" data-detail-invoice="${i.id}">
+          <div class="list-item" data-detail-invoice="${i.id}">
             <div style="flex:1"><div style="font-weight:600;font-size:13px">${i.number}</div>
             <div class="cell-sub">${customerName(i.customerId)}</div></div>
             <div style="text-align:right"><div style="font-weight:600">${money(i.total)}</div>${invoiceBadge(i.status)}</div>
@@ -126,25 +126,25 @@ export const home = {
       ${statCard({ label: "Customers", value: store.customers.length, iconName: "users", foot: "active accounts" })}
       ${statCard({ label: "Outstanding", value: money(k.pendingTotal), iconName: "dollar", foot: k.pendingInv.length + " invoices" })}
     </div>
-    ${card("Quick Actions", html`<div class="grid grid-3">
+    ${card("Quick Actions", html`<div class="quick-grid">
       ${quick.map(([id, ic, t, d]) => html`
-        <div class="list-item" style="border:1px solid var(--border);border-radius:12px;cursor:pointer" data-nav="${id}">
-          <div class="e-ico" style="width:38px;height:38px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;margin:0">${iconSvg(ic, 18)}</div>
-          <div><div style="font-weight:600;font-size:13.5px">${t}</div><div class="cell-sub">${d}</div></div>
+        <div class="quick-tile" data-nav="${id}">
+          <span class="quick-ico">${iconSvg(ic, 17)}</span>
+          <span style="min-width:0"><span style="display:block;font-weight:600;font-size:13.5px">${t}</span><span class="cell-sub">${d}</span></span>
         </div>`)}
-    </div>`)}
-    <div class="grid grid-2" style="margin-top:16px">
+    </div>`, { tight: true })}
+    <div class="grid grid-2" style="margin-top:16px;align-items:start">
       ${card("Today's Agenda", (() => {
         const today = store.jobs.filter((j) => j.scheduledDate && isSameDay(j.scheduledDate, new Date()));
         return today.length ? today.map((j) => html`
-          <div class="list-item" style="padding:10px 0">
+          <div class="list-item">
             <span class="badge badge-progress">${fmtDate(j.scheduledDate)}</span>
             <div style="flex:1"><div style="font-weight:600;font-size:13px">${j.title}</div><div class="cell-sub">${customerName(j.customerId)} · ${techName(j.technicianId)}</div></div>
             ${statusBadge(j.status)}
           </div>`) : emptyState("No jobs today", "Your agenda is clear.", "", "calendar");
       })(), { tight: true })}
       ${card("Recent Activity", store.auditLogs.slice(0, 6).map((l) => html`
-        <div class="list-item" style="padding:10px 0">
+        <div class="list-item">
           <span class="pill">${l.action}</span>
           <div style="flex:1"><div style="font-size:13px"><b>${l.entityType}</b> ${l.entityId}</div>
           <div class="cell-sub">${l.user} · ${timeAgo(l.at)}</div></div>
