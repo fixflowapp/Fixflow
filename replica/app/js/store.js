@@ -379,6 +379,7 @@ export async function initStore() {
     if (res.settings && Object.keys(res.settings).length) merged.settings = res.settings;
     merged.session = state.session;
     state = merged;
+    sb.markInitialized();                            // database holds data → never re-seed it
   } else {
     await sb.seedIfEmpty(state);                     // first run → seed the cloud
   }

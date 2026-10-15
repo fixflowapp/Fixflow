@@ -148,10 +148,34 @@ export function pushSettings(settings) {
   });
 }
 
-// Seed an empty/partial database from a local object. Only inserts collections
+// A `meta` row in ff_settings records that this database has been initialized.
+// It is invisible to the app: pullAll and pushSettings only ever touch id='default'.
+const META_ID = "meta";
+
+export async function isInitialized() {
+  if (!supabaseConfigured) return false;
+  try {
+    const { data } = await supabase.from(SETTINGS).select("data").eq("id", META_ID).maybeSingle();
+    return Boolean(data?.data?.initialized);
+  } catch { return false; }
+}
+
+// Best effort: remember that a database holding data has been initialized, so an
+// intentionally emptied database is never silently re-seeded on the next boot.
+export async function markInitialized() {
+  if (!supabaseConfigured) return;
+  try {
+    await supabase.from(SETTINGS).upsert({ id: META_ID, data: { initialized: true, at: new Date().toISOString() } });
+  } catch { /* non-fatal */ }
+}
+
+// Seed an empty/partial database from a local object. Runs at most once per
+// database: if it was initialized before, an empty state means the user deleted
+// the data, so it is left alone. For a fresh database it only fills collections
 // that are currently empty remotely, so it never clobbers existing data.
 export async function seedIfEmpty(local) {
   if (!supabaseConfigured) return;
+  if (await isInitialized()) return;
   for (const name of COLLECTIONS) {
     const { count, error } = await supabase.from(RECORDS).select("id", { count: "exact", head: true }).eq("collection", name);
     if (error) { console.warn(`[fixflow] seed check failed for ${name}:`, error.message); continue; }
@@ -159,4 +183,5 @@ export async function seedIfEmpty(local) {
   }
   const { data: srow } = await supabase.from(SETTINGS).select("data").eq("id", "default").maybeSingle();
   if (srow && (!srow.data || Object.keys(srow.data).length === 0) && local.settings) await pushSettings(local.settings);
+  await markInitialized();
 }

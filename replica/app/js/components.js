@@ -151,7 +151,7 @@ export function statCard({ label, value, iconName, delta, foot, tone }) {
   const dcls = delta > 0 ? "up" : "down";
   return `<div class="card stat">
     <div class="stat-label">${iconName ? iconSvg(iconName, 15) : ""}${esc(label)}</div>
-    <div class="stat-value" ${tone ? `style="color:${tone}"` : ""}>${esc(value)}</div>
+    <div class="stat-value" ${tone ? `style="color:${esc(tone)}"` : ""}>${esc(value)}</div>
     ${(delta != null || foot) ? `<div class="stat-foot">
       ${delta != null ? `<span class="delta ${dcls}">${iconSvg(delta > 0 ? "arrowUp" : "arrowDown", 13)}${Math.abs(delta)}%</span>` : ""}
       ${foot ? `<span>${esc(foot)}</span>` : ""}
