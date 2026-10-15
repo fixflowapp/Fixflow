@@ -3,6 +3,7 @@ import { html, join } from "../markup.js";
 import { money, fmtDate, fmtDateTime, timeAgo, statusBadge, invoiceBadge, avatar, toast, modal, closeModal, confirmDialog, iconSvg, initials } from "../util.js";
 import { pageHead, statCard, card, buildTable, emptyState, toolbar, buildForm, readForm, validateForm, progressBar } from "../components.js";
 import { customerById, customerName, jobById, techById } from "../lookups.js";
+import { isActiveJob } from "../domain.js";
 import { exportCsv } from "./jobs.js";
 
 // ---------- Customers list ----------
@@ -17,7 +18,7 @@ export const customers = {
     <div class="grid grid-4" style="margin-bottom:16px">
       ${statCard({ label: "Total Customers", value: store.customers.length, iconName: "users" })}
       ${statCard({ label: "VIP Accounts", value: store.customers.filter((c) => c.tags?.includes("vip")).length, iconName: "star" })}
-      ${statCard({ label: "Active Repairs", value: store.jobs.filter((j) => ["open", "in_progress", "waiting_parts"].includes(j.status)).length, iconName: "briefcase" })}
+      ${statCard({ label: "Active Repairs", value: store.jobs.filter(isActiveJob).length, iconName: "briefcase" })}
       ${statCard({ label: "Avg Lifetime Value", value: money(Math.round(store.invoices.reduce((s, i) => s + i.total, 0) / store.customers.length)), iconName: "dollar" })}
     </div>
     <div class="card">
@@ -67,7 +68,7 @@ export const customerDetails = {
     const jobs = store.jobs.filter((j) => j.customerId === c.id);
     const invoices = store.invoices.filter((i) => i.customerId === c.id);
     const spend = invoices.reduce((s, i) => s + i.total, 0);
-    const openJobs = jobs.filter((j) => ["open", "in_progress", "waiting_parts"].includes(j.status)).length;
+    const openJobs = jobs.filter(isActiveJob).length;
     const contracts = store.contracts.filter((x) => x.customerId === c.id);
     return html`
     ${pageHead(c.company, `${c.name} · customer since ${fmtDate(c.createdAt)}`, html`
@@ -254,7 +255,7 @@ export const customerPortal = {
   render() {
     const cust = store.customers[0];
     const jobs = store.jobs.filter((j) => j.customerId === cust.id);
-    const active = jobs.filter((j) => ["open", "in_progress", "waiting_parts"].includes(j.status));
+    const active = jobs.filter(isActiveJob);
     return html`
     ${pageHead("Customer Portal", "Self-service status page customers see", html`<span class="badge badge-progress">Preview as ${cust.company}</span>`)}
     ${card("", html`

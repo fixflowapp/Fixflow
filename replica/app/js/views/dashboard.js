@@ -3,12 +3,13 @@ import { html } from "../markup.js";
 import { money, fmtDate, statusBadge, invoiceBadge, priorityBadge, timeAgo, isSameDay, iconSvg, avatar } from "../util.js";
 import { pageHead, statCard, card, buildTable, donutChart, lineChart, barChart, emptyState } from "../components.js";
 import { customerName, techName, monthlySeries } from "../lookups.js";
+import { isActiveJob, pendingInvoices, overdueInvoices } from "../domain.js";
 
 function kpis() {
   const jobs = store.jobs;
-  const open = jobs.filter((j) => ["open", "in_progress", "waiting_parts"].includes(j.status)).length;
+  const open = jobs.filter(isActiveJob).length;
   const activeTechs = store.technicians.filter((t) => t.status !== "off").length;
-  const pendingInv = store.invoices.filter((i) => ["sent", "overdue"].includes(i.status));
+  const pendingInv = pendingInvoices();
   const pendingTotal = pendingInv.reduce((s, i) => s + i.total, 0);
   const revenue30 = store.payments.filter((p) => Date.now() - new Date(p.recordedAt).getTime() < 30 * 864e5).reduce((s, p) => s + p.amount, 0);
   const completed = jobs.filter((j) => ["completed", "invoiced"].includes(j.status));
@@ -33,7 +34,7 @@ export const dashboard = {
     const upcoming = store.jobs
       .filter((j) => j.scheduledDate && new Date(j.scheduledDate) >= new Date(Date.now() - 864e5) && j.status !== "completed" && j.status !== "invoiced")
       .sort((a, b) => new Date(a.scheduledDate) - new Date(b.scheduledDate)).slice(0, 5);
-    const overdue = store.invoices.filter((i) => i.status === "overdue");
+    const overdue = overdueInvoices();
 
     return html`
     ${pageHead("Dashboard", "Overview of jobs, revenue and operations", html`

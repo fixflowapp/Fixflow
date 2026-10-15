@@ -12,12 +12,6 @@ export const contractById = (id) => store.contracts.find((c) => c.id === id);
 export const customerName = (id) => customerById(id)?.company || customerById(id)?.name || "Unknown";
 export const techName = (id) => techById(id)?.name || "Unassigned";
 
-export function money(n, currency = store.settings?.currency || "USD") {
-  if (n == null || isNaN(n)) return "—";
-  try { return new Intl.NumberFormat("en-US", { style: "currency", currency, maximumFractionDigits: 2 }).format(n); }
-  catch { return `$${Number(n).toFixed(2)}`; }
-}
-
 export function revenueInRange(days = 30) {
   const cutoff = Date.now() - days * 864e5;
   return store.payments.filter((p) => new Date(p.recordedAt).getTime() >= cutoff).reduce((s, p) => s + p.amount, 0);

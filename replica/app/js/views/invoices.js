@@ -3,6 +3,7 @@ import { html } from "../markup.js";
 import { money, fmtDate, fmtMonth, timeAgo, invoiceBadge, statusBadge, avatar, toast, modal, closeModal, confirmDialog, iconSvg, INVOICE_STATUS } from "../util.js";
 import { pageHead, statCard, card, buildTable, emptyState, toolbar, buildForm, readForm, validateForm, barChart, progressBar } from "../components.js";
 import { customerName, customerById, jobById, invoiceById, monthlySeries } from "../lookups.js";
+import { pendingInvoices, overdueInvoices, daysOverdue } from "../domain.js";
 import { exportCsv } from "./jobs.js";
 
 // ---------- Invoices list ----------
@@ -17,8 +18,8 @@ export const invoices = {
     <div class="grid grid-4" style="margin-bottom:16px">
       ${statCard({ label: "Total Invoiced", value: money(store.invoices.filter((i) => i.status !== "cancelled").reduce((s, i) => s + i.total, 0)), iconName: "file" })}
       ${statCard({ label: "Paid", value: money(store.invoices.filter((i) => i.status === "paid").reduce((s, i) => s + i.total, 0)), iconName: "check", tone: "var(--success)" })}
-      ${statCard({ label: "Outstanding", value: money(store.invoices.filter((i) => ["sent", "overdue"].includes(i.status)).reduce((s, i) => s + i.total, 0)), iconName: "clock", tone: "var(--warning)" })}
-      ${statCard({ label: "Overdue Count", value: store.invoices.filter((i) => i.status === "overdue").length, iconName: "bell", tone: "var(--danger)" })}
+      ${statCard({ label: "Outstanding", value: money(pendingInvoices().reduce((s, i) => s + i.total, 0)), iconName: "clock", tone: "var(--warning)" })}
+      ${statCard({ label: "Overdue Count", value: overdueInvoices().length, iconName: "bell", tone: "var(--danger)" })}
     </div>
     <div class="card">
       ${toolbar({ searchId: "inv-search", placeholder: "Search by invoice #, customer...", filters: [
@@ -351,8 +352,7 @@ export const invoiceFollowUps = {
   title: "Invoice Follow-Ups",
   crumb: () => ["Invoices", "Follow-Ups"],
   render() {
-    const overdue = store.invoices.filter((i) => i.status === "overdue" || (i.status === "sent" && new Date(i.dueAt) < new Date()));
-    const rows = overdue.map((i) => ({ ...i, daysOverdue: Math.max(0, Math.floor((Date.now() - new Date(i.dueAt)) / 864e5)) })).sort((a, b) => b.daysOverdue - a.daysOverdue);
+    const rows = overdueInvoices().map((i) => ({ ...i, daysOverdue: daysOverdue(i) })).sort((a, b) => b.daysOverdue - a.daysOverdue);
     return html`
     ${pageHead("Invoice Follow-Ups", "Track overdue invoices and send reminders")}
     <div class="grid grid-3" style="margin-bottom:16px">

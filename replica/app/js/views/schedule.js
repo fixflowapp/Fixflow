@@ -3,6 +3,7 @@ import { html, raw } from "../markup.js";
 import { money, fmtDate, fmtMonth, timeAgo, isSameDay, statusBadge, priorityBadge, avatar, toast, modal, closeModal, confirmDialog, iconSvg, titleCase, initials } from "../util.js";
 import { pageHead, statCard, card, buildTable, emptyState, toolbar, buildForm, readForm, validateForm, barChart, lineChart, progressBar, donutChart } from "../components.js";
 import { customerName, techName, techById, jobById, customerById, monthlySeries } from "../lookups.js";
+import { isActiveJob } from "../domain.js";
 
 // ---------- Schedule (calendar) ----------
 export const schedule = {
@@ -85,7 +86,7 @@ export const technicians = {
   render() {
     const cards = store.technicians.map((t) => {
       const jobs = store.jobs.filter((j) => j.technicianId === t.id);
-      const active = jobs.filter((j) => ["open", "in_progress", "waiting_parts"].includes(j.status)).length;
+      const active = jobs.filter(isActiveJob).length;
       return html`<div class="card"><div class="card-body">
         <div class="row" style="gap:12px">
           ${avatar(t.name, 46)}
@@ -137,7 +138,7 @@ export const technicians = {
       const m = modal({
         title: t.name + " — workload",
         body: html`<div class="grid grid-3" style="margin-bottom:16px">
-          ${statCard({ label: "Active", value: jobs.filter((j) => ["open", "in_progress", "waiting_parts"].includes(j.status)).length })}
+          ${statCard({ label: "Active", value: jobs.filter(isActiveJob).length })}
           ${statCard({ label: "Completed", value: t.jobsCompleted })}
           ${statCard({ label: "Revenue", value: money(t.revenue) })}
         </div>${buildTable({
@@ -179,7 +180,7 @@ export const technicianDashboard = {
   render() {
     const me = store.technicians[0];
     const mine = store.jobs.filter((j) => j.technicianId === me.id);
-    const today = mine.filter((j) => ["open", "in_progress", "waiting_parts"].includes(j.status));
+    const today = mine.filter(isActiveJob);
     const done = mine.filter((j) => j.status === "completed");
     return html`
     ${pageHead("Welcome, " + me.firstName, "Your work queue for today", html`<span class="badge ${me.status === "available" ? "badge-available" : "badge-busy"}">${titleCase(me.status)}</span>`)}
@@ -235,7 +236,7 @@ export const technicianMobile = {
   crumb: () => ["Technicians", "Mobile"],
   render() {
     const me = store.technicians[0];
-    const jobs = store.jobs.filter((j) => j.technicianId === me.id && ["open", "in_progress", "waiting_parts"].includes(j.status)).slice(0, 6);
+    const jobs = store.jobs.filter((j) => j.technicianId === me.id && isActiveJob(j)).slice(0, 6);
     return html`
     ${pageHead("Technician Mobile", "Compact interface for field technicians")}
     <div style="display:flex;justify-content:center">

@@ -11,12 +11,7 @@ export function el(markup) {
   return tpl.content.firstElementChild;
 }
 
-export function money(n, currency = "USD") {
-  if (n == null || isNaN(n)) return "—";
-  try {
-    return new Intl.NumberFormat("en-US", { style: "currency", currency, maximumFractionDigits: 2 }).format(n);
-  } catch { return `$${Number(n).toFixed(2)}`; }
-}
+export { money } from "./domain.js";
 
 export function compactMoney(n) {
   if (n == null) return "—";
