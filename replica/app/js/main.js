@@ -1,8 +1,9 @@
 import { store, initStore } from "./store.js";
 import { can, ACTIONS } from "./session.js";
 import { parseHash, onRoute } from "./router.js";
-import { renderShell, setActiveNav, setBreadcrumb } from "./components.js";
-import { iconSvg } from "./util.js";
+import { renderShell, setActiveNav, setBreadcrumb, errorState } from "./components.js";
+import { iconSvg, toast } from "./util.js";
+import { html } from "./markup.js";
 import { getView } from "./views/index.js";
 
 export { navigate, parseHash } from "./router.js";
@@ -89,15 +90,38 @@ function route() {
   }
 
   const view = getView(id);
+  if (!view) { renderError("Page not found", `No view is registered for “${id}”.`); return; }
+
+  try {
+    document.body.classList.remove("logged-out");
+    setActiveNav(id);
+    const crumb = view.crumb ? view.crumb(params) : [view.title || "Dashboard"];
+    setBreadcrumb(crumb);
+
+    contentEl().innerHTML = view.render(params);
+    if (view.mount) view.mount(contentEl(), params);
+    window.scrollTo(0, 0);
+  } catch (e) {
+    console.error(`[fixflow] failed to render "${id}":`, e);
+    renderError("Something went wrong", (e && e.message) || String(e));
+  }
+}
+
+function renderError(title, detail) {
   document.body.classList.remove("logged-out");
+  const c = contentEl();
+  if (!c) return;
+  c.innerHTML = String(errorState(title, detail));
+  c.querySelector("#retry-btn")?.addEventListener("click", () => route());
+}
 
-  setActiveNav(id);
-  const crumb = view.crumb ? view.crumb(params) : [view.title || "Dashboard"];
-  setBreadcrumb(crumb);
-
-  contentEl().innerHTML = view.render(params);
-  if (view.mount) view.mount(contentEl(), params);
-  window.scrollTo(0, 0);
+function showLoading() {
+  const c = contentEl();
+  if (!c) return;
+  c.innerHTML = String(html`<div class="empty">
+    <div class="e-ico">${iconSvg("refresh", 22)}</div>
+    <h3>Loading…</h3><p>Syncing your data.</p>
+  </div>`);
 }
 
 function renderLogin() {
@@ -112,11 +136,36 @@ function renderLogin() {
 window.addEventListener("hashchange", route);
 onRoute(route);
 
-// Boot: pull data from Supabase (if configured) before the first render.
+// Boot: pull data from Supabase (if configured) before the first render. The
+// first paint never blocks on a slow network — it renders from the local cache
+// (or a loading state) and re-renders once the pull settles or times out.
+const BOOT_TIMEOUT_MS = 5000;
+const supabaseCfg = (typeof window !== "undefined" && window.FIXFLOW_SUPABASE) || {};
+const configured = Boolean(supabaseCfg.url && supabaseCfg.anonKey);
+
 (async () => {
-  let res = { source: "local" };
-  try { res = await initStore(); } catch (e) { console.warn("[fixflow] initStore failed:", e); }
+  if (configured) showLoading(); else route();
+
+  const boot$ = initStore().catch((e) => {
+    console.warn("[fixflow] initStore failed:", e);
+    return { source: "local", error: (e && e.message) || String(e) };
+  });
+  const res = await Promise.race([
+    boot$,
+    new Promise((resolve) => setTimeout(() => resolve({ source: "local", timeout: true }), BOOT_TIMEOUT_MS)),
+  ]);
+
+  if (res.timeout) {
+    console.warn("[fixflow] boot timed out; rendering cached data");
+    toast("Still syncing", "Showing your locally cached data.", "info");
+    boot$.then((real) => { window.FIXFLOW_SOURCE = real.source; route(); }).catch(() => {});
+    window.FIXFLOW_SOURCE = "local";
+    route();
+    return;
+  }
+
   window.FIXFLOW_SOURCE = res.source;
+  if (res.error) toast("Offline mode", "Could not reach the server — showing local data.", "info");
   if (res.source === "supabase" && res.seeded) console.info("[fixflow] Seeded Supabase from local seed data.");
   route();
 })();

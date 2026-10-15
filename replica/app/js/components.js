@@ -168,6 +168,12 @@ export function emptyState(title, msg, actionHtml = "", iconName = "box") {
   </div>`;
 }
 
+// Shown when a view fails to render, so a crash degrades to a retry card
+// instead of a blank page.
+export function errorState(title, detail) {
+  return emptyState(title, detail, html`<button class="btn btn-primary btn-sm" id="retry-btn">Try again</button>`, "refresh");
+}
+
 export function card(title, bodyHtml, { sub = "", actions = "", tight = false, foot = "" } = {}) {
   return html`<div class="card">
     ${title ? html`<div class="card-head"><div><h3>${title}</h3>${sub ? html`<div class="sub">${sub}</div>` : ""}</div><div class="spacer"></div>${actions}</div>` : ""}
