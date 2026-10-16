@@ -266,7 +266,7 @@ export const customerPortal = {
       ${active.length ? active.map((j) => html`
         <div class="card" style="margin-bottom:10px;box-shadow:none"><div class="card-body row" style="justify-content:space-between">
           <div><div style="font-weight:600">${j.id} · ${j.title}</div>
-            <div class="cell-sub" style="margin-top:3px">${j.deviceType} — ${j.issue}</div>
+            <div class="cell-sub" style="margin-top:3px">${j.deviceType} · ${j.issue}</div>
             <div class="small muted" style="margin-top:6px">Technician: ${techById(j.technicianId)?.name || "Pending assignment"}</div></div>
           <div style="text-align:right">${statusBadge(j.status)}<div class="small muted" style="margin-top:6px">Est. ${money(j.estimatedCost)}</div></div>
         </div></div>`) : emptyState("No active repairs", "You have no jobs in progress.", "", "check")}
@@ -283,7 +283,7 @@ export const customerPortal = {
       })}
       <div class="card" style="margin-top:16px;box-shadow:none"><div class="card-body">
         <h3 style="font-size:14px;margin-bottom:6px">Photos of your device</h3>
-        <p class="small muted" style="margin-bottom:12px">Send us pictures of the device as it looks now — it helps our technicians prepare for the repair.</p>
+        <p class="small muted" style="margin-bottom:12px">Send us pictures of the device as it looks now. It helps our technicians prepare for the repair.</p>
         ${active.length
           ? photoBody(jobTarget(active[0].id), { stages: ["before"] })
           : html`<p class="small muted">Photos can be added once you have an active repair.</p>`}
@@ -307,7 +307,7 @@ function requestFields() {
     { key: "serviceType", label: "Service needed", type: "select", options: ["Repair", "Diagnostic", "Maintenance", "Installation", "Data Recovery"], full: true },
     { key: "issue", label: "Describe the problem", type: "textarea", required: true, full: true, placeholder: "What is happening with your device?" },
     { key: "preferredDate", label: "Preferred date", type: "date" },
-    { key: "urgent", label: "Urgent request", type: "select", options: [{ value: "no", label: "No" }, { value: "yes", label: "Yes — same day" }] },
+    { key: "urgent", label: "Urgent request", type: "select", options: [{ value: "no", label: "No" }, { value: "yes", label: "Yes, same day" }] },
   ];
 }
 

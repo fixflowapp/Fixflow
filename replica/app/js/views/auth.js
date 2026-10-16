@@ -89,17 +89,16 @@ function authFrame(form) {
         <h1 class="auth-headline">Every repair job, from intake to invoice.</h1>
         <p class="auth-sub">
           Track work orders, dispatch technicians, manage parts inventory and keep customers
-          informed — from a single operations desk.
+          informed, from a single operations desk.
         </p>
         <div class="auth-caps">
-          ${CAPS.map(([t, d], i) => html`<div class="auth-cap">
-            <em>${String(i + 1).padStart(2, "0")}</em>
+          ${CAPS.map(([t, d]) => html`<div class="auth-cap">
             <b>${t}</b>
             <span>${d}</span>
           </div>`)}
         </div>
       </div>
-      <div class="auth-foot">© ${new Date().getFullYear()} FixFlow Repairs — demonstration build</div>
+      <div class="auth-foot">© ${new Date().getFullYear()} FixFlow Repairs</div>
     </div>
     <div class="auth-form-side">
       <div class="auth-form">${form}</div>
@@ -167,7 +166,7 @@ export function loginView() {
   const online = configured();
   const html_ = authFrame(html`
     <h2>Sign in</h2>
-    <p class="auth-lede">${online ? "Use your FixFlow account to continue." : "Offline demo — data stays in this browser."}</p>
+    <p class="auth-lede">${online ? "Use your FixFlow account to continue." : "Offline demo: data stays in this browser."}</p>
     ${errorBox()}
     <div class="field" style="margin-bottom:14px">
       <label for="login-email">Email</label>
@@ -224,7 +223,7 @@ export function signupView() {
   const online = configured();
   const html_ = authFrame(html`
     <h2>Create account</h2>
-    <p class="auth-lede">${online ? "Set up a FixFlow account to continue." : "Offline demo — sign-up runs against a live backend."}</p>
+    <p class="auth-lede">${online ? "Set up a FixFlow account to continue." : "Offline demo: sign-up runs against a live backend."}</p>
     ${errorBox()}
     <div class="field" style="margin-bottom:14px">
       <label for="su-name">Full name</label>
@@ -298,7 +297,7 @@ export function forgotView() {
   const online = configured();
   const html_ = authFrame(html`
     <h2>Reset password</h2>
-    <p class="auth-lede">${online ? "Enter your email and we'll send a reset link." : "Offline demo — reset emails are sent by a live backend."}</p>
+    <p class="auth-lede">${online ? "Enter your email and we'll send a reset link." : "Offline demo: reset emails are sent by a live backend."}</p>
     ${errorBox()}
     <div class="field" style="margin-bottom:18px">
       <label for="fp-email">Email</label>

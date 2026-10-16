@@ -64,9 +64,9 @@ export function supabaseAdapter(sb) {
 // credential store to create an account in or to reset a password against.
 export const demoAdapter = {
   name: "demo",
-  async signIn() { return { ok: false, error: "Offline demo — sign-in is unavailable." }; },
-  async signUp() { return { ok: false, error: "Offline demo — creating an account needs a connected backend." }; },
-  async resetPassword() { return { ok: false, error: "Offline demo — password reset needs a connected backend." }; },
-  async updatePassword() { return { ok: false, error: "Offline demo — password reset needs a connected backend." }; },
+  async signIn() { return { ok: false, error: "Offline demo: sign-in is unavailable." }; },
+  async signUp() { return { ok: false, error: "Offline demo: creating an account needs a connected backend." }; },
+  async resetPassword() { return { ok: false, error: "Offline demo: password reset needs a connected backend." }; },
+  async updatePassword() { return { ok: false, error: "Offline demo: password reset needs a connected backend." }; },
   async signOut() { /* nothing to clear */ },
 };
