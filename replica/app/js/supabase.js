@@ -54,13 +54,42 @@ export async function signIn(email, password) {
   }
 }
 
+// With email confirmation enabled, Supabase returns a user but no session: the
+// account exists and is awaiting confirmation. That is a success with a notice,
+// not an error, so it is reported as { ok: true, pending: true }.
 export async function signUp(email, password, name) {
   if (!supabaseConfigured) return { ok: false, error: "Supabase is not configured." };
   try {
     const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { name } } });
     if (error) return { ok: false, error: error.message };
-    if (!data.session) return { ok: false, error: "Check your email to confirm the account, then sign in." };
+    if (!data.session) return { ok: true, pending: true, email };
     return { ok: true, session: data.session, display: sessionToDisplay(data.session) };
+  } catch (e) {
+    return { ok: false, error: e.message || String(e) };
+  }
+}
+
+// Deliberately reports success even for an unknown address: Supabase does not
+// disclose whether an account exists, and neither should this UI.
+export async function resetPasswordForEmail(email, redirectTo) {
+  if (!supabaseConfigured) return { ok: false, error: "Supabase is not configured." };
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, redirectTo ? { redirectTo } : undefined);
+    if (error) return { ok: false, error: error.message };
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message || String(e) };
+  }
+}
+
+// Only valid while a recovery session is active — i.e. after following the link
+// from the reset email, which signs the user in with a short-lived session.
+export async function updatePassword(password) {
+  if (!supabaseConfigured) return { ok: false, error: "Supabase is not configured." };
+  try {
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) return { ok: false, error: error.message };
+    return { ok: true };
   } catch (e) {
     return { ok: false, error: e.message || String(e) };
   }

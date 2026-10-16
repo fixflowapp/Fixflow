@@ -669,6 +669,15 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .auth-form h2 { font-size: 21px; font-weight: 650; letter-spacing: -.025em; }
 .auth-form .auth-lede { margin: 5px 0 22px; font-size: 13px; color: var(--text-muted); }
 .auth-form .auth-alt { text-align: center; margin-top: 20px; font-size: 12.5px; color: var(--text-muted); }
+.auth-aux { text-align: right; margin: 0 0 14px; font-size: 12.5px; }
+.auth-note .auth-lede { margin: 8px 0 22px; }
+.auth-meter { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 3px; }
+.auth-meter i { height: 3px; border-radius: 2px; background: transparent; transition: background var(--fast) var(--ease); }
+.auth-meter[data-active] i { background: var(--border); }
+.auth-meter[data-score="1"] i:nth-child(-n+1),
+.auth-meter[data-score="2"] i:nth-child(-n+2) { background: var(--warning); }
+.auth-meter[data-score="3"] i:nth-child(-n+3) { background: var(--accent); }
+.auth-meter[data-score="4"] i { background: var(--success); }
 @media (max-width: 900px) {
   .auth { grid-template-columns: 1fr; }
   .auth-panel { padding: 28px; gap: 28px; }

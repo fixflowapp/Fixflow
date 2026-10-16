@@ -10,6 +10,20 @@ export { navigate, parseHash } from "./router.js";
 
 const shell = renderShell();
 
+// Screens that render outside the app shell, before a session exists.
+const PUBLIC_IDS = new Set(["request-service", "customer-portal"]);
+const AUTH_IDS = new Set(["login", "signup", "forgot", "reset-password"]);
+const AUTH_FACTORY = { login: "loginView", signup: "signupView", forgot: "forgotView", "reset-password": "resetView" };
+
+// The reset email link comes back as a hash fragment (#access_token=…&
+// type=recovery). The hash router would read that as an unknown route, so it is
+// detected ahead of routing and mapped to the new-password screen.
+function isRecoveryUrl() {
+  if (typeof window === "undefined") return false;
+  const h = window.location.hash || "";
+  return /(^|[#&])type=recovery/.test(h) || /(^|[#&])access_token=/.test(h);
+}
+
 // sidebar / menus
 document.getElementById("collapse-btn").addEventListener("click", () => {
   const sb = document.getElementById("sidebar");
@@ -96,11 +110,9 @@ const contentEl = () => document.getElementById("content");
 function route() {
   const { id, params } = parseHash();
 
-  if (id === "login") { renderLogin(); return; }
-  if (!store.session && id !== "request-service" && id !== "customer-portal") {
-    renderLogin();
-    return;
-  }
+  if (isRecoveryUrl()) { renderAuth("reset-password"); return; }
+  if (AUTH_IDS.has(id)) { renderAuth(id); return; }
+  if (!store.session && !PUBLIC_IDS.has(id)) { renderAuth("login"); return; }
 
   const view = getView(id);
   if (!view) { renderError("Page not found", `No view is registered for “${id}”.`); return; }
@@ -137,10 +149,11 @@ function showLoading() {
   </div>`);
 }
 
-function renderLogin() {
+function renderAuth(kind) {
   document.body.classList.add("logged-out");
-  import("./views/auth.js").then(({ loginView }) => {
-    const { html, mount } = loginView();
+  import("./views/auth.js").then((m) => {
+    const factory = m[AUTH_FACTORY[kind]] || m.loginView;
+    const { html, mount } = factory();
     contentEl().innerHTML = html;
     mount?.(contentEl());
   });

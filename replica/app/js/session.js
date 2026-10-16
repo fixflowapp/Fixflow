@@ -37,9 +37,9 @@ export function isRealSession() { return Boolean(store.authed); }
 export function sessionName(session = store.session) { return (session && session.user) || "Guest"; }
 
 // ---------------------------------------------------------------------------
-// Adapters — a small port so the sign-in/out flow is identical regardless of
-// where the identity comes from. Both expose signIn()/signOut() and return
-// { ok, session?, error? }.
+// Adapters — a small port so the account lifecycle is identical regardless of
+// where the identity comes from. Both expose signIn()/signUp()/resetPassword()/
+// updatePassword()/signOut(), each returning { ok, ... } and never throwing.
 // ---------------------------------------------------------------------------
 export function supabaseAdapter(sb) {
   return {
@@ -48,12 +48,25 @@ export function supabaseAdapter(sb) {
       const res = await sb.signIn(email, password);
       return res.ok ? { ok: true, session: res.display } : { ok: false, error: res.error };
     },
+    async signUp({ name, email, password }) {
+      const res = await sb.signUp(email, password, name);
+      if (!res.ok) return { ok: false, error: res.error };
+      if (res.pending) return { ok: true, pending: true, email: res.email || email };
+      return { ok: true, session: res.display };
+    },
+    async resetPassword(email, redirectTo) { return sb.resetPasswordForEmail(email, redirectTo); },
+    async updatePassword(password) { return sb.updatePassword(password); },
     async signOut() { await sb.signOut(); },
   };
 }
 
+// Offline demo: the seeded local session is the identity, so there is no
+// credential store to create an account in or to reset a password against.
 export const demoAdapter = {
   name: "demo",
   async signIn() { return { ok: false, error: "Offline demo — sign-in is unavailable." }; },
+  async signUp() { return { ok: false, error: "Offline demo — creating an account needs a connected backend." }; },
+  async resetPassword() { return { ok: false, error: "Offline demo — password reset needs a connected backend." }; },
+  async updatePassword() { return { ok: false, error: "Offline demo — password reset needs a connected backend." }; },
   async signOut() { /* nothing to clear */ },
 };

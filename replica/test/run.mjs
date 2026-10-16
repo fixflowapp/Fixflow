@@ -33,6 +33,7 @@ const session = await import("../app/js/session.js");
 const router = await import("../app/js/router.js");
 const storeMod = await import("../app/js/store.js");
 const photos = await import("../app/js/photos.js");
+const auth = await import("../app/js/views/auth.js");
 const { store } = storeMod;
 
 // ---------------------------------------------------------------------------
@@ -248,6 +249,89 @@ group("repair photos (C8)");
   eq(photos.STAGES, ["before", "after"], "STAGES is the before/after pair");
   ok(photos.MAX_PHOTO_BYTES > 0 && photos.MAX_PHOTO_BYTES * photos.MAX_PER_STAGE * photos.STAGES.length <= photos.BUDGET_BYTES * 2,
     "per-photo and per-stage caps stay proportionate to the budget");
+}
+
+// ---------------------------------------------------------------------------
+group("accounts (C9)");
+{
+  eq(auth.MIN_PASSWORD, 8, "minimum password length is 8");
+  eq(auth.SCORE_LABELS.length, 5, "score labels cover 0..4");
+
+  ok(auth.EMAIL_RE.test("dana@fixflow.io"), "EMAIL_RE accepts a plain address");
+  ok(auth.EMAIL_RE.test("d.reyes+ops@sub.fixflow.co"), "EMAIL_RE accepts a tagged subdomain address");
+  ok(!auth.EMAIL_RE.test("dana@fixflow"), "EMAIL_RE rejects a domain without a dot");
+  ok(!auth.EMAIL_RE.test("dana fixflow.io"), "EMAIL_RE rejects a space");
+  ok(!auth.EMAIL_RE.test("@fixflow.io"), "EMAIL_RE rejects a missing local part");
+
+  const good = auth.validateSignup({ name: "  Dana Reyes ", email: "Dana@FixFlow.io", password: "shoptalk1", confirm: "shoptalk1" });
+  eq(good.ok, true, "validateSignup accepts a complete form");
+  eq(good.name, "Dana Reyes", "validateSignup trims the name");
+  eq(good.email, "dana@fixflow.io", "validateSignup lowercases the email");
+
+  eq(auth.validateSignup({ name: "D", email: "d@b.io", password: "shoptalk1", confirm: "shoptalk1" }).error,
+    "Enter your full name.", "validateSignup requires a real name");
+  eq(auth.validateSignup({ name: "Dana", email: "nope", password: "shoptalk1", confirm: "shoptalk1" }).error,
+    "Enter a valid email address.", "validateSignup requires a valid email");
+  eq(auth.validateSignup({ name: "Dana", email: "d@b.io", password: "short1", confirm: "short1" }).error,
+    "Use at least 8 characters.", "validateSignup enforces the length floor");
+  eq(auth.validateSignup({ name: "Dana", email: "d@b.io", password: "12345678", confirm: "12345678" }).error,
+    "Include at least one letter.", "validateSignup requires a letter");
+  eq(auth.validateSignup({ name: "Dana", email: "d@b.io", password: "abcdefgh", confirm: "abcdefgh" }).error,
+    "Include at least one number.", "validateSignup requires a number");
+  eq(auth.validateSignup({ name: "Dana", email: "d@b.io", password: "shoptalk1", confirm: "shoptalk2" }).error,
+    "Passwords do not match.", "validateSignup rejects a mismatched confirmation");
+  eq(auth.validateSignup({}).ok, false, "validateSignup rejects an empty form without throwing");
+
+  eq(auth.validateForgot({ email: " Ops@FixFlow.io " }), { ok: true, email: "ops@fixflow.io" }, "validateForgot normalises the address");
+  eq(auth.validateForgot({ email: "ops@" }).ok, false, "validateForgot rejects a malformed address");
+
+  eq(auth.validateReset({ password: "shoptalk1", confirm: "shoptalk1" }).ok, true, "validateReset accepts a valid pair");
+  eq(auth.validateReset({ password: "shoptalk1", confirm: "shoptalk2" }).error, "Passwords do not match.", "validateReset rejects a mismatch");
+  eq(auth.validateReset({ password: "abc" }).error, "Use at least 8 characters.", "validateReset enforces the same floor");
+
+  eq(auth.passwordScore(""), 0, "passwordScore is 0 for nothing typed");
+  eq(auth.passwordScore("abcdefgh"), 1, "passwordScore rewards length alone");
+  eq(auth.passwordScore("abcdefghijkl"), 2, "passwordScore rewards extra length");
+  eq(auth.passwordScore("Abcdefghijkl"), 3, "passwordScore rewards mixed case");
+  eq(auth.passwordScore("Abcdefghijk1"), 4, "passwordScore caps at 4");
+  eq(auth.passwordScore("Aa1!aaaa"), 4, "passwordScore rewards symbols too");
+  ok(auth.passwordScore("abcdefghijklmnop") >= auth.passwordScore("abcdefgh"), "passwordScore is monotonic in length");
+
+  const demo = session.demoAdapter;
+  eq((await demo.signUp({ name: "Dana", email: "d@b.io", password: "shoptalk1" })).ok, false, "demoAdapter refuses sign-up offline");
+  ok((await demo.signUp({})).error.includes("connected backend"), "demoAdapter explains why sign-up is unavailable");
+  eq((await demo.resetPassword("d@b.io")).ok, false, "demoAdapter refuses password reset offline");
+  eq((await demo.updatePassword("shoptalk1")).ok, false, "demoAdapter refuses password update offline");
+  eq((await demo.signIn("d@b.io", "shoptalk1")).ok, false, "demoAdapter still refuses sign-in offline");
+
+  const sb = (over = {}) => ({
+    signIn: async () => ({ ok: true, display: { user: "Dana" } }),
+    signUp: async () => ({ ok: true, session: { token: 1 }, display: { user: "Dana" } }),
+    resetPasswordForEmail: async (email, redirectTo) => ({ ok: true, sentTo: email, redirectTo }),
+    updatePassword: async (p) => ({ ok: true, len: p.length }),
+    signOut: async () => {},
+    ...over,
+  });
+
+  const live = session.supabaseAdapter(sb());
+  eq(await live.signIn("d@b.io", "shoptalk1"), { ok: true, session: { user: "Dana" } }, "supabaseAdapter maps a sign-in to the display session");
+  eq(await live.signUp({ name: "Dana", email: "d@b.io", password: "shoptalk1" }), { ok: true, session: { user: "Dana" } }, "supabaseAdapter signs up straight through when confirmation is off");
+  eq(await live.resetPassword("d@b.io", "https://app/"), { ok: true, sentTo: "d@b.io", redirectTo: "https://app/" }, "supabaseAdapter forwards the reset address");
+  eq(await live.updatePassword("shoptalk1"), { ok: true, len: 9 }, "supabaseAdapter forwards the new password");
+
+  const pending = session.supabaseAdapter(sb({ signUp: async () => ({ ok: true, pending: true, email: "new@fixflow.io" }) }));
+  eq(await pending.signUp({ name: "New", email: "NEW@fixflow.io", password: "shoptalk1" }), { ok: true, pending: true, email: "new@fixflow.io" },
+    "supabaseAdapter reports email confirmation as a pending success, not an error");
+  eq((await pending.signUp({ email: "new@fixflow.io", password: "shoptalk1" })).ok, true, "a pending sign-up is not a failure");
+
+  const failed = session.supabaseAdapter(sb({
+    signUp: async () => ({ ok: false, error: "User already registered" }),
+    resetPasswordForEmail: async () => ({ ok: false, error: "Email rate limit exceeded" }),
+  }));
+  eq(await failed.signUp({ email: "d@b.io", password: "shoptalk1" }), { ok: false, error: "User already registered" },
+    "supabaseAdapter surfaces a sign-up error verbatim");
+  eq(await failed.resetPassword("d@b.io"), { ok: false, error: "Email rate limit exceeded" },
+    "supabaseAdapter surfaces a reset failure");
 }
 
 // ---------------------------------------------------------------------------
