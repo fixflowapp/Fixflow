@@ -4,5 +4,9 @@ node_modules/
 *.log
 .vercel
 **/.vercel
+.env*
+**/.env*
 Claude-Red/
 strix/
+.agents/
+.agent/
