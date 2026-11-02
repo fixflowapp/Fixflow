@@ -173,6 +173,10 @@ group("router (C5/C7)");
   eq(router.parseHash(), { id: "jobs", params: { q: "acme" } }, "parseHash reads id + query");
   window.location.hash = "#/job-details/JOB-2000";
   eq(router.parseHash(), { id: "job-details", params: { id: "JOB-2000" } }, "parseHash reads detail id segment");
+  window.location.hash = "#/job-details/%E0%A4%A";
+  eq(router.parseHash().params.id, "%E0%A4%A", "parseHash falls back to the raw segment on a bad escape");
+  window.location.hash = "#/landing";
+  eq(router.parseHash().id, "landing", "parseHash reads landing route");
   window.location.hash = "";
   const empty = router.parseHash();
   ok(empty.id === "dashboard" || empty.id === "login", "empty hash falls back to dashboard/login by session");
@@ -289,6 +293,19 @@ group("accounts (C9)");
   eq(auth.validateReset({ password: "shoptalk1", confirm: "shoptalk2" }).error, "Passwords do not match.", "validateReset rejects a mismatch");
   eq(auth.validateReset({ password: "abc" }).error, "Use at least 8 characters.", "validateReset enforces the same floor");
 
+  eq(auth.friendlyAuthError("Signups not allowed for this instance"),
+    "Sign-ups are disabled on this deployment. Ask an administrator for an account.",
+    "friendlyAuthError explains disabled sign-ups");
+  eq(auth.friendlyAuthError("Invalid login credentials"), "That email and password do not match an account.",
+    "friendlyAuthError translates bad credentials");
+  eq(auth.friendlyAuthError("Email rate limit exceeded"), "Too many attempts. Wait a few minutes and try again.",
+    "friendlyAuthError translates rate limits");
+  eq(auth.friendlyAuthError("Failed to fetch"), "Cannot reach the server. Check your connection and try again.",
+    "friendlyAuthError translates network failures");
+  eq(auth.friendlyAuthError("permission denied for table ff_records", "Sign in failed."), "Sign in failed.",
+    "friendlyAuthError hides backend detail behind the caller fallback");
+  eq(auth.friendlyAuthError("", "Sign in failed."), "Sign in failed.", "friendlyAuthError uses the fallback for an empty message");
+
   eq(auth.passwordScore(""), 0, "passwordScore is 0 for nothing typed");
   eq(auth.passwordScore("abcdefgh"), 1, "passwordScore rewards length alone");
   eq(auth.passwordScore("abcdefghijkl"), 2, "passwordScore rewards extra length");
@@ -332,6 +349,20 @@ group("accounts (C9)");
     "supabaseAdapter surfaces a sign-up error verbatim");
   eq(await failed.resetPassword("d@b.io"), { ok: false, error: "Email rate limit exceeded" },
     "supabaseAdapter surfaces a reset failure");
+}
+
+// ---------------------------------------------------------------------------
+group("upload guardrails (C10)");
+{
+  eq(photos.MAX_INPUT_BYTES, 25 * 1024 * 1024, "source file ceiling is 25 MB");
+  eq(photos.acceptsFile({ type: "image/jpeg", size: 1024 }), { ok: true, reason: "" }, "acceptsFile allows a normal JPEG");
+  eq(photos.acceptsFile({ type: "image/png", size: 1024 }).ok, true, "acceptsFile allows a PNG");
+  eq(photos.acceptsFile({ type: "image/svg+xml", size: 400 }), { ok: false, reason: "unsupported" }, "acceptsFile refuses SVG");
+  eq(photos.acceptsFile({ type: "application/pdf", size: 400 }).reason, "unsupported", "acceptsFile refuses a non-image");
+  eq(photos.acceptsFile({ type: "image/jpeg", size: photos.MAX_INPUT_BYTES + 1 }).reason, "too-big",
+    "acceptsFile refuses a file over the ceiling");
+  eq(photos.acceptsFile(null).reason, "unsupported", "acceptsFile tolerates a missing file");
+  eq(photos.formatBytes(photos.MAX_INPUT_BYTES), "25.0 MB", "formatBytes renders the ceiling");
 }
 
 // ---------------------------------------------------------------------------

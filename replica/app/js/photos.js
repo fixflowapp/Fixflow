@@ -23,6 +23,8 @@ export const MIN_QUALITY = 0.4;            // floor when re-encoding oversized f
 export const MAX_PHOTO_BYTES = 300 * 1024; // per stored photo
 export const MAX_PER_STAGE = 8;
 export const BUDGET_BYTES = 4 * 1024 * 1024; // all photos, all jobs
+export const MAX_INPUT_BYTES = 25 * 1024 * 1024; // source file ceiling, before decode
+export const MAX_INPUT_PIXELS = 50e6;            // ~50 MP: bounds decode memory
 
 // ---------------------------------------------------------------------------
 // Pure helpers
@@ -80,6 +82,16 @@ export function formatBytes(n) {
   return `${(n / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+// Guardrails for a source file, applied before any decode work happens. SVG is
+// refused: it can carry script and external references, and it never round-trips
+// through the JPEG pipeline. The size ceiling bounds what a decode can ask for.
+export function acceptsFile(file) {
+  const type = String(file?.type || "");
+  if (!type.startsWith("image/") || type === "image/svg+xml") return { ok: false, reason: "unsupported" };
+  if (Number(file?.size || 0) > MAX_INPUT_BYTES) return { ok: false, reason: "too-big" };
+  return { ok: true, reason: "" };
+}
+
 // ---------------------------------------------------------------------------
 // Capture — decode, downscale, re-encode
 // ---------------------------------------------------------------------------
@@ -110,6 +122,7 @@ async function downscale(file, { maxEdge = MAX_EDGE, quality = QUALITY } = {}) {
   const sw = src.width || 0;
   const sh = src.height || 0;
   if (!sw || !sh) { if (src.close) src.close(); throw new Error("unreadable"); }
+  if (sw * sh > MAX_INPUT_PIXELS) { if (src.close) src.close(); throw new Error("too-many-pixels"); }
 
   const scale = Math.min(1, maxEdge / Math.max(sw, sh));
   let w = Math.max(1, Math.round(sw * scale));
@@ -319,9 +332,31 @@ function removePhoto(target, photoId) {
 
 // Shared ingest for every entry point (camera, picker, drop, portal).
 export async function ingest(target, stage, files, { source = "upload", by, onDone } = {}) {
-  const list = Array.from(files || []).filter((f) => f && String(f.type || "").startsWith("image/"));
-  if (!list.length) { toast("Not an image", "Choose a photo file to attach.", "error"); return []; }
-  if (!canAdd(full(target), stage).ok) { toast("Limit reached", canAdd(full(target), stage).reason, "error"); return []; }
+  const offered = Array.from(files || []);
+  const accepted = offered.filter((f) => acceptsFile(f).ok);
+  if (!accepted.length) {
+    const verdicts = offered.map((f) => acceptsFile(f).reason);
+    const tooBig = verdicts.includes("too-big");
+    const unsupported = verdicts.includes("unsupported");
+    toast(
+      tooBig ? "Image too large" : unsupported ? "Unsupported format" : "Not an image",
+      tooBig ? `Choose a photo under ${formatBytes(MAX_INPUT_BYTES)}.`
+        : unsupported ? "JPEG, PNG and WebP photos are supported."
+          : "Choose a photo file to attach.",
+      "error",
+    );
+    return [];
+  }
+
+  // Room is counted before any compression happens, so a multi-file selection can
+  // never report more photos added than the stage actually accepted.
+  const stats = snapshot(target);
+  const room = MAX_PER_STAGE - (stage === "after" ? stats.after : stats.before);
+  if (room <= 0) { toast("Limit reached", canAdd(full(target), stage).reason, "error"); return []; }
+  const list = accepted.slice(0, room);
+  if (accepted.length > room) {
+    toast("Some photos skipped", `Only ${room} more ${STAGE_LABEL[stage].toLowerCase()} photo${room === 1 ? "" : "s"} fit in this stage.`, "info");
+  }
 
   const saved = [];
   let failed = 0;

@@ -10,7 +10,12 @@ export function parseHash() {
   const segments = pathPart.split("/").filter(Boolean);
   const id = segments[0] || (store.session ? "dashboard" : "login");
   const params = Object.fromEntries(new URLSearchParams(queryPart || ""));
-  if (segments[1]) params.id = decodeURIComponent(segments[1]);
+  if (segments[1]) {
+    // A truncated or hand-edited link can carry an invalid escape (`%E0`). That
+    // must not throw out of the router, so fall back to the raw segment.
+    try { params.id = decodeURIComponent(segments[1]); }
+    catch { params.id = segments[1]; }
+  }
   return { id, params };
 }
 

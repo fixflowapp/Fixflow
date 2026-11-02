@@ -75,15 +75,39 @@ export function validateReset({ password, confirm } = {}) {
 }
 
 // ---------------------------------------------------------------------------
+// Error copy — backend messages are developer-facing and can name tables or
+// policies, so known cases are translated to plain sentences and anything
+// unknown falls back to a stable one. The original always reaches the console.
+// ---------------------------------------------------------------------------
+const AUTH_ERROR_COPY = [
+  [/signups? not allowed|signup is disabled/i, "Sign-ups are disabled on this deployment. Ask an administrator for an account."],
+  [/already registered|already been registered/i, "An account with this email already exists. Sign in instead."],
+  [/invalid login credentials/i, "That email and password do not match an account."],
+  [/email not confirmed/i, "Confirm your email address first. Check your inbox for the link."],
+  [/rate limit|too many requests/i, "Too many attempts. Wait a few minutes and try again."],
+  [/should be different from the old/i, "Choose a password you have not used before."],
+  [/failed to fetch|network ?error|load failed/i, "Cannot reach the server. Check your connection and try again."],
+];
+
+export function friendlyAuthError(message, fallback = "Something went wrong. Try again.") {
+  const text = String(message || "").trim();
+  if (!text) return fallback;
+  for (const [pattern, copy] of AUTH_ERROR_COPY) if (pattern.test(text)) return copy;
+  if (typeof console !== "undefined") console.warn("[fixflow] auth error:", text);
+  return fallback;
+}
+
+// ---------------------------------------------------------------------------
 // Shared layout + controls
 // ---------------------------------------------------------------------------
 function authFrame(form) {
   return html`
   <div class="auth">
     <div class="auth-panel">
-      <div class="auth-brand">
+      <div class="auth-brand" data-nav="landing" style="cursor:pointer" title="View FixFlow Overview">
         <span class="brand-mark">F</span>
         <span class="brand-name">FixFlow</span>
+        <span class="badge badge-neutral" style="margin-left:auto;font-size:11px">Overview &rarr;</span>
       </div>
       <div>
         <h1 class="auth-headline">Every repair job, from intake to invoice.</h1>
@@ -179,7 +203,7 @@ export function loginView() {
     <p class="auth-aux"><span class="link" data-nav="forgot">Forgot password?</span></p>
     <button class="btn btn-primary btn-block" id="login-btn">Sign in</button>
     <p class="auth-alt">
-      New here? <span class="link" data-nav="signup">Create an account</span>
+      New here? <span class="link" data-nav="signup">Create an account</span> · <span class="link" data-nav="landing">Product tour</span>
     </p>`);
   return {
     html: html_,
@@ -199,14 +223,14 @@ export function loginView() {
         try {
           const ad = await adapter();
           const res = await ad.signIn(email, password);
-          if (!res.ok) { btn.disabled = false; btn.textContent = label; return err.show(res.error || "Sign in failed."); }
+          if (!res.ok) { btn.disabled = false; btn.textContent = label; return err.show(friendlyAuthError(res.error, "Sign in failed.")); }
           store.session = res.session;
           window.location.hash = "#/dashboard";
           window.location.reload();
         } catch (e) {
           btn.disabled = false;
           btn.textContent = label;
-          err.show(e.message || "Sign in failed.");
+          err.show(friendlyAuthError(e && e.message, "Sign in failed."));
         }
       };
 
@@ -268,7 +292,7 @@ export function signupView() {
         try {
           const ad = await adapter();
           const res = await ad.signUp(valid);
-          if (!res.ok) { btn.disabled = false; btn.textContent = label; return err.show(res.error || "Could not create the account."); }
+          if (!res.ok) { btn.disabled = false; btn.textContent = label; return err.show(friendlyAuthError(res.error, "Could not create the account.")); }
           if (res.pending) {
             showNotice(root, "Confirm your email",
               `We sent a confirmation link to ${res.email}. Open it to activate the account, then sign in.`, backToSignIn);
@@ -280,7 +304,7 @@ export function signupView() {
         } catch (e) {
           btn.disabled = false;
           btn.textContent = label;
-          err.show(e.message || "Could not create the account.");
+          err.show(friendlyAuthError(e && e.message, "Could not create the account."));
         }
       };
 
@@ -322,7 +346,7 @@ export function forgotView() {
         try {
           const ad = await adapter();
           const res = await ad.resetPassword(valid.email, redirectTarget());
-          if (!res.ok) { btn.disabled = false; btn.textContent = label; return err.show(res.error || "Could not send the reset link."); }
+          if (!res.ok) { btn.disabled = false; btn.textContent = label; return err.show(friendlyAuthError(res.error, "Could not send the reset link.")); }
           // Neutral wording on purpose: neither Supabase nor this UI reveals
           // whether an account exists for the address.
           showNotice(root, "Check your email",
@@ -330,7 +354,7 @@ export function forgotView() {
         } catch (e) {
           btn.disabled = false;
           btn.textContent = label;
-          err.show(e.message || "Could not send the reset link.");
+          err.show(friendlyAuthError(e && e.message, "Could not send the reset link."));
         }
       };
 
@@ -362,6 +386,12 @@ export function resetView() {
   return {
     html: html_,
     mount(root) {
+      // The recovery token in the URL has already been read into the session by
+      // supabase-js. Rewriting the URL only once that is true keeps a slow boot
+      // from destroying the token before it is consumed.
+      if (store.authed && typeof history !== "undefined" && typeof history.replaceState === "function") {
+        try { history.replaceState(null, "", "#/reset-password"); } catch { /* non-fatal */ }
+      }
       const btn = root.querySelector("#rp-btn");
       const pass = root.querySelector("#rp-pass");
       const err = wireError(root);
@@ -378,14 +408,14 @@ export function resetView() {
         try {
           const ad = await adapter();
           const res = await ad.updatePassword(pass.value);
-          if (!res.ok) { btn.disabled = false; btn.textContent = label; return err.show(res.error || "Could not update the password."); }
+          if (!res.ok) { btn.disabled = false; btn.textContent = label; return err.show(friendlyAuthError(res.error, "Could not update the password.")); }
           toast("Password updated", "You're signed in with your new password.", "success");
           window.location.hash = "#/dashboard";
           window.location.reload();
         } catch (e) {
           btn.disabled = false;
           btn.textContent = label;
-          err.show(e.message || "Could not update the password.");
+          err.show(friendlyAuthError(e && e.message, "Could not update the password."));
         }
       };
 

@@ -6,11 +6,12 @@ import { schedule, technicians, technicianDashboard, technicianMobile, technicia
 import { partsInventory, suppliers, maintenanceContracts } from "./inventory.js";
 import { reports } from "./reports.js";
 import { settings, dataImport, auditLogs, gdprAdmin } from "./admin.js";
+import { landing } from "./landing.js";
 import { emptyState } from "../components.js";
 import { html } from "../markup.js";
 
 const VIEWS = {
-  dashboard, home,
+  dashboard, home, landing,
   jobs, "job-details": jobDetails, "new-job": newJob, "job-edit": jobEdit, "job-templates": jobTemplates, "recurring-jobs": recurringJobs, "work-orders": workOrders, "job-costing": jobCosting,
   customers, "customer-details": customerDetails, "new-customer": newCustomer, "customer-edit": customerEdit, "asset-monitoring": assetMonitoring, "customer-portal": customerPortal, "request-service": requestService, messages,
   invoices, "invoice-details": invoiceDetails, "new-invoice": newInvoice, payments, "invoice-automation": invoiceAutomation, "invoice-follow-ups": invoiceFollowUps,
@@ -26,7 +27,9 @@ const NOT_FOUND = {
 };
 
 export function getView(id) {
-  return VIEWS[id] || NOT_FOUND;
+  // Own keys only: `VIEWS["__proto__"]` and `VIEWS["constructor"]` resolve to
+  // inherited values on a plain object literal, which would sail past `||`.
+  return Object.hasOwn(VIEWS, id) ? VIEWS[id] : NOT_FOUND;
 }
 
 export { VIEWS };

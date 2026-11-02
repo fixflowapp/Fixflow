@@ -11,17 +11,33 @@ export { navigate, parseHash } from "./router.js";
 const shell = renderShell();
 
 // Screens that render outside the app shell, before a session exists.
-const PUBLIC_IDS = new Set(["request-service", "customer-portal"]);
+const PUBLIC_IDS = new Set(["request-service", "customer-portal", "landing"]);
 const AUTH_IDS = new Set(["login", "signup", "forgot", "reset-password"]);
 const AUTH_FACTORY = { login: "loginView", signup: "signupView", forgot: "forgotView", "reset-password": "resetView" };
 
-// The reset email link comes back as a hash fragment (#access_token=…&
-// type=recovery). The hash router would read that as an unknown route, so it is
-// detected ahead of routing and mapped to the new-password screen.
+// The reset email link comes back with `type=recovery` — in the hash for the
+// implicit flow, in the query string for PKCE. Matching on the type (rather than
+// on the presence of any access_token) keeps sign-up confirmation links, which
+// also carry an access_token, from landing on the new-password screen.
+function recoveryParams() {
+  if (typeof window === "undefined") return new URLSearchParams();
+  const hash = (window.location.hash || "").replace(/^#\/?/, "");
+  return new URLSearchParams(`${window.location.search || ""}&${hash}`);
+}
+
 function isRecoveryUrl() {
+  return recoveryParams().get("type") === "recovery";
+}
+
+// Confirmation, magic-link and invite links carry auth parameters in the URL that
+// are not a route. Once supabase-js has exchanged them for a session the URL is
+// replaced, so the stale token does not linger and the user lands somewhere real.
+const CALLBACK_TYPES = new Set(["signup", "magiclink", "invite", "email_change"]);
+
+function isAuthCallback() {
   if (typeof window === "undefined") return false;
-  const h = window.location.hash || "";
-  return /(^|[#&])type=recovery/.test(h) || /(^|[#&])access_token=/.test(h);
+  const p = recoveryParams();
+  return p.has("access_token") || p.has("token_hash") || CALLBACK_TYPES.has(p.get("type") || "");
 }
 
 // sidebar / menus
@@ -108,9 +124,19 @@ document.addEventListener("keydown", (e) => {
 const contentEl = () => document.getElementById("content");
 
 function route() {
-  const { id, params } = parseHash();
-
   if (isRecoveryUrl()) { renderAuth("reset-password"); return; }
+
+  if (isAuthCallback()) {
+    if (store.authed) {
+      try { history.replaceState(null, "", "#/dashboard"); } catch { /* keep the hash */ }
+    } else {
+      // The token could not be exchanged (expired, or already used).
+      renderAuth("login");
+      return;
+    }
+  }
+
+  const { id, params } = parseHash();
   if (AUTH_IDS.has(id)) { renderAuth(id); return; }
   if (!store.session && !PUBLIC_IDS.has(id)) { renderAuth("login"); return; }
 
@@ -118,7 +144,11 @@ function route() {
   if (!view) { renderError("Page not found", `No view is registered for “${id}”.`); return; }
 
   try {
-    document.body.classList.remove("logged-out");
+    if (id === "landing") {
+      document.body.classList.add("logged-out");
+    } else {
+      document.body.classList.remove("logged-out");
+    }
     setActiveNav(id);
     const crumb = view.crumb ? view.crumb(params) : [view.title || "Dashboard"];
     setBreadcrumb(crumb);

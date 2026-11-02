@@ -8,7 +8,9 @@
 // schema denies the anon role all access; every read/write requires a signed-in
 // session. Never move privileged work (seeding, admin) into this module.
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+// Pinned exactly: a floating `@2` would silently pick up any future 2.x release
+// in every visitor's browser, which is an unreviewed supply-chain path.
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
 import { COLLECTIONS } from "./persistence.js";
 
 const cfg = (typeof window !== "undefined" && window.FIXFLOW_SUPABASE) || {};
@@ -127,7 +129,10 @@ export async function pullAll() {
 // can never leave the collection empty.
 // ---------------------------------------------------------------------------
 const ATTEMPTS = 3;
-const quoteId = (id) => `"${String(id).replace(/"/g, "")}"`;
+// PostgREST's `in.(...)` filter has its own grammar: quotes wrap each value and
+// comma/parentheses delimit them. Ids are app-generated, but strip the delimiters
+// anyway so a malformed or imported id can never rewrite the filter.
+const quoteId = (id) => `"${String(id).replace(/["(),\\]/g, "")}"`;
 
 async function withRetry(fn) {
   let last = { ok: false, error: "unknown" };
